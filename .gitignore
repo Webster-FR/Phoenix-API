@@ -244,4 +244,8 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/node,database,webstorm+all,dotenv
 keys/
 .jest/
-prisma/migrations/
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
