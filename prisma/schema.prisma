@@ -11,23 +11,205 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  username   String?  @unique
-  password   String
-  group      Group    @relation(fields: [group_id], references: [id])
-  group_id   Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id                     Int                     @id @default(autoincrement())
+  username               String
+  email                  String                  @unique
+  password               String
+  secret                 String
+  verification_code_id   Int?                    @unique
+  created_at             DateTime                @default(now())
+  updated_at             DateTime                @updatedAt
+  verification_codes     VerificationCodes?      @relation(fields: [verification_code_id], references: [id])
+  tokens                 Tokens[]
+  todos                  Todos[]
+  banks                  Banks[]
+  accounts               Accounts[]
+  recurring_transactions RecurringTransaction[]
+  transaction_categories TransactionCategories[]
 
   @@map("users")
 }
 
-model Group {
+model VerificationCodes {
+  id   Int      @id @default(autoincrement())
+  code String   @unique
+  iat  DateTime
+  exp  DateTime
+  user User?    @relation()
+
+  @@map("verification_codes")
+}
+
+model Tokens {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  sum         String   @unique
+  token       String
+  is_refresh  Boolean
+  expires     DateTime
+  blacklisted Boolean  @default(false)
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@map("tokens")
+}
+
+model Todos {
   id         Int      @id @default(autoincrement())
-  name       String   @unique
-  users      User[]
+  user_id    Int
+  name       String
+  completed  Boolean  @default(false)
+  deadline   DateTime
+  parent_id  Int?
+  frequency  String?
+  icon       String
+  color      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  user       User     @relation(fields: [user_id], references: [id])
+  parent     Todos?   @relation("child_todos", fields: [parent_id], references: [id])
+  todos      Todos[]  @relation("child_todos")
 
-  @@map("groups")
+  @@map("todos")
+}
+
+model Tips {
+  id     Int     @id @default(autoincrement())
+  tips   String  @unique
+  author String?
+  order  Int     @unique
+
+  @@map("tips")
+}
+
+model Banks {
+  id      Int        @id @default(autoincrement())
+  name    String     @unique
+  user_id Int?
+  user    User?      @relation(fields: [user_id], references: [id])
+  account Accounts[]
+
+  @@map("banks")
+}
+
+model Accounts {
+  id                          Int                    @id @default(autoincrement())
+  name                        String                 @unique
+  amount                      Float
+  bank_id                     Int
+  user_id                     Int
+  bank                        Banks                  @relation(fields: [bank_id], references: [id])
+  user                        User                   @relation(fields: [user_id], references: [id])
+  from_recurring_transactions RecurringTransaction[] @relation("from_account")
+  to_recurring_transactions   RecurringTransaction[] @relation("to_account")
+  internal_ledger             InternalLedger[]
+
+  @@map("accounts")
+}
+
+model RecurringTransaction {
+  id              Int                    @id @default(autoincrement())
+  user_id         Int
+  wording         String
+  type            String
+  amount          Float
+  next_occurrence DateTime
+  frequency       String
+  category_id     Int?
+  from_account_id Int?
+  to_account_id   Int?
+  created_at      DateTime               @default(now())
+  updated_at      DateTime               @updatedAt
+  user            User                   @relation(fields: [user_id], references: [id])
+  category        TransactionCategories? @relation(fields: [category_id], references: [id])
+  from_account    Accounts?              @relation("from_account", fields: [from_account_id], references: [id])
+  to_account      Accounts?              @relation("to_account", fields: [to_account_id], references: [id])
+
+  @@map("recurring_transactions")
+}
+
+model TransactionCategories {
+  id                     Int                    @id @default(autoincrement())
+  user_id                Int
+  name                   String
+  icon                   String
+  color                  String
+  user                   User                   @relation(fields: [user_id], references: [id])
+  recurring_transactions RecurringTransaction[]
+  internal_transactions  InternalTransactions[]
+  expense_transactions   ExpenseTransactions[]
+  income_transactions    IncomeTransactions[]
+
+  @@map("transaction_categories")
+}
+
+model InternalLedger {
+  id                  Int                    @id @default(autoincrement())
+  account_id          Int
+  debit               Float?
+  credit              Float?
+  created_at          DateTime               @default(now())
+  account             Accounts               @relation(fields: [account_id], references: [id])
+  debit_ledger        InternalTransactions[] @relation("debit_ledger")
+  credit_ledger       InternalTransactions[] @relation("credit_ledger")
+  expense_transaction ExpenseTransactions[]  @relation()
+  income_transaction  IncomeTransactions[]   @relation()
+
+  @@map("internal_ledger")
+}
+
+model TransactionTypes {
+  ulid String @id
+  type String @unique
+
+  @@map("transaction_types")
+}
+
+model InternalTransactions {
+  ulid                      String                 @id
+  amount                    Float
+  wording                   String
+  category_id               Int
+  debit_internal_ledger_id  Int
+  credit_internal_ledger_id Int
+  rectification_ulid        String?
+  created_at                DateTime               @default(now())
+  category                  TransactionCategories  @relation(fields: [category_id], references: [id])
+  debit_ledger              InternalLedger         @relation("debit_ledger", fields: [debit_internal_ledger_id], references: [id])
+  credit_ledger             InternalLedger         @relation("credit_ledger", fields: [credit_internal_ledger_id], references: [id])
+  rectification             InternalTransactions?  @relation("rectification", fields: [rectification_ulid], references: [ulid])
+  internal_transactions     InternalTransactions[] @relation("rectification")
+
+  @@map("internal_transactions")
+}
+
+model ExpenseTransactions {
+  ulid                 String                @id
+  amount               Float
+  wording              String
+  category_id          Int
+  internal_ledger_id   Int
+  rectification_ulid   String?
+  created_at           DateTime              @default(now())
+  category             TransactionCategories @relation(fields: [category_id], references: [id])
+  internal_ledger      InternalLedger        @relation(fields: [internal_ledger_id], references: [id])
+  rectification        ExpenseTransactions?  @relation("rectification", fields: [rectification_ulid], references: [ulid])
+  expense_transactions ExpenseTransactions[] @relation("rectification")
+
+  @@map("expense_transactions")
+}
+
+model IncomeTransactions {
+  ulid                String                @id
+  amount              Float
+  wording             String
+  category_id         Int
+  internal_ledger_id  Int
+  rectification_ulid  String?
+  created_at          DateTime              @default(now())
+  category            TransactionCategories @relation(fields: [category_id], references: [id])
+  internal_ledger     InternalLedger        @relation(fields: [internal_ledger_id], references: [id])
+  rectification       IncomeTransactions?   @relation("rectification", fields: [rectification_ulid], references: [ulid])
+  income_transactions IncomeTransactions[]  @relation("rectification")
+
+  @@map("income_transactions")
 }

@@ -1,0 +1,120 @@
+# Users part
+users
+  id int pk
+  username varchar
+  email varchar unique
+  password varchar | The hash of the password
+  secret varchar
+  verification_code_id int nullable fk verification_codes.id
+  created_at datetime
+  updated_at datetime
+
+verification_codes
+  id int pk
+  code varchar
+  iat datetime
+  exp datetime
+
+# Tokens part
+tokens
+  id int pk
+  user_id int fk users.id
+  sum varchar(10) | The first 10 chars of the token with sha256
+  token varchar | The hash of the token
+  is_refresh boolean
+  expiration datetime
+  blacklist boolean = false
+
+# Tips part
+tips
+  id int pk
+  tips varchar
+  author varchar nullable
+  order int unique
+
+# Financial part
+banks
+  id int pk
+  name varchar
+  user_id int nullable fk users.id
+
+accounts
+  id int pk
+  name varchar
+  amount number = 0
+  bank_id int fk banks.id
+  user_id int fk users.id
+
+internal_ledger
+  id int pk
+  account_id int fk accounts.id
+  debit number = 0
+  credit number = 0
+  created_at datetime
+
+transaction_categories
+  id int pk
+  user_id int nullable fk users.id
+  name varchar
+  icon varchar | Icon name
+  color varchar | Color name
+
+internal_transactions
+  ulid varchar(26) pk fk transaction_types.ulid
+  amount number = 0
+  wording varchar nullable
+  category_id int nullable fk transaction_categories.id
+  debit_internal_ledger_id int fk internal_ledger.id
+  credit_internal_ledger_id int fk internal_ledger.id
+  rectification_ulid varchar(26) nullable fk internal_transactions.ulid
+  created_at datetime
+
+income_transactions
+  ulid varchar(26) pk fk transaction_types.ulid
+  amount number
+  wording varchar nullable
+  category_id int nullable fk transaction_categories.id
+  internal_ledger_id int fk internal_ledger.id
+  rectification_ulid varchar(26) nullable fk income_transactions.ulid
+  created_at datetime
+
+expense_transactions
+  ulid varchar(26) pk fk transaction_types.ulid
+  amount number
+  wording varchar nullable
+  category_id int nullable fk transaction_categories.id
+  internal_ledger_id int fk internal_ledger.id
+  rectification_ulid varchar(26) nullable fk expense_transactions.ulid
+  created_at datetime
+
+recurring_transactions
+  id int pk
+  user_id int fk users.id
+  wording varchar
+  type type(internal, income, expense)
+  amount number
+  next_occurence datetime
+  frequency frequency
+  category_id int nullable fk transaction_categories.id
+  from_account_id int nullable fk accounts.id
+  to_account_id int nullable fk accounts.id
+  created_at datetime
+  updated_at datetime
+
+transaction_types
+  ulid varchar(26) pk
+  type transaction_type(internal, expense, income)
+
+# Todos part
+todos
+  id int pk
+  user_id int fk users.id
+  name varchar
+  completed boolean = false
+  deadline datetime nullable
+  parent_id int nullable fk todos.id
+  frequency frequency(daily, weakly, monthly, yearly) nullable
+  icon varchar | Icon name
+  color varchar | Color name
+  created_at datetime
+  updated_at datetime
