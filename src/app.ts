@@ -2,7 +2,7 @@ import {FastifyAdapter, NestFastifyApplication} from "@nestjs/platform-fastify";
 import {CustomValidationPipe} from "./pipes/custom-validation.pipe";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {LoggerMiddleware} from "./middlewares/logger.middleware";
-import * as compression from "@fastify/compress";
+// import * as compression from "@fastify/compress";
 import {RawServerDefault} from "fastify";
 import {NestFactory} from "@nestjs/core";
 import {AppModule} from "./app.module";
@@ -77,7 +77,7 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>){
     // Middlewares
     server.use(new LoggerMiddleware().use);
     server.use(helmet());
-    await server.register(compression, {encodings: ["gzip", "deflate"]});
+    // await server.register(compression, {encodings: ["gzip", "deflate"]});
 
     // Swagger
     const config = new DocumentBuilder()
