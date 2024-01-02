@@ -20,4 +20,4 @@ RUN npx prisma generate
 
 EXPOSE 3001
 
-CMD npx prisma migrate deploy --env .env.production && pnpm start
+CMD npx prisma migrate deploy && pnpm start
