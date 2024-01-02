@@ -1,6 +1,6 @@
 FROM node:21
 
-WORKDIR /home/api
+WORKDIR /home
 
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -11,7 +11,10 @@ COPY tsconfig.json ./
 
 COPY . .
 
-RUN npm install
+RUN mkdir -p /home/keys
+
+RUN npm install -g pnpm
+RUN pnpm install
 
 RUN npx prisma generate
 
