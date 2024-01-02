@@ -15,7 +15,7 @@ async function main(){
             id: 1,
             username: "test",
             email: "test@exemple.org",
-            password: await encryptionService.hashPassword("password"),
+            password: await encryptionService.hash("password"),
             secret: encryptionService.generateSecret(),
             verification_code_id: null,
             created_at: new Date(),

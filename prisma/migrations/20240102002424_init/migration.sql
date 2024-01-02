@@ -15,8 +15,7 @@ CREATE TABLE "users" (
 CREATE TABLE "verification_codes" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "code" TEXT NOT NULL,
-    "iat" DATETIME NOT NULL,
-    "exp" DATETIME NOT NULL
+    "iat" DATETIME NOT NULL
 );
 
 -- CreateTable

@@ -34,7 +34,6 @@ model VerificationCodes {
   id   Int      @id @default(autoincrement())
   code String   @unique
   iat  DateTime
-  exp  DateTime
   user User?    @relation()
 
   @@map("verification_codes")
