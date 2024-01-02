@@ -11,6 +11,7 @@ import * as dotenv from "dotenv";
 import helmet from "helmet";
 import * as fs from "fs";
 import * as os from "os";
+import {SwaggerTheme} from "swagger-themes";
 
 dotenv.config();
 
@@ -87,12 +88,14 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>){
         .addBearerAuth()
         .build();
     const document = SwaggerModule.createDocument(server, config);
+    const theme = new SwaggerTheme("v3");
     SwaggerModule.setup("api", server, document, {
         swaggerOptions: {
             filter: true,
             displayRequestDuration: true,
             persistAuthorization: true,
         },
+        customCss: theme.getBuffer("dark"),
     });
 
     server.useGlobalPipes(new CustomValidationPipe());
