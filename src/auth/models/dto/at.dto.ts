@@ -1,6 +1,6 @@
 import {ApiProperty} from "@nestjs/swagger";
 
-export class ConfirmAccountResponse{
+export class AtDto{
     @ApiProperty()
-        accessToken: string;
+        access_token: string;
 }
