@@ -8,7 +8,7 @@ import {NestFactory} from "@nestjs/core";
 import {AppModule} from "./app.module";
 import * as process from "process";
 import * as dotenv from "dotenv";
-import helmet from "helmet";
+import fastifyHelmet from "@fastify/helmet";
 import * as fs from "fs";
 import * as os from "os";
 import {SwaggerTheme} from "swagger-themes";
@@ -73,11 +73,13 @@ async function startHttpsServer(){
 async function loadServer(server: NestFastifyApplication<RawServerDefault>){
     // Config
     server.setGlobalPrefix(process.env.PREFIX);
-    server.enableCors();
+    server.enableCors({
+        origin: "*",
+    });
 
     // Middlewares
     server.use(new LoggerMiddleware().use);
-    server.use(helmet());
+    // server.use(fastifyHelmet);
     // await server.register(compression, {encodings: ["gzip", "deflate"]});
 
     // Swagger
