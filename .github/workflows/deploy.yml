@@ -1,0 +1,44 @@
+name: Build & Deploy API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Secret check
+        env:
+          YOUR_SECRET: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          if [ -z "$YOUR_SECRET" ]; then
+            echo "The secret is not defined. Exiting."
+            echo "SECRET_NOT_DEFINED=true" >> "$GITHUB_ENV"
+          else
+            echo "The secret is defined. Continuing."
+          fi
+      - name: Checkout Repository
+        if: env.SECRET_NOT_DEFINED != 'true'
+        uses: actions/checkout@v4
+      - name: Build and Push Docker Image
+        if: env.SECRET_NOT_DEFINED != 'true'
+        run: |
+          docker build -t phoenix-api .
+          docker login -u xen0xys -p ${{ secrets.DOCKER_PASSWORD }}
+          docker tag phoenix-api:latest xen0xys/phoenix-api:latest
+          docker push xen0xys/phoenix-api:latest
+      - name: SSH into Server and Deploy
+        if: env.SECRET_NOT_DEFINED != 'true'
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          script: |
+            docker pull xen0xys/phoenix-api:latest
+            docker stop phoenix-api || true
+            docker rm phoenix-api || true
+            docker run -d -p 3000:3000 -e DOTENV_KEY=${{ secrets.DOTENV_KEY }} -v /home/${{ secrets.SERVER_USERNAME }}/keys:/home/keys --name phoenix-api --restart on-failure:2 xen0xys/phoenix-api
