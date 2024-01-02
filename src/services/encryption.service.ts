@@ -11,7 +11,7 @@ export class EncryptionService{
         return crypto.createHash("sha256").update(content).digest("hex");
     }
 
-    async hashPassword(content: string | Buffer, cost = 10){
+    async hash(content: string | Buffer, cost = 10){
         if(!content) content = "";
         return await argon2.hash(content, {
             type: argon2.argon2id,
@@ -19,7 +19,7 @@ export class EncryptionService{
         });
     }
 
-    async comparePassword(hash: string, content: string | Buffer){
+    async compareHash(hash: string, content: string | Buffer){
         if(!hash) return false;
         if(!content) content = "";
         return await argon2.verify(hash, content);

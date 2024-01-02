@@ -44,35 +44,35 @@ describe("EncryptionService", () => {
     const hashCost = 2;
     describe("Hash tests", () => {
         it("Hash password", async() => {
-            const hash = await service.hashPassword(content, hashCost);
+            const hash = await service.hash(content, hashCost);
             expect(typeof hash).toBe("string");
-            const compare = await service.comparePassword(hash, content);
+            const compare = await service.compareHash(hash, content);
             expect(compare).toBe(true);
         });
         it("Compare password with wrong content", async() => {
-            const hash = await service.hashPassword(content, hashCost);
-            const compare = await service.comparePassword(hash, "wrong_content");
+            const hash = await service.hash(content, hashCost);
+            const compare = await service.compareHash(hash, "wrong_content");
             expect(compare).toBe(false);
         });
         it("Hash password with negative cost", async() => {
-            await expect(service.hashPassword(content, -1)).rejects.toThrow(AssertionError);
+            await expect(service.hash(content, -1)).rejects.toThrow(AssertionError);
         });
         it("Hash password with empty content", async() => {
-            const hash = await service.hashPassword("", hashCost);
+            const hash = await service.hash("", hashCost);
             expect(typeof hash).toBe("string");
-            const compare = await service.comparePassword(hash, "");
+            const compare = await service.compareHash(hash, "");
             expect(compare).toBe(true);
         });
         it("Hash password with null content", async() => {
-            const hash = await service.hashPassword(null, hashCost);
+            const hash = await service.hash(null, hashCost);
             expect(typeof hash).toBe("string");
-            const compare = await service.comparePassword(hash, null);
+            const compare = await service.compareHash(hash, null);
             expect(compare).toBe(true);
         });
         it("Hash password with undefined content", async() => {
-            const hash = await service.hashPassword(undefined, hashCost);
+            const hash = await service.hash(undefined, hashCost);
             expect(typeof hash).toBe("string");
-            const compare = await service.comparePassword(hash, undefined);
+            const compare = await service.compareHash(hash, undefined);
             expect(compare).toBe(true);
         });
     });
