@@ -7,6 +7,7 @@ import {TokensService} from "../services/tokens.service";
 import {AtResponse} from "./models/responses/at.response";
 import {EmailService} from "../services/email.service";
 import {UsersService} from "../users/users.service";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class AuthService{
@@ -16,6 +17,7 @@ export class AuthService{
         private readonly tokensService: TokensService,
         private readonly emailService: EmailService,
         private readonly usersService: UsersService,
+        private readonly configService: ConfigService,
     ){}
 
     generateConfirmationCode(): string{
@@ -60,6 +62,7 @@ export class AuthService{
         if(user)
             throw new ConflictException("Email already exists");
         const userSecret = this.encryptionService.generateSecret();
+        const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
         const passwordHash = await this.encryptionService.hash(password);
         const code = this.generateConfirmationCode();
         const verificationCode = await this.prismaService.verificationCodes.create({
@@ -73,7 +76,7 @@ export class AuthService{
                 username: username,
                 email: email,
                 password: passwordHash,
-                secret: userSecret,
+                secret: encryptedUserSecret,
                 verification_code_id: verificationCode.id,
             },
         });

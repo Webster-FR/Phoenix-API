@@ -2,6 +2,9 @@
 
 import {PrismaClient} from "@prisma/client";
 import {EncryptionService} from "../src/services/encryption.service";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 // initialize Prisma Client
 const prisma = new PrismaClient();
@@ -16,7 +19,7 @@ async function main(){
             username: "test",
             email: "test@exemple.org",
             password: await encryptionService.hash("password"),
-            secret: encryptionService.generateSecret(),
+            secret: encryptionService.encryptSymmetric(encryptionService.generateSecret(), process.env.SYMMETRIC_ENCRYPTION_KEY),
             verification_code_id: null,
             created_at: new Date(),
             updated_at: new Date(),
