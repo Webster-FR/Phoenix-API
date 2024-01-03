@@ -2,7 +2,7 @@ import {FastifyAdapter, NestFastifyApplication} from "@nestjs/platform-fastify";
 import {CustomValidationPipe} from "./pipes/custom-validation.pipe";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {LoggerMiddleware} from "./middlewares/logger.middleware";
-// import * as compression from "@fastify/compress";
+import compression from "@fastify/compress";
 import {RawServerDefault} from "fastify";
 import {NestFactory} from "@nestjs/core";
 import {AppModule} from "./app.module";
@@ -53,7 +53,7 @@ function logServerStart(bindAddress: string, port: string | number, protocol: st
 }
 
 async function startHttpServer(){
-    const httpApp = await NestFactory.create<NestFastifyApplication>(AppModule , new FastifyAdapter());
+    const httpApp = await NestFactory.create<NestFastifyApplication>(AppModule , new FastifyAdapter({exposeHeadRoutes: true}));
     await loadServer(httpApp);
     await httpApp.listen(process.env.HTTP_PORT, process.env.BIND_ADDRESS);
     logServerStart(process.env.BIND_ADDRESS, process.env.HTTP_PORT, "http");
@@ -79,8 +79,10 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>){
 
     // Middlewares
     server.use(new LoggerMiddleware().use);
-    // server.use(fastifyHelmet);
-    // await server.register(compression, {encodings: ["gzip", "deflate"]});
+    await server.register(fastifyHelmet, {
+        contentSecurityPolicy: false,
+    });
+    await server.register(compression, {encodings: ["gzip", "deflate"]});
 
     // Swagger
     const config = new DocumentBuilder()
