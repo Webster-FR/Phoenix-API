@@ -8,7 +8,7 @@ import {NestFactory} from "@nestjs/core";
 import {AppModule} from "./app.module";
 import * as process from "process";
 import * as dotenv from "dotenv";
-import fastifyHelmet from "@fastify/helmet";
+import helmet from "@fastify/helmet";
 import * as fs from "fs";
 import * as os from "os";
 import {SwaggerTheme} from "swagger-themes";
@@ -79,27 +79,28 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>){
 
     // Middlewares
     server.use(new LoggerMiddleware().use);
-    await server.register(fastifyHelmet, {
+    await server.register(helmet, {
         contentSecurityPolicy: false,
     });
     await server.register(compression, {encodings: ["gzip", "deflate"]});
 
     // Swagger
     const config = new DocumentBuilder()
-        .setTitle("Template")
-        .setDescription("The Template API description")
+        .setTitle("Phoenix API")
+        .setDescription("Documentation for the Phoenix API")
         .setVersion(process.env.npm_package_version)
         .addBearerAuth()
         .build();
     const document = SwaggerModule.createDocument(server, config);
     const theme = new SwaggerTheme("v3");
+    const customCss = theme.getBuffer("dark");
     SwaggerModule.setup("api", server, document, {
         swaggerOptions: {
             filter: true,
             displayRequestDuration: true,
             persistAuthorization: true,
         },
-        customCss: theme.getBuffer("dark"),
+        customCss,
     });
 
     server.useGlobalPipes(new CustomValidationPipe());
