@@ -33,7 +33,9 @@ export class AuthService{
             return new CtResponse(confirmationToken);
         }
         const accessToken = await this.tokensService.generateAccessToken(user.id);
-        if(keepLoggedIn){
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        if(keepLoggedIn === "true"){
             const refreshToken = await this.tokensService.generateRefreshToken(user.id);
             return new AtRtResponse(accessToken, refreshToken);
         }
