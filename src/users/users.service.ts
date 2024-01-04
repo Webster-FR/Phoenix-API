@@ -20,16 +20,19 @@ export class UsersService{
     }
 
     async findById(id: number, exception: boolean = true): Promise<UserEntity>{
-        const user = await this.prismaService.user.findUnique({where: {id: id}});
+        const user: UserEntity = await this.prismaService.user.findUnique({where: {id: id}});
         if(!user && exception)
             throw new NotFoundException("User not found");
         return this.decryptUserSecret(user);
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
-        const user = await this.prismaService.user.findUnique({where: {email: email}});
-        if(!user && exception)
-            throw new NotFoundException("User not found");
+        const user: UserEntity = await this.prismaService.user.findUnique({where: {email: email}});
+        if(!user)
+            if(exception)
+                throw new NotFoundException("User not found");
+            else
+                return null;
         return this.decryptUserSecret(user);
     }
 

@@ -51,7 +51,7 @@ export class TokensService{
 
     async generateConfirmationToken(userId: number, keepLoggedIn: boolean): Promise<string>{
         const payload = new CtPayloadModel(userId, keepLoggedIn);
-        return this.jwtService.generateJWT({...payload}, this.configService.get("VC_DURATION"), this.configService.get("CT_KEY"));
+        return this.jwtService.generateJWT({...payload}, this.configService.get<string>("VC_DURATION") + "m", this.configService.get("CT_KEY"));
     }
 
     async getTokenEntity(token: string, isRefresh: boolean): Promise<TokenEntity>{
