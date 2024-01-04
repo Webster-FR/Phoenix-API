@@ -11,6 +11,7 @@ const prisma = new PrismaClient();
 const encryptionService = new EncryptionService();
 
 async function main(){
+    const userSecret = encryptionService.generateSecret();
     const testUser = await prisma.user.upsert({
         where: {id: 1},
         update: {},
@@ -19,7 +20,7 @@ async function main(){
             username: "test",
             email: "test@exemple.org",
             password: await encryptionService.hash("password"),
-            secret: encryptionService.encryptSymmetric(encryptionService.generateSecret(), process.env.SYMMETRIC_ENCRYPTION_KEY),
+            secret: encryptionService.encryptSymmetric(userSecret, process.env.SYMMETRIC_ENCRYPTION_KEY),
             verification_code_id: null,
             created_at: new Date(),
             updated_at: new Date(),
@@ -32,7 +33,7 @@ async function main(){
         create: {
             id: 1,
             user_id: 1,
-            name: "Test 1",
+            name: encryptionService.encryptSymmetric("Test 1", userSecret),
             completed: false,
             deadline: new Date(),
             frequency: null,
@@ -48,7 +49,7 @@ async function main(){
         create: {
             id: 2,
             user_id: 1,
-            name: "Test 2",
+            name: encryptionService.encryptSymmetric("Test 2", userSecret),
             completed: false,
             deadline: new Date(),
             parent_id: 1,
