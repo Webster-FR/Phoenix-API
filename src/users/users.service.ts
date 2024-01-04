@@ -19,6 +19,11 @@ export class UsersService{
         return user;
     }
 
+    async isUserExists(id: number): Promise<boolean>{
+        const user: UserEntity = await this.prismaService.user.findUnique({where: {id: id}});
+        return !!user;
+    }
+
     async findById(id: number, exception: boolean = true): Promise<UserEntity>{
         const user: UserEntity = await this.prismaService.user.findUnique({where: {id: id}});
         if(!user && exception)
@@ -71,5 +76,24 @@ export class UsersService{
                 verification_code_id: null,
             },
         });
+    }
+
+    async updateUsername(id: number, newUsername: string): Promise<UserEntity>{
+        if(!await this.isUserExists(id))
+            throw new NotFoundException("User not found");
+        return this.prismaService.user.update({where: {id: id}, data: {username: newUsername}});
+    }
+
+    async updatePassword(id: number, newPassword: string): Promise<UserEntity>{
+        if(!await this.isUserExists(id))
+            throw new NotFoundException("User not found");
+        const passwordHash = await this.encryptionService.hash(newPassword);
+        return this.prismaService.user.update({where: {id: id}, data: {password: passwordHash}});
+    }
+
+    async deleteUser(id: number){
+        if(!await this.isUserExists(id))
+            throw new NotFoundException("User not found");
+        this.prismaService.user.delete({where: {id: id}});
     }
 }
