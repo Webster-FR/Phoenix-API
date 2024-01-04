@@ -32,8 +32,11 @@ jobs:
         if: env.SECRET_NOT_DEFINED != 'true'
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           tags: xen0xys/phoenix-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: SSH into Server and Deploy
         if: env.SECRET_NOT_DEFINED != 'true'
         uses: appleboy/ssh-action@v1.0.2
