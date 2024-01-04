@@ -74,6 +74,7 @@ async function startHttpsServer(){
     logServerStart(process.env.BIND_ADDRESS, process.env.HTTP_PORT, "https");
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function loadServer(server: NestFastifyApplication<RawServerDefault>, serverAddress: string){
     // Config
     server.setGlobalPrefix(process.env.PREFIX);
@@ -94,7 +95,6 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>, serv
         .setDescription("Documentation for the Phoenix API")
         .setVersion(process.env.npm_package_version)
         .addBearerAuth()
-        .addServer(serverAddress)
         .build();
     const document = SwaggerModule.createDocument(server, config);
     const theme = new SwaggerTheme("v3");
