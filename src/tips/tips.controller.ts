@@ -13,6 +13,7 @@ export class TipsController{
     @UseGuards(AtGuard)
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Returns the tip of the day", type: TipEntity})
+    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "No tip found for today"})
     async getTipOfTheDay(): Promise<TipEntity>{
         return await this.tipsService.getTipOfTheDay();
