@@ -19,6 +19,9 @@ jobs:
           else
             echo "The secret is defined. Continuing."
           fi
+      - name: Checkout
+        if: env.SECRET_NOT_DEFINED != 'true'
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
         if: env.SECRET_NOT_DEFINED != 'true'
         uses: docker/setup-buildx-action@v3
