@@ -51,7 +51,7 @@ export class TokensService{
 
     async generateConfirmationToken(userId: number, keepLoggedIn: boolean): Promise<string>{
         const payload = new CtPayloadModel(userId, keepLoggedIn);
-        return this.jwtService.generateJWT({...payload}, this.configService.get("CT_DURATION"), this.configService.get("CT_KEY"));
+        return this.jwtService.generateJWT({...payload}, this.configService.get("VC_DURATION"), this.configService.get("CT_KEY"));
     }
 
     async getTokenEntity(token: string, isRefresh: boolean): Promise<TokenEntity>{
@@ -75,6 +75,17 @@ export class TokensService{
         await this.prismaService.tokens.update({
             where: {
                 id: dbToken.id,
+            },
+            data: {
+                blacklisted: true,
+            },
+        });
+    }
+
+    async blacklistUserTokens(userId: number){
+        await this.prismaService.tokens.updateMany({
+            where: {
+                user_id: userId,
             },
             data: {
                 blacklisted: true,
