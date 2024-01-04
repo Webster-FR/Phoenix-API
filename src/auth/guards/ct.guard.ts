@@ -30,7 +30,7 @@ export class CtGuard implements CanActivate{
         if(!payload)
             throw new UnauthorizedException("Invalid confirm token");
         if(payload.type !== TokenType.CONFIRMATION)
-            throw new UnauthorizedException("Invalid confirm type");
+            throw new UnauthorizedException("Invalid confirm type: " + payload.type);
         const user = await this.usersService.findById(payload.user_id);
         if(!user)
             throw new NotFoundException("User not found");

@@ -31,7 +31,7 @@ export class AtGuard implements CanActivate{
         if(!payload)
             throw new UnauthorizedException("Invalid access token");
         if(payload.type !== TokenType.ACCESS)
-            throw new UnauthorizedException("Invalid access type");
+            throw new UnauthorizedException("Invalid access type: " + payload.type);
         if(await this.tokensService.isTokenBlacklisted(token, false))
             throw new UnauthorizedException("Blacklisted access token");
         const user = await this.usersService.findById(payload.user_id);

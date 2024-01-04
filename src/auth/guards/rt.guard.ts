@@ -34,7 +34,7 @@ export class RtGuard implements CanActivate{
         if(!payload)
             throw new UnauthorizedException("Invalid refresh token");
         if(payload.type !== TokenType.REFRESH)
-            throw new UnauthorizedException("Invalid refresh type");
+            throw new UnauthorizedException("Invalid refresh type: " + payload.type);
         if(await this.tokensService.isTokenBlacklisted(token, true)){
             await this.authService.logoutAll(payload.user_id);
             throw new UnauthorizedException("Blacklisted refresh token, logout user from all devices");
