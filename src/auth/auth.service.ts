@@ -1,5 +1,4 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../services/prisma.service";
 import {EncryptionService} from "../services/encryption.service";
 import {CtResponse} from "./models/responses/ct.response";
 import {AtRtResponse} from "./models/responses/atrt.response";
@@ -7,22 +6,19 @@ import {TokensService} from "../services/tokens.service";
 import {AtResponse} from "./models/responses/at.response";
 import {EmailService} from "../services/email.service";
 import {UsersService} from "../users/users.service";
+import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class AuthService{
     constructor(
-        private readonly prismaService: PrismaService,
         private readonly encryptionService: EncryptionService,
         private readonly tokensService: TokensService,
         private readonly emailService: EmailService,
         private readonly usersService: UsersService,
-        private readonly configService: ConfigService,
+        private readonly verificationCodeService: VerificationCodesService,
+        private readonly configService: ConfigService
     ){}
-
-    generateConfirmationCode(): string{
-        return String(Math.floor(100000 + Math.random() * 900000));
-    }
 
     async loginUser(email: string, password: string, keepLoggedIn: boolean): Promise<AtRtResponse | CtResponse>{
         const user = await this.usersService.findByEmail(email);
@@ -49,40 +45,16 @@ export class AuthService{
     }
 
     async logoutAll(userId: number){
-        await this.prismaService.tokens.updateMany({
-            where: {
-                user_id: userId,
-            },
-            data: {
-                blacklisted: true,
-            },
-        });
+        await this.tokensService.blacklistUserTokens(userId);
     }
 
     async registerUser(username: string, email: string, password: string): Promise<CtResponse>{
         const user = await this.usersService.findByEmail(email, false);
         if(user)
             throw new ConflictException("Email already exists");
-        const userSecret = this.encryptionService.generateSecret();
-        const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
-        const passwordHash = await this.encryptionService.hash(password);
-        const code = this.generateConfirmationCode();
-        const verificationCode = await this.prismaService.verificationCodes.create({
-            data: {
-                code,
-                iat: new Date()
-            },
-        });
-        const newUser = await this.prismaService.user.create({
-            data: {
-                username: username,
-                email: email,
-                password: passwordHash,
-                secret: encryptedUserSecret,
-                verification_code_id: verificationCode.id,
-            },
-        });
-        await this.emailService.sendConfirmationEmail(newUser.email, code);
+        const newUser = await this.usersService.createUser(username, email, password);
+        const code = await this.verificationCodeService.findById(newUser.verification_code_id);
+        await this.emailService.sendConfirmationEmail(newUser.email, code.code);
         const confirmationToken = await this.tokensService.generateConfirmationToken(newUser.id, false);
         return new CtResponse(confirmationToken);
     }
@@ -100,38 +72,25 @@ export class AuthService{
         return new AtRtResponse(accessToken, refreshToken);
     }
 
-    async confirmAccount(userId: number, code: string, keepLoggedIn: boolean){
-        const dbUser = await this.prismaService.user.findUnique({
-            where: {
-                id: userId,
-            },
-        });
-        if(!dbUser)
+    async confirmAccount(userId: number, requestCode: string, keepLoggedIn: boolean){
+        const user = await this.usersService.findById(userId);
+        if(!user)
             throw new NotFoundException("User not found");
-        if(!dbUser.verification_code_id)
+        if(!user.verification_code_id)
             throw new BadRequestException("User already confirmed");
-        const dbCode = await this.prismaService.verificationCodes.findUnique({
-            where: {
-                id: dbUser.verification_code_id,
-            },
-        });
+        const dbCode = await this.verificationCodeService.findById(user.verification_code_id);
         if(!dbCode)
             throw new NotFoundException("Verification code not found");
-        if(dbCode.code !== code)
+        if(dbCode.code !== requestCode)
             throw new BadRequestException("Invalid confirmation code");
-        await this.prismaService.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                verification_code_id: null,
-            },
-        });
-        await this.prismaService.verificationCodes.delete({
-            where: {
-                id: dbCode.id,
-            },
-        });
+        // Check if code is valid
+        const now = new Date();
+        const iat = new Date(dbCode.iat);
+        iat.setMinutes(iat.getMinutes() + this.configService.get<number>("VC_DURATION"));
+        if(now > iat)
+            throw new BadRequestException("Confirmation code expired");
+        await this.usersService.clearVerificationCode(user.id);
+        await this.verificationCodeService.deleteById(dbCode.id);
         const accessToken = await this.tokensService.generateAccessToken(userId);
         if(keepLoggedIn){
             const refreshToken = await this.tokensService.generateRefreshToken(userId);
@@ -146,16 +105,9 @@ export class AuthService{
             throw new NotFoundException("User not found");
         if(!user.verification_code_id)
             throw new BadRequestException("User already confirmed");
-        const newCode = this.generateConfirmationCode();
-        await this.prismaService.verificationCodes.update({
-            where: {
-                id: user.verification_code_id,
-            },
-            data: {
-                code: newCode,
-            },
-        });
-        await this.emailService.sendConfirmationEmail(user.email, newCode);
+        const newCode = await this.verificationCodeService.generateNewCode(user.verification_code_id);
+        await this.usersService.setVerificationCode(user.id, newCode.id);
+        await this.emailService.sendConfirmationEmail(user.email, newCode.code);
         return new CtResponse(await this.tokensService.generateConfirmationToken(user.id, false));
     }
 }
