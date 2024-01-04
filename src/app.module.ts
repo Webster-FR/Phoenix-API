@@ -5,8 +5,9 @@ import {ConfigModule} from "@nestjs/config";
 import {UsersModule} from "./users/users.module";
 import {VerificationCodesModule} from "./verification-codes/verification-codes.module";
 import {TodosModule} from "./todos/todos.module";
+import {TipsModule} from "./tips/tips.module";
 
 @Module({
-    imports: [AuthModule, VersionModule, ConfigModule.forRoot({isGlobal: true}), UsersModule, VerificationCodesModule, TodosModule],
+    imports: [AuthModule, VersionModule, ConfigModule.forRoot({isGlobal: true}), UsersModule, VerificationCodesModule, TodosModule, TipsModule],
 })
 export class AppModule{}
