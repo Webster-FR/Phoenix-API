@@ -34,13 +34,6 @@ jobs:
         with:
           push: true
           tags: xen0xys/phoenix-api:latest
-      - name: Build and Push Docker Image
-        if: env.SECRET_NOT_DEFINED != 'true'
-        run: |
-          docker build -t phoenix-api .
-          docker login -u xen0xys -p ${{ secrets.DOCKER_PASSWORD }}
-          docker tag phoenix-api:latest xen0xys/phoenix-api:latest
-          docker push xen0xys/phoenix-api:latest
       - name: SSH into Server and Deploy
         if: env.SECRET_NOT_DEFINED != 'true'
         uses: appleboy/ssh-action@v1.0.2
