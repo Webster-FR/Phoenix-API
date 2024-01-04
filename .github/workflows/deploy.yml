@@ -26,7 +26,7 @@ jobs:
         if: env.SECRET_NOT_DEFINED != 'true'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: xen0xys
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and Push Docker Image
         if: env.SECRET_NOT_DEFINED != 'true'
