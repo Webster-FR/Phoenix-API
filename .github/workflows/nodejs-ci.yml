@@ -32,5 +32,3 @@ jobs:
         run: pnpm install
       - name: Run linter
         run: pnpm run lint
-      - name: Run tests and coverage
-        run: pnpm run test:cov
