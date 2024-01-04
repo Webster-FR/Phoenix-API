@@ -1,8 +1,8 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {IsNotEmpty} from "class-validator";
 
-export class UpdateUsernameDto{
-    @ApiProperty({description: "The new username"})
+export class UpdateParentDto{
+    @ApiProperty()
     @IsNotEmpty()
-        username: string;
+        parent_id: number;
 }
