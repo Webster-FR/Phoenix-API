@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsBoolean, IsNotEmpty} from "class-validator";
+import {IsNotEmpty} from "class-validator";
 import {Transform} from "class-transformer";
 
 export class UpdateCompletedDto{
