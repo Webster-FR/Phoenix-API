@@ -31,7 +31,6 @@ export class AuthController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid password"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Email not found"})
     async login(@Query() params: KeepParamDto, @Body() loginDto: LoginDto): Promise<AtRtResponse | CtResponse>{
-        console.log(params);
         return await this.authService.loginUser(loginDto.email, loginDto.password, params.keep);
     }
 
