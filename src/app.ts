@@ -33,7 +33,7 @@ async function bootstrap(){
     }
 }
 
-function logServerStart(bindAddress: string, port: string | number, protocol: string){
+function getServerAddress(bindAddress: string, port: string | number, protocol: string){
     if(bindAddress === "0.0.0.0"){
         const ifaces = os.networkInterfaces();
         Object.keys(ifaces).forEach(function(ifname){
@@ -49,12 +49,16 @@ function logServerStart(bindAddress: string, port: string | number, protocol: st
             });
         });
     }
-    console.log(`Server started on ${protocol}://${bindAddress}:${port}`);
+    return `${protocol}://${bindAddress}:${port}`;
+}
+
+function logServerStart(bindAddress: string, port: string | number, protocol: string){
+    console.log(`Server started on ${getServerAddress(bindAddress, port, protocol)}`);
 }
 
 async function startHttpServer(){
     const httpApp = await NestFactory.create<NestFastifyApplication>(AppModule , new FastifyAdapter({exposeHeadRoutes: true}));
-    await loadServer(httpApp);
+    await loadServer(httpApp, getServerAddress(process.env.BIND_ADDRESS, process.env.HTTP_PORT, "http"));
     await httpApp.listen(process.env.HTTP_PORT, process.env.BIND_ADDRESS);
     logServerStart(process.env.BIND_ADDRESS, process.env.HTTP_PORT, "http");
 }
@@ -65,12 +69,12 @@ async function startHttpsServer(){
         cert: fs.readFileSync(process.env.SSL_CERT_FILE),
     };
     const httpsApp = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter({https: httpsOptions}));
-    await loadServer(httpsApp);
+    await loadServer(httpsApp, getServerAddress(process.env.BIND_ADDRESS, process.env.HTTP_PORT, "https"));
     await httpsApp.listen(process.env.HTTPS_PORT, process.env.BIND_ADDRESS);
     logServerStart(process.env.BIND_ADDRESS, process.env.HTTP_PORT, "https");
 }
 
-async function loadServer(server: NestFastifyApplication<RawServerDefault>){
+async function loadServer(server: NestFastifyApplication<RawServerDefault>, serverAddress: string){
     // Config
     server.setGlobalPrefix(process.env.PREFIX);
     server.enableCors({
@@ -90,6 +94,7 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>){
         .setDescription("Documentation for the Phoenix API")
         .setVersion(process.env.npm_package_version)
         .addBearerAuth()
+        .addServer(serverAddress)
         .build();
     const document = SwaggerModule.createDocument(server, config);
     const theme = new SwaggerTheme("v3");
