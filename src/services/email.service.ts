@@ -13,9 +13,10 @@ export class EmailService{
     async sendConfirmationEmail(email: string, code: string): Promise<void>{
         const emailUser = this.configService.get("EMAIL_USER");
         const emailPassword = this.configService.get("EMAIL_PASSWORD");
-        const emailService = this.configService.get("EMAIL_SERVICE");
+        // const emailService = this.configService.get("EMAIL_SERVICE");
         const transporter = nodemailer.createTransport({
-            service: emailService,
+            host: "smtp.gmail.com",
+            port: 587,
             auth: {
                 user: emailUser,
                 pass: emailPassword,
