@@ -1,6 +1,6 @@
-import {Module} from "@nestjs/common";
 import {VerificationCodesService} from "./verification-codes.service";
 import {ServicesModule} from "../services/services.module";
+import {Module} from "@nestjs/common";
 
 @Module({
     providers: [VerificationCodesService],

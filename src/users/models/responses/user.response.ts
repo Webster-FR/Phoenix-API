@@ -1,5 +1,5 @@
-import {ApiProperty} from "@nestjs/swagger";
 import {UserEntity} from "../entities/user.entity";
+import {ApiProperty} from "@nestjs/swagger";
 
 export class UserResponse{
     @ApiProperty()

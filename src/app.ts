@@ -1,17 +1,17 @@
+// import compression from "@fastify/compress";
 import {FastifyAdapter, NestFastifyApplication} from "@nestjs/platform-fastify";
 import {CustomValidationPipe} from "./pipes/custom-validation.pipe";
-import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {LoggerMiddleware} from "./middlewares/logger.middleware";
-// import compression from "@fastify/compress";
-// import helmet from "@fastify/helmet";
-import {RawServerDefault} from "fastify";
+import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
+import {SwaggerTheme} from "swagger-themes";
 import {NestFactory} from "@nestjs/core";
+import {RawServerDefault} from "fastify";
 import {AppModule} from "./app.module";
 import * as process from "process";
 import * as dotenv from "dotenv";
+// import helmet from "@fastify/helmet";
 import * as fs from "fs";
 import * as os from "os";
-import {SwaggerTheme} from "swagger-themes";
 
 dotenv.config();
 

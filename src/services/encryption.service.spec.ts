@@ -1,8 +1,8 @@
-import {Test, TestingModule} from "@nestjs/testing";
 import {EncryptionService} from "./encryption.service";
-import * as dotenv from "dotenv";
+import {Test, TestingModule} from "@nestjs/testing";
 import {AssertionError} from "node:assert";
 import * as crypto from "crypto";
+import * as dotenv from "dotenv";
 
 dotenv.config({path: ".env.ci"});
 

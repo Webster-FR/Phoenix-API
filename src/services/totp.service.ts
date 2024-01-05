@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
-import {totp} from "otplib";
 import * as qrcode from "qrcode";
+import {totp} from "otplib";
 
 @Injectable()
 export class TotpService{
