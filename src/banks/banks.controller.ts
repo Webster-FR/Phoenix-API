@@ -4,7 +4,7 @@ import {ApiBearerAuth, ApiResponse} from "@nestjs/swagger";
 import {AtGuard} from "../auth/guards/at.guard";
 import {BanksService} from "./banks.service";
 import {BankEntity} from "./models/entities/bank.entity";
-import {AddBankDto} from "./models/dto/add-bank.dto";
+import {BankNameDto} from "./models/dto/bank-name.dto";
 
 @Controller("banks")
 @UseGuards(MaintenanceGuard)
@@ -30,7 +30,7 @@ export class BanksController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     @ApiResponse({status: HttpStatus.CONFLICT, description: "Bank already exists"})
-    async addBank(@Req() req: any, @Body() addBankDto: AddBankDto): Promise<BankEntity>{
+    async addBank(@Req() req: any, @Body() addBankDto: BankNameDto): Promise<BankEntity>{
         return this.banksService.addBank(req.user.id, addBankDto.name);
     }
 
