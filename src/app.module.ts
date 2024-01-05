@@ -7,8 +7,9 @@ import {VerificationCodesModule} from "./verification-codes/verification-codes.m
 import {TodosModule} from "./todos/todos.module";
 import {TipsModule} from "./tips/tips.module";
 import {MaintenanceModule} from "./maintenance/maintenance.module";
+import {BanksModule} from "./banks/banks.module";
 
 @Module({
-    imports: [AuthModule, VersionModule, ConfigModule.forRoot({isGlobal: true}), UsersModule, VerificationCodesModule, TodosModule, TipsModule, MaintenanceModule],
+    imports: [AuthModule, VersionModule, ConfigModule.forRoot({isGlobal: true}), UsersModule, VerificationCodesModule, TodosModule, TipsModule, MaintenanceModule, BanksModule],
 })
 export class AppModule{}
