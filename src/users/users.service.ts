@@ -1,9 +1,10 @@
+import {VerificationCodesService} from "../verification-codes/verification-codes.service";
+import {EncryptionService} from "../services/encryption.service";
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {UserEntity} from "./models/entities/user.entity";
-import {EncryptionService} from "../services/encryption.service";
 import {ConfigService} from "@nestjs/config";
-import {VerificationCodesService} from "../verification-codes/verification-codes.service";
+
 
 @Injectable()
 export class UsersService{
@@ -105,5 +106,12 @@ export class UsersService{
         if(!await this.isUserExists(id))
             throw new NotFoundException("User not found");
         this.prismaService.user.delete({where: {id: id}});
+    }
+
+    async findByVerificationCode(verificationCodeId: number){
+        const user = await this.prismaService.user.findUnique({where: {verification_code_id: verificationCodeId}});
+        if(!user)
+            throw new NotFoundException("User not found");
+        return this.decryptUserData(user);
     }
 }

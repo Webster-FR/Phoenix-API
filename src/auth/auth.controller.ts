@@ -1,19 +1,17 @@
-import {Body, Controller, HttpStatus, Post, Query, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, HttpCode, HttpStatus, Post, Query, Req, Res, UseGuards} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ConfirmAccountDto} from "./models/dto/confirm-account.dto";
 import {AtRtResponse} from "./models/responses/atrt.response";
-import {CtResponse} from "./models/responses/ct.response";
 import {AtResponse} from "./models/responses/at.response";
 import {KeepParamDto} from "./models/dto/keep-param.dto";
 import {RegisterDto} from "./models/dto/register.dto";
+import {FastifyReply, FastifyRequest} from "fastify";
 import {LoginDto} from "./models/dto/login.dto";
 import {AuthService} from "./auth.service";
 import {AtGuard} from "./guards/at.guard";
 import {RtGuard} from "./guards/rt.guard";
-import {CtGuard} from "./guards/ct.guard";
-import {RtDto} from "./models/dto/rt.dto";
 import {AtDto} from "./models/dto/at.dto";
-import {FastifyRequest} from "fastify";
+import {RtDto} from "./models/dto/rt.dto";
 
 @Controller("auth")
 @ApiTags("Authentication")
@@ -27,11 +25,34 @@ export class AuthController{
 
     @Post("login")
     @ApiResponse({status: HttpStatus.OK, description: "User logged in successfully", type: AtRtResponse})
+    @ApiResponse({status: HttpStatus.ACCEPTED, description: "Confirmation code re-sent"})
     @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Missing required fields"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid password"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Email not found"})
-    async login(@Query() params: KeepParamDto, @Body() loginDto: LoginDto): Promise<AtRtResponse | CtResponse>{
-        return await this.authService.loginUser(loginDto.email, loginDto.password, params.keep);
+    @ApiResponse({status: HttpStatus.FORBIDDEN, description: "Email not confirmed"})
+    async login(@Res() res: FastifyReply, @Query() params: KeepParamDto, @Body() loginDto: LoginDto): Promise<AtRtResponse | AtResponse>{
+        const response =  await this.authService.loginUser(loginDto.email, loginDto.password, params.keep);
+        if(!response)
+            return res.code(HttpStatus.ACCEPTED).send();
+        return res.code(HttpStatus.OK).send(response);
+    }
+
+    @Post("register")
+    @ApiResponse({status: HttpStatus.CREATED, description: "User registered successfully"})
+    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Missing required fields or password too weak"})
+    @ApiResponse({status: HttpStatus.CONFLICT, description: "Email already exists"})
+    async register(@Body() registerDto: RegisterDto): Promise<void>{
+        await this.authService.registerUser(registerDto.username, registerDto.email, registerDto.password);
+    }
+
+    @Post("register/confirm")
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiResponse({status: HttpStatus.NO_CONTENT, description: "Account confirmed successfully"})
+    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid code"})
+    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "No user found for this code"})
+    async confirmAccount(@Body() body: ConfirmAccountDto): Promise<void>{
+        await this.authService.confirmAccount(body.code);
     }
 
     @Post("logout")
@@ -53,14 +74,6 @@ export class AuthController{
         return await this.authService.logoutAll(req.user.id);
     }
 
-    @Post("register")
-    @ApiResponse({status: HttpStatus.CREATED, description: "User registered successfully", type: CtResponse})
-    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Missing required fields or password too weak"})
-    @ApiResponse({status: HttpStatus.CONFLICT, description: "Email already exists"})
-    async register(@Body() registerDto: RegisterDto): Promise<CtResponse>{
-        return await this.authService.registerUser(registerDto.username, registerDto.email, registerDto.password);
-    }
-
     @Post("refresh")
     @UseGuards(RtGuard)
     @ApiBearerAuth()
@@ -71,23 +84,5 @@ export class AuthController{
         const at = body.access_token;
         const rt = req.token.token;
         return this.authService.refresh(at, rt);
-    }
-
-    @Post("register/confirm")
-    @UseGuards(CtGuard)
-    @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Account confirmed successfully", type: AtResponse})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid confirmation token"})
-    async confirmAccount(@Req() req: any, @Body() body: ConfirmAccountDto): Promise<AtRtResponse | AtResponse>{
-        return await this.authService.confirmAccount(req.user.id, body.code, req.token.keep);
-    }
-
-    @Post("register/confirm/resend")
-    @UseGuards(CtGuard)
-    @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Confirmation code resent successfully", type: CtResponse})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid confirmation token"})
-    async resendConfirmationCode(@Req() req: any): Promise<CtResponse>{
-        return await this.authService.resendConfirmationCode(req.user.id);
     }
 }

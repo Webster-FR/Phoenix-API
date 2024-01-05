@@ -1,10 +1,10 @@
 import {Body, Controller, Delete, Get, HttpStatus, Patch, Req, UseGuards} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {UpdatePasswordDto} from "./models/dto/update-password.dto";
+import {UpdateUsernameDto} from "./models/dto/update-username.dto";
 import {UserResponse} from "./models/responses/user.response";
 import {AtGuard} from "../auth/guards/at.guard";
 import {UsersService} from "./users.service";
-import {UpdatePasswordDto} from "./models/dto/update-password.dto";
-import {UpdateUsernameDto} from "./models/dto/update-username.dto";
 
 @Controller("users")
 @ApiTags("Users")

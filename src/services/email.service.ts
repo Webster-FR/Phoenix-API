@@ -1,5 +1,5 @@
-import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
+import {Injectable} from "@nestjs/common";
 import * as nodemailer from "nodemailer";
 
 
@@ -21,11 +21,12 @@ export class EmailService{
                 pass: emailPassword,
             },
         });
+        const link = this.configService.get("VERIFICATION_LINK");
         const mailOptions = {
             from: emailUser,
             to: email,
             subject: "[Phoenix] Confirm your account",
-            text: `Your confirmation code is ${code}`,
+            text: `Your confirmation code is ${link}/${code}`,
         };
         await transporter.sendMail(mailOptions);
     }

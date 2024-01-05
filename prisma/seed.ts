@@ -1,7 +1,7 @@
 // noinspection TypeScriptValidateJSTypes
 
-import {PrismaClient} from "@prisma/client";
 import {EncryptionService} from "../src/services/encryption.service";
+import {PrismaClient} from "@prisma/client";
 import * as dotenv from "dotenv";
 
 dotenv.config();
