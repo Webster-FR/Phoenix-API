@@ -11,6 +11,6 @@ export class RegisterDto{
         email: string;
     @ApiProperty()
     @IsNotEmpty()
-    @Matches("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/")
+    @Matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)
         password: string;
 }
