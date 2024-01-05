@@ -3,7 +3,7 @@ import {
     ConflictException,
     ForbiddenException,
     Injectable,
-    NotFoundException
+    NotFoundException, UnauthorizedException
 } from "@nestjs/common";
 import {EncryptionService} from "../services/encryption.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
@@ -28,7 +28,7 @@ export class AuthService{
     async loginUser(email: string, password: string, keepLoggedIn: boolean): Promise<AtRtResponse | AtResponse>{
         const user = await this.usersService.findByEmail(email);
         if(!await this.encryptionService.compareHash(user.password, password))
-            throw new BadRequestException("Invalid password");
+            throw new UnauthorizedException("Invalid password");
         if(user.verification_code_id){
             if(!await this.verificationCodeService.checkCodeValidity(user.verification_code_id)){
                 const newCode = await this.verificationCodeService.generateNewCode(user.verification_code_id);
