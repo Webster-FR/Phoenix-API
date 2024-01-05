@@ -183,7 +183,7 @@ CREATE UNIQUE INDEX "tips_tips_key" ON "tips"("tips");
 CREATE UNIQUE INDEX "tips_order_key" ON "tips"("order");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "banks_name_key" ON "banks"("name");
+CREATE UNIQUE INDEX "banks_name_user_id_key" ON "banks"("name", "user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "accounts_name_key" ON "accounts"("name");
