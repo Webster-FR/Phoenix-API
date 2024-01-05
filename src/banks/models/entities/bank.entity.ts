@@ -8,8 +8,4 @@ export class BankEntity implements Banks{
         name: string;
     @ApiProperty()
         user_id: number;
-    @ApiProperty()
-        createdAt: Date;
-    @ApiProperty()
-        updatedAt: Date;
 }
