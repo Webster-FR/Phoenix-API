@@ -8,9 +8,11 @@ import {TodoEntity} from "./models/entities/todo.entity";
 import {TodoIdDto} from "./models/dto/todo-id.dto";
 import {AtGuard} from "../auth/guards/at.guard";
 import {TodosService} from "./todos.service";
+import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 
 @Controller("todos")
 @ApiTags("Todos")
+@UseGuards(MaintenanceGuard)
 export class TodosController{
     constructor(
         private readonly todosService: TodosService
