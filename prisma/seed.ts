@@ -17,7 +17,7 @@ async function main(){
         update: {},
         create: {
             id: 1,
-            username: "test",
+            username: encryptionService.encryptSymmetric("test", userSecret),
             email: "test@exemple.org",
             password: await encryptionService.hash("password"),
             secret: encryptionService.encryptSymmetric(userSecret, process.env.SYMMETRIC_ENCRYPTION_KEY),

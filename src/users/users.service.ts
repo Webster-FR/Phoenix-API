@@ -14,8 +14,9 @@ export class UsersService{
         private readonly verificationCodeService: VerificationCodesService,
     ){}
 
-    decryptUserSecret(user: UserEntity): UserEntity{
+    decryptUserData(user: UserEntity): UserEntity{
         user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        user.username = this.encryptionService.decryptSymmetric(user.username, user.secret);
         return user;
     }
 
@@ -28,7 +29,7 @@ export class UsersService{
         const user: UserEntity = await this.prismaService.user.findUnique({where: {id: id}});
         if(!user && exception)
             throw new NotFoundException("User not found");
-        return this.decryptUserSecret(user);
+        return this.decryptUserData(user);
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
@@ -38,16 +39,18 @@ export class UsersService{
                 throw new NotFoundException("User not found");
             else
                 return null;
-        return this.decryptUserSecret(user);
+        return this.decryptUserData(user);
     }
 
     async createUser(username: string, email: string, password: string): Promise<UserEntity>{
         const passwordHash = await this.encryptionService.hash(password);
-        const encryptedUserSecret = this.encryptionService.encryptSymmetric(this.encryptionService.generateSecret(), this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        const userSecret = this.encryptionService.generateSecret();
+        const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        const encryptedUsername = this.encryptionService.encryptSymmetric(username, userSecret);
         const user = await this.prismaService.user.create({
             data: {
-                username: username,
-                email: email,
+                username: encryptedUsername,
+                email,
                 password: passwordHash,
                 secret: encryptedUserSecret,
             },
@@ -57,7 +60,7 @@ export class UsersService{
     }
 
     async setVerificationCode(userId: number, verificationCodeId: number): Promise<UserEntity>{
-        return this.prismaService.user.update({
+        await this.prismaService.user.update({
             where: {
                 id: userId,
             },
@@ -65,10 +68,11 @@ export class UsersService{
                 verification_code_id: verificationCodeId,
             },
         });
+        return this.findById(userId);
     }
 
     async clearVerificationCode(userId: number): Promise<UserEntity>{
-        return this.prismaService.user.update({
+        await this.prismaService.user.update({
             where: {
                 id: userId,
             },
@@ -76,19 +80,25 @@ export class UsersService{
                 verification_code_id: null,
             },
         });
+        return this.findById(userId);
     }
 
     async updateUsername(id: number, newUsername: string): Promise<UserEntity>{
         if(!await this.isUserExists(id))
             throw new NotFoundException("User not found");
-        return this.prismaService.user.update({where: {id: id}, data: {username: newUsername}});
+        const user = await this.findById(id);
+        const encryptedUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret);
+        await this.prismaService.user.update({where: {id: id}, data: {username: encryptedUsername}});
+        user.username = newUsername;
+        return user;
     }
 
     async updatePassword(id: number, newPassword: string): Promise<UserEntity>{
         if(!await this.isUserExists(id))
             throw new NotFoundException("User not found");
         const passwordHash = await this.encryptionService.hash(newPassword);
-        return this.prismaService.user.update({where: {id: id}, data: {password: passwordHash}});
+        await this.prismaService.user.update({where: {id: id}, data: {password: passwordHash}});
+        return this.findById(id);
     }
 
     async deleteUser(id: number){
