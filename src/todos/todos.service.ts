@@ -1,8 +1,8 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EncryptionService} from "../services/encryption.service";
 import {PrismaService} from "../services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
+import {EncryptionService} from "../services/encryption.service";
 
 @Injectable()
 export class TodosService{

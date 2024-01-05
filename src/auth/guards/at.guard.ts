@@ -1,11 +1,11 @@
 import {CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException} from "@nestjs/common";
-import {AtPayloadModel} from "../models/models/at-payload.model";
-import {TokensService} from "../../services/tokens.service";
-import {UsersService} from "../../users/users.service";
 import {JwtService} from "../../services/jwt.service";
-import {TokenType} from "../models/models/token-type";
 import {AuthController} from "../auth.controller";
+import {UsersService} from "../../users/users.service";
+import {AtPayloadModel} from "../models/models/at-payload.model";
 import {ConfigService} from "@nestjs/config";
+import {TokensService} from "../../services/tokens.service";
+import {TokenType} from "../models/models/token-type";
 
 @Injectable()
 export class AtGuard implements CanActivate{

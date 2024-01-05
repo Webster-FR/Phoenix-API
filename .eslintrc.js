@@ -5,8 +5,7 @@ module.exports = {
     },
     parser: "@typescript-eslint/parser",
     plugins: [
-        "@typescript-eslint",
-        "perfectionist"
+        "@typescript-eslint"
     ],
     extends: [
         "plugin:@typescript-eslint/recommended",
@@ -21,13 +20,6 @@ module.exports = {
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "perfectionist/sort-imports": [
-            "error",
-            {
-                "type": "line-length",
-                "order": "desc"
-            }
-        ],
         "indent": [
             "error", 4,
             {

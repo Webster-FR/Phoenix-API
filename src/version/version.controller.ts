@@ -1,7 +1,7 @@
-import {VersionResponse} from "./model/version.response";
-import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {Controller, Get} from "@nestjs/common";
+import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ConfigService} from "@nestjs/config";
+import {VersionResponse} from "./model/version.response";
 
 @Controller("version")
 @ApiTags("Version")

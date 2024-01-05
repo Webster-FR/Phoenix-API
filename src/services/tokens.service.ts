@@ -1,13 +1,12 @@
+import {Injectable, NotFoundException} from "@nestjs/common";
+import {JwtService} from "./jwt.service";
+import {PrismaService} from "./prisma.service";
+import {ConfigService} from "@nestjs/config";
+import {EncryptionService} from "./encryption.service";
 import {AtPayloadModel} from "../auth/models/models/at-payload.model";
 import {CtPayloadModel} from "../auth/models/models/ct-payload.model";
 import {RtPayloadModel} from "../auth/models/models/rt-payload.model";
 import {TokenEntity} from "../auth/models/entities/token.entity";
-import {Injectable, NotFoundException} from "@nestjs/common";
-import {EncryptionService} from "./encryption.service";
-import {PrismaService} from "./prisma.service";
-import {ConfigService} from "@nestjs/config";
-import {JwtService} from "./jwt.service";
-
 
 @Injectable()
 export class TokensService{

@@ -5,15 +5,14 @@ import {
     Injectable,
     NotFoundException
 } from "@nestjs/common";
-import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {EncryptionService} from "../services/encryption.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
-import {AtResponse} from "./models/responses/at.response";
 import {TokensService} from "../services/tokens.service";
+import {AtResponse} from "./models/responses/at.response";
 import {EmailService} from "../services/email.service";
 import {UsersService} from "../users/users.service";
+import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {ConfigService} from "@nestjs/config";
-
 
 @Injectable()
 export class AuthService{

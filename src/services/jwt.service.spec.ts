@@ -1,6 +1,6 @@
-import {EncryptionService} from "./encryption.service";
 import {Test, TestingModule} from "@nestjs/testing";
 import {JwtService} from "./jwt.service";
+import {EncryptionService} from "./encryption.service";
 import * as dotenv from "dotenv";
 
 dotenv.config({path: ".env.ci"});

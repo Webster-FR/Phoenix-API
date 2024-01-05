@@ -1,5 +1,5 @@
-import {ApiProperty} from "@nestjs/swagger";
 import {Tips} from "@prisma/client";
+import {ApiProperty} from "@nestjs/swagger";
 
 export class TipEntity implements Tips{
     @ApiProperty()
