@@ -47,4 +47,51 @@ export class BanksService{
         bank.name = bankName;
         return bank;
     }
+
+    async updateBankName(userId: number, bankId: number, name: string): Promise<BankEntity>{
+        if(!await this.usersService.isUserExists(userId))
+            throw new NotFoundException("User not found");
+        const bank: BankEntity = await this.prismaService.banks.findUnique({
+            where: {
+                id: bankId,
+                user_id: userId,
+            }
+        });
+        if(!bank)
+            throw new NotFoundException("User bank not found");
+        const banks = await this.getBanks(userId);
+        for(const bank of banks)
+            if(bank.name === name)
+                throw new NotFoundException("Bank already exists with this name");
+        await this.prismaService.banks.update({
+            where: {
+                id: bankId,
+            },
+            data: {
+                name: this.encryptionService.encryptSymmetric(name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY")),
+            }
+        });
+        bank.name = name;
+        return bank;
+    }
+
+    async deleteBank(userId: number, bankId: number): Promise<BankEntity>{
+        if(!await this.usersService.isUserExists(userId))
+            throw new NotFoundException("User not found");
+        const bank: BankEntity = await this.prismaService.banks.findUnique({
+            where: {
+                id: bankId,
+                user_id: userId,
+            }
+        });
+        if(!bank)
+            throw new NotFoundException("User bank not found");
+        await this.prismaService.banks.delete({
+            where: {
+                id: bankId,
+            }
+        });
+        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        return bank;
+    }
 }
