@@ -5,9 +5,11 @@ import {AtGuard} from "../auth/guards/at.guard";
 import {UsersService} from "./users.service";
 import {UpdatePasswordDto} from "./models/dto/update-password.dto";
 import {UpdateUsernameDto} from "./models/dto/update-username.dto";
+import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 
 @Controller("users")
 @ApiTags("Users")
+@UseGuards(MaintenanceGuard)
 export class UsersController{
     constructor(
         private readonly usersService: UsersService
