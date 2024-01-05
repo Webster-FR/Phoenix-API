@@ -106,4 +106,11 @@ export class UsersService{
             throw new NotFoundException("User not found");
         this.prismaService.user.delete({where: {id: id}});
     }
+
+    async findByVerificationCode(verificationCodeId: number){
+        const user = await this.prismaService.user.findUnique({where: {verification_code_id: verificationCodeId}});
+        if(!user)
+            throw new NotFoundException("User not found");
+        return this.decryptUserData(user);
+    }
 }
