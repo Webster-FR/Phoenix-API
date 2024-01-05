@@ -1,5 +1,5 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsEmail, IsNotEmpty, IsStrongPassword} from "class-validator";
+import {IsEmail, IsNotEmpty, Matches} from "class-validator";
 
 export class RegisterDto{
     @ApiProperty()
@@ -11,6 +11,6 @@ export class RegisterDto{
         email: string;
     @ApiProperty()
     @IsNotEmpty()
-    @IsStrongPassword()
+    @Matches("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/")
         password: string;
 }
