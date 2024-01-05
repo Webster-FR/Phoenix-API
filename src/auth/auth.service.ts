@@ -31,7 +31,6 @@ export class AuthService{
         if(!await this.encryptionService.compareHash(user.password, password))
             throw new BadRequestException("Invalid password");
         if(user.verification_code_id){
-            console.log(await this.verificationCodeService.checkCodeValidity(user.verification_code_id));
             if(!await this.verificationCodeService.checkCodeValidity(user.verification_code_id)){
                 const newCode = await this.verificationCodeService.generateNewCode(user.verification_code_id);
                 await this.usersService.setVerificationCode(user.id, newCode.id);
