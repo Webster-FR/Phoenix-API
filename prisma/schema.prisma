@@ -93,8 +93,8 @@ model Banks {
 
 model Accounts {
   id                          Int                    @id @default(autoincrement())
-  name                        String                 @unique
-  amount                      Float
+  name                        String
+  amount                      String
   bank_id                     Int
   user_id                     Int
   bank                        Banks                  @relation(fields: [bank_id], references: [id])
@@ -103,6 +103,7 @@ model Accounts {
   to_recurring_transactions   RecurringTransaction[] @relation("to_account")
   internal_ledger             InternalLedger[]
 
+  @@unique([name, user_id, bank_id])
   @@map("accounts")
 }
 
@@ -111,7 +112,7 @@ model RecurringTransaction {
   user_id         Int
   wording         String
   type            String
-  amount          Float
+  amount          String
   next_occurrence DateTime
   frequency       String
   category_id     Int?

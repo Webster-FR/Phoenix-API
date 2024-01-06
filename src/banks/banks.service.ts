@@ -31,6 +31,24 @@ export class BanksService{
         return banks;
     }
 
+    async findOne(userId: number, bankId: number): Promise<BankEntity>{
+        if(!await this.usersService.isUserExists(userId))
+            throw new NotFoundException("User not found");
+        const bank: BankEntity = await this.prismaService.banks.findUnique({
+            where: {
+                id: bankId,
+                OR: [
+                    {user_id: userId},
+                    {user_id: null},
+                ],
+            }
+        });
+        if(!bank)
+            throw new NotFoundException("User bank not found");
+        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        return bank;
+    }
+
     async addBank(userId: number, bankName: string): Promise<BankEntity>{
         if(!await this.usersService.isUserExists(userId))
             throw new NotFoundException("User not found");
