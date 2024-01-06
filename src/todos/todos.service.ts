@@ -3,18 +3,19 @@ import {PrismaService} from "../services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../services/encryption.service";
+import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
 export class TodosService{
 
     constructor(
-        private readonly prismService: PrismaService,
+        private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
         private readonly encryptionService: EncryptionService,
     ){}
 
     async isTodoExists(userId: number, todoId: number): Promise<boolean>{
-        const todo: TodoEntity = await this.prismService.todos.findUnique({where: {id: todoId, user_id: userId}});
+        const todo: TodoEntity = await this.prismaService.todos.findUnique({where: {id: todoId, user_id: userId}});
         return todo !== null;
     }
 
@@ -22,7 +23,7 @@ export class TodosService{
         const user = await this.usersService.findById(userId);
         if(!user)
             throw new NotFoundException("User not found");
-        const todos: TodoEntity[] = await this.prismService.todos.findMany({where: {user_id: userId}});
+        const todos: TodoEntity[] = await this.prismaService.todos.findMany({where: {user_id: userId}});
         for(const todo of todos)
             todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret);
         return todos;
@@ -34,7 +35,7 @@ export class TodosService{
         const user = await this.usersService.findById(userId);
         if(!user)
             throw new NotFoundException("User not found");
-        const todo: TodoEntity = await this.prismService.todos.findUnique({where: {id: todoId}});
+        const todo: TodoEntity = await this.prismaService.todos.findUnique({where: {id: todoId}});
         todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret);
         return todo;
     }
@@ -46,7 +47,7 @@ export class TodosService{
         if(!user)
             throw new NotFoundException("User not found");
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret);
-        const todo = await this.prismService.todos.create({
+        const todo = await this.prismaService.todos.create({
             data: {
                 user_id: userId,
                 name: todoName,
@@ -65,7 +66,7 @@ export class TodosService{
             throw new BadRequestException(`Todo with id ${todoId} cannot be its own parent`);
         if(!await this.isTodoExists(userId, parentId))
             throw new NotFoundException(`Todo with id ${parentId} not found`);
-        const todo = await this.prismService.todos.update({
+        const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId
             },
@@ -79,7 +80,7 @@ export class TodosService{
     async setTodoCompleted(userId: number, todoId: number, completed: boolean): Promise<TodoEntity>{
         if(!await this.isTodoExists(userId, todoId))
             throw new NotFoundException(`Todo with id ${todoId} not found`);
-        const todo = await this.prismService.todos.update({
+        const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId,
                 user_id: userId
@@ -98,7 +99,7 @@ export class TodosService{
         if(!user)
             throw new NotFoundException("User not found");
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret);
-        const todo = await this.prismService.todos.update({
+        const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId
             },
@@ -120,7 +121,7 @@ export class TodosService{
         const user = await this.usersService.findById(userId);
         if(!user)
             throw new NotFoundException("User not found");
-        const todo = await this.prismService.todos.delete({
+        const todo = await this.prismaService.todos.delete({
             where: {
                 id: todoId
             },
