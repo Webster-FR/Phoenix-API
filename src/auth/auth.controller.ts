@@ -62,7 +62,7 @@ export class AuthController{
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.ACCEPTED, description: "All tokens invalidated"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid access token"})
-    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "AT or RT not found in database"})
+    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Access or refresh token not found in database"})
     async logout(@Req() req: any, @Body() body: RtDto){
         return await this.authService.logout(req.token.token, body.refresh_token);
     }
