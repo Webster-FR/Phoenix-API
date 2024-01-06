@@ -18,7 +18,7 @@ export class TokensService{
     ){}
 
     async generateAccessToken(userId: number): Promise<string>{
-        const payload = new AtPayloadModel(userId);
+        const payload = new AtPayloadModel(userId, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
@@ -36,7 +36,7 @@ export class TokensService{
     }
 
     async generateRefreshToken(userId: number): Promise<string>{
-        const payload = new RtPayloadModel(userId);
+        const payload = new RtPayloadModel(userId, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
