@@ -79,7 +79,7 @@ export class AuthController{
     @Post("refresh")
     @UseGuards(RtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Token refreshed successfully", type: AtRtResponse})
+    @ApiResponse({status: HttpStatus.CREATED, description: "Token refreshed successfully", type: AtRtResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid refresh token"})
     @ApiResponse({status: HttpStatus.CONFLICT, description: "Refresh token already used"})
     async refresh(@Req() req: any, @Body() body: AtDto): Promise<AtRtResponse>{
