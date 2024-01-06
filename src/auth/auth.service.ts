@@ -1,7 +1,7 @@
 import {
     BadRequestException,
     ConflictException,
-    ForbiddenException,
+    ForbiddenException, GoneException,
     Injectable, InternalServerErrorException,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
@@ -69,7 +69,7 @@ export class AuthService{
     }
 
     async refresh(at: string, rt: string): Promise<AtRtResponse>{
-        await this.tokensService.blacklistToken(at, false);
+        await this.tokensService.blacklistToken(at, false, false);
         const rtDbToken = await this.tokensService.getTokenEntity(rt, true);
         if(rtDbToken.blacklisted){
             await this.logoutAll(rtDbToken.user_id);

@@ -73,8 +73,10 @@ export class TokensService{
             return null;
     }
 
-    async blacklistToken(token: string, isRefresh: boolean){
-        const dbToken = await this.getTokenEntity(token, isRefresh);
+    async blacklistToken(token: string, isRefresh: boolean, exception: boolean = true){
+        const dbToken = await this.getTokenEntity(token, isRefresh, exception);
+        if(exception && !dbToken)
+            return false;
         await this.prismaService.tokens.update({
             where: {
                 id: dbToken.id,
@@ -83,6 +85,7 @@ export class TokensService{
                 blacklisted: true,
             },
         });
+        return true;
     }
 
     async blacklistUserTokens(userId: number){

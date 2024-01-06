@@ -25,9 +25,6 @@ export class RtGuard implements CanActivate{
         const token = AuthController.extractTokenFromHeader(request);
         if(!token)
             throw new UnauthorizedException("Missing refresh token");
-        const dbToken = await this.tokensService.getTokenEntity(token, true, false);
-        if(!dbToken)
-            throw new UnauthorizedException("Token not found in database");
         let payload: AtPayloadModel;
         try{
             payload = <RtPayloadModel>this.jwtService.verifyJWT(token, this.configService.get("RT_KEY"));
@@ -38,6 +35,9 @@ export class RtGuard implements CanActivate{
             throw new UnauthorizedException("Invalid or missing refresh token payload");
         if(payload.type !== TokenType.REFRESH)
             throw new UnauthorizedException("Invalid refresh type: " + payload.type);
+        const dbToken = await this.tokensService.getTokenEntity(token, true, false);
+        if(!dbToken)
+            throw new UnauthorizedException("Token not found in database");
         if(await this.tokensService.isTokenBlacklisted(token, true)){
             await this.authService.logoutAll(payload.user_id);
             throw new UnauthorizedException("Blacklisted refresh token, logout user from all devices");
