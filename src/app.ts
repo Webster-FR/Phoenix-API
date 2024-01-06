@@ -1,8 +1,6 @@
 import {FastifyAdapter, NestFastifyApplication} from "@nestjs/platform-fastify";
 import {CustomValidationPipe} from "./pipes/custom-validation.pipe";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
-// import compression from "@fastify/compress";
-// import helmet from "@fastify/helmet";
 import {RawServerDefault} from "fastify";
 import {NestFactory} from "@nestjs/core";
 import {AppModule} from "./app.module";
@@ -12,8 +10,13 @@ import * as fs from "fs";
 import * as os from "os";
 import {SwaggerTheme} from "swagger-themes";
 import {LoggerMiddleware} from "./middlewares/logger.middleware";
+import {Logger} from "@nestjs/common";
+// import compression from "@fastify/compress";
+// import helmet from "@fastify/helmet";
 
 dotenv.config();
+
+const logger: Logger = new Logger("App");
 
 async function bootstrap(){
     switch (process.env.SERVER_TYPE){
@@ -28,7 +31,7 @@ async function bootstrap(){
             await startHttpsServer();
             break;
         default:
-            console.error("Invalid SERVER_TYPE");
+            logger.error("Invalid SERVER_TYPE");
             process.exit(1);
     }
 }
@@ -53,7 +56,7 @@ function getServerAddress(bindAddress: string, port: string | number, protocol: 
 }
 
 function logServerStart(bindAddress: string, port: string | number, protocol: string){
-    console.log(`Server started on ${getServerAddress(bindAddress, port, protocol)}`);
+    logger.log(`Server started on ${getServerAddress(bindAddress, port, protocol)}`);
 }
 
 async function startHttpServer(){
@@ -104,6 +107,7 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>, serv
             filter: true,
             displayRequestDuration: true,
             persistAuthorization: true,
+            docExpansion: "none",
         },
         customCss,
     });
