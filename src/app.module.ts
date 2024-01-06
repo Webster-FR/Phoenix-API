@@ -13,6 +13,7 @@ import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";
 import {AccountsModule} from "./accounts/accounts.module";
 import {LedgersModule} from "./ledgers/ledgers.module";
+import {TransactionsModule} from "./transactions/transactions.module";
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import {LedgersModule} from "./ledgers/ledgers.module";
         SecretsModule,
         AccountsModule,
         LedgersModule,
+        TransactionsModule,
     ],
 })
 export class AppModule{}
