@@ -3,6 +3,7 @@
 import {PrismaClient} from "@prisma/client";
 import {EncryptionService} from "../src/services/encryption.service";
 import * as dotenv from "dotenv";
+import {getTipsSeed} from "./seeds/tips.seed";
 
 dotenv.config();
 
@@ -69,15 +70,17 @@ async function main(){
         },
     });
 
+    const tipsSeed = await getTipsSeed();
     const tips = [];
-    for (let i = 1; i <= 31; i++){
+    for (let i = 0; i < tipsSeed.length; i++){
         tips.push(await prisma.tips.upsert({
-            where: {id: i},
+            where: {id: i + 1},
             update: {},
             create: {
-                id: i,
-                tips: `Tip ${i}`,
-                order: i,
+                id: i + 1,
+                tips: tipsSeed[i].tips,
+                author: tipsSeed[i].author || null,
+                order: i + 1,
             },
         }));
     }
