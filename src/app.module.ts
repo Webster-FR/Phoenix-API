@@ -11,6 +11,7 @@ import {BanksModule} from "./banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TokenCleanupTask} from "./tasks/token-cleanup.task";
 import {TasksModule} from "./tasks/tasks.module";
+import {SecretsModule} from "./secrets/secrets.module";
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import {TasksModule} from "./tasks/tasks.module";
         MaintenanceModule,
         BanksModule,
         TasksModule,
+        SecretsModule,
     ],
 })
 export class AppModule{}
