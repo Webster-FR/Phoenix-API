@@ -4,7 +4,6 @@ import {PrismaService} from "./prisma.service";
 import {ConfigService} from "@nestjs/config";
 import {EncryptionService} from "./encryption.service";
 import {AtPayloadModel} from "../auth/models/models/at-payload.model";
-import {CtPayloadModel} from "../auth/models/models/ct-payload.model";
 import {RtPayloadModel} from "../auth/models/models/rt-payload.model";
 import {TokenEntity} from "../auth/models/entities/token.entity";
 
@@ -22,7 +21,6 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        console.log(token, sum);
         await this.prismaService.tokens.create({
             data: {
                 user_id: userId,
@@ -40,7 +38,6 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        console.log(token, sum);
         await this.prismaService.tokens.create({
             data: {
                 user_id: userId,
@@ -51,11 +48,6 @@ export class TokensService{
             }
         });
         return token;
-    }
-
-    async generateConfirmationToken(userId: number, keepLoggedIn: boolean): Promise<string>{
-        const payload = new CtPayloadModel(userId, keepLoggedIn);
-        return this.jwtService.generateJWT({...payload}, this.configService.get<string>("VC_DURATION") + "m", this.configService.get("CT_KEY"));
     }
 
     async getTokenEntity(token: string, isRefresh: boolean, exception: boolean = true): Promise<TokenEntity>{
