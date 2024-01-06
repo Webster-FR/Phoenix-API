@@ -2,7 +2,7 @@ import {ApiProperty} from "@nestjs/swagger";
 import {IsNotEmpty} from "class-validator";
 import {Type} from "class-transformer";
 
-export class TodoIdDto{
+export class IdDto{
     @ApiProperty()
     @IsNotEmpty()
     @Type(() => Number)

@@ -82,11 +82,12 @@ model Tips {
 
 model Banks {
   id      Int        @id @default(autoincrement())
-  name    String     @unique
+  name    String
   user_id Int?
   user    User?      @relation(fields: [user_id], references: [id])
   account Accounts[]
 
+  @@unique([name, user_id])
   @@map("banks")
 }
 
