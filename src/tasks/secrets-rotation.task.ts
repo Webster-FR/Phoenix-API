@@ -12,7 +12,7 @@ export class SecretsRotationTask{
         private readonly secretsService: SecretsService,
     ){}
 
-    @Cron("0 59 2 * * *")
+    @Cron("0 0 0 * * *")
     async handleCron(){
         this.logger.log("Running secrets rotation");
         await this.secretsService.runSecretsRotation();
