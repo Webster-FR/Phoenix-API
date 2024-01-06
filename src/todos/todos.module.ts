@@ -8,5 +8,6 @@ import {UsersModule} from "../users/users.module";
     controllers: [TodosController],
     providers: [TodosService],
     imports: [ServicesModule, UsersModule],
+    exports: [TodosService],
 })
 export class TodosModule{}

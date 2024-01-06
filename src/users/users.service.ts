@@ -26,6 +26,13 @@ export class UsersService{
         return !!user;
     }
 
+    async findAll(): Promise<UserEntity[]>{
+        const users: UserEntity[] = await this.prismaService.user.findMany();
+        for(const user of users)
+            this.decryptUserData(user);
+        return users;
+    }
+
     async findById(id: number, exception: boolean = true): Promise<UserEntity>{
         const user: UserEntity = await this.prismaService.user.findUnique({where: {id: id}});
         if(!user && exception)
@@ -112,5 +119,21 @@ export class UsersService{
                 count++;
             }
         return count;
+    }
+
+    async setUserSecret(user: UserEntity, secret: string): Promise<UserEntity>{
+        const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret);
+        await this.prismaService.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                username: encryptedUsername,
+                secret: encryptedSecret
+            }
+        });
+        user.secret = secret;
+        return user;
     }
 }

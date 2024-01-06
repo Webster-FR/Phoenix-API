@@ -1,4 +1,4 @@
-import {SecretsService} from "../services/secrets.service";
+import {SecretsService} from "../secrets/secrets.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 
@@ -12,7 +12,7 @@ export class SecretsRotationTask{
         private readonly secretsService: SecretsService,
     ){}
 
-    @Cron("0 0 0 * * *")
+    @Cron("0 59 2 * * *")
     async handleCron(){
         this.logger.log("Running secrets rotation");
         await this.secretsService.runSecretsRotation();
