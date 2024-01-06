@@ -1,7 +1,6 @@
 import {FastifyAdapter, NestFastifyApplication} from "@nestjs/platform-fastify";
 import {CustomValidationPipe} from "./pipes/custom-validation.pipe";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
-import {LoggerMiddleware} from "./middlewares/logger.middleware";
 // import compression from "@fastify/compress";
 // import helmet from "@fastify/helmet";
 import {RawServerDefault} from "fastify";
