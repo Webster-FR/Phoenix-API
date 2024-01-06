@@ -2,7 +2,7 @@ import {
     BadRequestException,
     ConflictException,
     ForbiddenException,
-    Injectable,
+    Injectable, InternalServerErrorException,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
 import {EncryptionService} from "../services/encryption.service";
@@ -29,11 +29,12 @@ export class AuthService{
         const user = await this.usersService.findByEmail(email);
         if(!await this.encryptionService.compareHash(user.password, password))
             throw new UnauthorizedException("Invalid password");
-        if(user.verification_code_id){
-            if(!await this.verificationCodeService.checkCodeValidity(user.verification_code_id)){
-                const newCode = await this.verificationCodeService.generateNewCode(user.verification_code_id);
-                await this.usersService.setVerificationCode(user.id, newCode.id);
-                await this.emailService.sendConfirmationEmail(user.email, newCode.code);
+        const code = await this.verificationCodeService.findByUserId(user.id);
+        if(code){
+            if(!await this.verificationCodeService.checkCodeValidity(code)){
+                const newCode = this.encryptionService.generateSecret();
+                await this.verificationCodeService.setCode(user.id, newCode);
+                await this.emailService.sendConfirmationEmail(user.email, newCode);
                 return null;
             }
             throw new ForbiddenException("Email not confirmed");
@@ -61,7 +62,9 @@ export class AuthService{
         if(user)
             throw new ConflictException("Email already exists");
         const newUser = await this.usersService.createUser(username, email, password);
-        const code = await this.verificationCodeService.findById(newUser.verification_code_id);
+        const code = await this.verificationCodeService.findByUserId(newUser.id);
+        if(!code)
+            throw new InternalServerErrorException("Verification code not found");
         await this.emailService.sendConfirmationEmail(newUser.email, code.code);
     }
 
@@ -85,7 +88,7 @@ export class AuthService{
         const user = await this.usersService.findByVerificationCode(verificationCode.id);
         if(!user)
             throw new NotFoundException("No user found for this code");
-        if(!await this.verificationCodeService.checkCode(verificationCode.id, requestCode))
+        if(!await this.verificationCodeService.checkCode(verificationCode, requestCode))
             throw new BadRequestException("Invalid code");
         await this.verificationCodeService.deleteById(verificationCode.id);
     }

@@ -13,43 +13,19 @@ export class VerificationCodesService{
         private readonly encryptionService: EncryptionService,
     ){}
 
-    async checkCode(verificationCodeId: number, code: string): Promise<boolean>{
-        const verificationCode = await this.prismaService.verificationCodes.findUnique({where: {id: verificationCodeId}});
+    async checkCode(verificationCode: VerificationCodeEntity, code: string): Promise<boolean>{
         if(!verificationCode)
             return false;
-        return await this.checkCodeValidity(verificationCodeId) && verificationCode.code === code;
+        return await this.checkCodeValidity(verificationCode) && verificationCode.code === code;
     }
 
-    async checkCodeValidity(verificationCodeId: number): Promise<boolean>{
-        const verificationCode: VerificationCodeEntity = await this.prismaService.verificationCodes.findUnique({where: {id: verificationCodeId}});
+    async checkCodeValidity(verificationCode: VerificationCodeEntity): Promise<boolean>{
         if (!verificationCode)
             return false;
         const now = new Date();
         const iat = new Date(verificationCode.iat);
         const validUntil = new Date(iat.getTime() + (this.configService.get<number>("VC_DURATION") * 60000));
         return now <= validUntil;
-    }
-
-    async generateNewCode(verificationCodeId?: number): Promise<VerificationCodeEntity>{
-        const newCode = this.encryptionService.generateSecret();
-        if(verificationCodeId){
-            return this.prismaService.verificationCodes.update({
-                where: {
-                    id: verificationCodeId,
-                },
-                data: {
-                    code: newCode,
-                    iat: new Date(),
-                },
-            });
-        }else{
-            return this.prismaService.verificationCodes.create({
-                data: {
-                    code: newCode,
-                    iat: new Date(),
-                },
-            });
-        }
     }
 
     async findById(id: number): Promise<VerificationCodeEntity>{
@@ -60,7 +36,33 @@ export class VerificationCodesService{
         return this.prismaService.verificationCodes.findUnique({where: {code: code}});
     }
 
+    async findByUserId(userId: number): Promise<VerificationCodeEntity>{
+        return this.prismaService.verificationCodes.findUnique({where: {user_id: userId}});
+    }
+
     async deleteById(id: number): Promise<VerificationCodeEntity>{
         return this.prismaService.verificationCodes.delete({where: {id: id}});
+    }
+
+    async setCode(userId: number, code: string): Promise<VerificationCodeEntity>{
+        const verificationCode = await this.findByUserId(userId);
+        if(!verificationCode){
+            return this.prismaService.verificationCodes.create({
+                data: {
+                    user_id: userId,
+                    code: code,
+                    iat: new Date(),
+                },
+            });
+        }
+        return this.prismaService.verificationCodes.update({
+            where: {
+                id: verificationCode.id,
+            },
+            data: {
+                code: code,
+                iat: new Date(),
+            },
+        });
     }
 }
