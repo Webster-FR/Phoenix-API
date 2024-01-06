@@ -36,12 +36,14 @@ export class AccountsService{
         return decryptedAccounts;
     }
 
-    async findById(id: number): Promise<AccountEntity>{
+    async findById(accountId: number): Promise<AccountEntity>{
         const account: EncryptedAccountEntity = await this.prismaService.accounts.findUnique({
             where: {
-                id: id,
+                id: accountId,
             }
         });
+        if(!account)
+            throw new NotFoundException("Account not found");
         const user = await this.usersService.findById(account.user_id);
         return {
             id: account.id,
@@ -73,5 +75,42 @@ export class AccountsService{
             }
         });
         return await this.findById(account.id);
+    }
+
+    async updateAccountName(userId: number, accountId: number, name: string): Promise<AccountEntity>{
+        const user = await this.usersService.findById(userId);
+        if(!user)
+            throw new NotFoundException("User not found");
+        const account = await this.findById(accountId);
+        if(!account)
+            throw new NotFoundException("Account not found");
+        const accounts = await this.getAccounts(userId);
+        for(const account of accounts)
+            if(account.bank_id === account.bank_id && account.name === name)
+                throw new ConflictException("Account already exists");
+        await this.prismaService.accounts.update({
+            where: {
+                id: accountId,
+            },
+            data: {
+                name: this.encryptionService.encryptSymmetric(name, user.secret),
+            }
+        });
+        return this.findById(accountId);
+    }
+
+    async deleteAccount(userId: number, accountId: number){
+        const user = await this.usersService.findById(userId);
+        if(!user)
+            throw new NotFoundException("User not found");
+        const account = await this.findById(accountId);
+        if(!account)
+            throw new NotFoundException("Account not found");
+        await this.prismaService.accounts.delete({
+            where: {
+                id: accountId,
+            }
+        });
+        return account;
     }
 }
