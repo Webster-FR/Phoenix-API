@@ -54,7 +54,7 @@ export class TokensService{
         return this.jwtService.generateJWT({...payload}, this.configService.get<string>("VC_DURATION") + "m", this.configService.get("CT_KEY"));
     }
 
-    async getTokenEntity(token: string, isRefresh: boolean): Promise<TokenEntity>{
+    async getTokenEntity(token: string, isRefresh: boolean, exception: boolean = true): Promise<TokenEntity>{
         const sum = this.encryptionService.getSum(token).substring(0, 10);
         const tokens = await this.prismaService.tokens.findMany({
             where: {
@@ -62,12 +62,15 @@ export class TokensService{
                 is_refresh: isRefresh,
             },
         });
-        if(!tokens)
+        if(!tokens && exception)
             throw new NotFoundException("Token not found");
         for(const dbToken of tokens)
             if(await this.encryptionService.compareHash(dbToken.token, token))
                 return dbToken;
-        throw new NotFoundException("Token not found");
+        if(exception)
+            throw new NotFoundException("Token not found");
+        else
+            return null;
     }
 
     async blacklistToken(token: string, isRefresh: boolean){
