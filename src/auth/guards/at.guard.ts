@@ -29,7 +29,7 @@ export class AtGuard implements CanActivate{
             throw new UnauthorizedException("Invalid access token");
         }
         if(!payload)
-            throw new UnauthorizedException("Invalid access token");
+            throw new UnauthorizedException("Invalid or missing access token payload");
         if(payload.type !== TokenType.ACCESS)
             throw new UnauthorizedException("Invalid access type: " + payload.type);
         if(await this.tokensService.isTokenBlacklisted(token, false))
