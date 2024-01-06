@@ -1,9 +1,10 @@
-import {Controller, Delete, Get, Patch, Post, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Patch, Post, Req, UseGuards} from "@nestjs/common";
 import {AccountsService} from "./accounts.service";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 import {AtGuard} from "../auth/guards/at.guard";
 import {AccountEntity} from "./models/entities/account.entity";
+import {CreateAccountDto} from "./models/dto/create-account.dto";
 
 @Controller("accounts")
 @ApiTags("Accounts")
@@ -24,8 +25,8 @@ export class AccountsController{
     @Post()
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    async createAccount(): Promise<AccountEntity>{
-        return null;
+    async createAccount(@Req() req: any, @Body() createAccountDto: CreateAccountDto): Promise<AccountEntity>{
+        return this.accountsService.createAccount(req.user.id, createAccountDto.name, createAccountDto.amount, createAccountDto.bank_id);
     }
 
     @Patch(":id/name")
