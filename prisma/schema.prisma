@@ -97,7 +97,7 @@ model Accounts {
   amount                      String
   bank_id                     Int
   user_id                     Int
-  bank                        Banks                  @relation(fields: [bank_id], references: [id])
+  bank                        Banks                  @relation(fields: [bank_id], references: [id], onDelete: Restrict)
   user                        User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   from_recurring_transactions RecurringTransaction[] @relation("from_account")
   to_recurring_transactions   RecurringTransaction[] @relation("to_account")
@@ -121,20 +121,20 @@ model RecurringTransaction {
   created_at      DateTime               @default(now())
   updated_at      DateTime               @updatedAt
   user            User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  category        TransactionCategories? @relation(fields: [category_id], references: [id])
-  from_account    Accounts?              @relation("from_account", fields: [from_account_id], references: [id])
-  to_account      Accounts?              @relation("to_account", fields: [to_account_id], references: [id])
+  category        TransactionCategories? @relation(fields: [category_id], references: [id], onDelete: SetNull)
+  from_account    Accounts?              @relation("from_account", fields: [from_account_id], references: [id], onDelete: Cascade)
+  to_account      Accounts?              @relation("to_account", fields: [to_account_id], references: [id], onDelete: Cascade)
 
   @@map("recurring_transactions")
 }
 
 model TransactionCategories {
   id                     Int                    @id @default(autoincrement())
-  user_id                Int
+  user_id                Int?
   name                   String
   icon                   String
   color                  String
-  user                   User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                   User?                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   recurring_transactions RecurringTransaction[]
   internal_transactions  InternalTransactions[]
   expense_transactions   ExpenseTransactions[]
@@ -149,7 +149,7 @@ model InternalLedger {
   debit               String?
   credit              String?
   created_at          DateTime               @default(now())
-  account             Accounts               @relation(fields: [account_id], references: [id])
+  account             Accounts               @relation(fields: [account_id], references: [id], onDelete: Cascade)
   debit_ledger        InternalTransactions[] @relation("debit_ledger")
   credit_ledger       InternalTransactions[] @relation("credit_ledger")
   expense_transaction ExpenseTransactions[]  @relation()
