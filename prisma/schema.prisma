@@ -130,11 +130,11 @@ model RecurringTransaction {
 
 model TransactionCategories {
   id                     Int                    @id @default(autoincrement())
-  user_id                Int
+  user_id                Int?
   name                   String
   icon                   String
   color                  String
-  user                   User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                   User?                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   recurring_transactions RecurringTransaction[]
   internal_transactions  InternalTransactions[]
   expense_transactions   ExpenseTransactions[]

@@ -97,7 +97,7 @@ CREATE TABLE "recurring_transactions" (
 -- CreateTable
 CREATE TABLE "transaction_categories" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "user_id" INTEGER NOT NULL,
+    "user_id" INTEGER,
     "name" TEXT NOT NULL,
     "icon" TEXT NOT NULL,
     "color" TEXT NOT NULL,
