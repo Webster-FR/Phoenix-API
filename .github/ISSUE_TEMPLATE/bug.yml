@@ -1,0 +1,22 @@
+name: Rapporter un bug
+description: Permet de rapporter un bug sur un service de Quartzly !
+body:
+  - type: textarea
+    attributes:
+      label: Description du problème
+      description:
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Captures d'écran et/ou vidéos
+      description: Ajoutez des captures d'écran et/ou des vidéos illustrant le problème.
+      placeholder: Faites glisser et déposez les captures d'écran/vidéos dans cette boîte.
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: Version
+      description: Version utilisée
+    validations:
+      required: true
