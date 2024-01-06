@@ -3,7 +3,7 @@
     "version": "1.0.0a",
     "description": "This is a basic template for building a RESTful API using Node.js and NestJS. It provides a structured starting point for your API development, with essential components and best practices.",
     "author": "Xen0Xys",
-    "license": "GNU General Public License v3.0",
+    "license": "CC-BY-NC-ND-4.0",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Xen0Xys/ts-nest-api-template.git"
