@@ -4,10 +4,11 @@ import {ServicesModule} from "../services/services.module";
 import {UsersModule} from "../users/users.module";
 import {TodosModule} from "../todos/todos.module";
 import {AccountsModule} from "../accounts/accounts.module";
+import {LedgersModule} from "../ledgers/ledgers.module";
 
 @Module({
     providers: [SecretsService],
-    imports: [ServicesModule, UsersModule, TodosModule, AccountsModule],
+    imports: [ServicesModule, UsersModule, TodosModule, AccountsModule, LedgersModule],
     exports: [SecretsService],
 })
 export class SecretsModule{}

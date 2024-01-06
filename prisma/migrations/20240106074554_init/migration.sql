@@ -108,8 +108,8 @@ CREATE TABLE "transaction_categories" (
 CREATE TABLE "internal_ledger" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "account_id" INTEGER NOT NULL,
-    "debit" REAL,
-    "credit" REAL,
+    "debit" TEXT,
+    "credit" TEXT,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "internal_ledger_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

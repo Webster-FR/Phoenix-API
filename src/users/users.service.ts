@@ -8,6 +8,10 @@ import {VerificationCodeEntity} from "../verification-codes/models/entities/veri
 
 @Injectable()
 export class UsersService{
+
+    private readonly userSecretsEncryptionStrength = parseInt(this.configService.get("USER_SECRETS_ENCRYPTION_STRENGTH"));
+    private readonly usersEncryptionStrength = parseInt(this.configService.get("USERS_ENCRYPTION_STRENGTH"));
+
     constructor(
         private readonly prismaService: PrismaService,
         private readonly encryptionService: EncryptionService,
@@ -16,8 +20,8 @@ export class UsersService{
     ){}
 
     decryptUserData(user: UserEntity): UserEntity{
-        user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
-        user.username = this.encryptionService.decryptSymmetric(user.username, user.secret);
+        user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        user.username = this.encryptionService.decryptSymmetric(user.username, user.secret, this.usersEncryptionStrength);
         return user;
     }
 
@@ -53,8 +57,8 @@ export class UsersService{
     async createUser(username: string, email: string, password: string): Promise<UserEntity>{
         const passwordHash = await this.encryptionService.hash(password);
         const userSecret = this.encryptionService.generateSecret();
-        const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
-        const encryptedUsername = this.encryptionService.encryptSymmetric(username, userSecret);
+        const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        const encryptedUsername = this.encryptionService.encryptSymmetric(username, userSecret, this.usersEncryptionStrength);
         const user = await this.prismaService.user.create({
             data: {
                 username: encryptedUsername,
@@ -71,7 +75,7 @@ export class UsersService{
         if(!await this.isUserExists(id))
             throw new NotFoundException("User not found");
         const user = await this.findById(id);
-        const encryptedUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret);
+        const encryptedUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret, this.usersEncryptionStrength);
         await this.prismaService.user.update({where: {id: id}, data: {username: encryptedUsername}});
         user.username = newUsername;
         return user;
@@ -122,8 +126,8 @@ export class UsersService{
     }
 
     async setUserSecret(user: UserEntity, secret: string): Promise<UserEntity>{
-        const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
-        const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret);
+        const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
         await this.prismaService.user.update({
             where: {
                 id: user.id

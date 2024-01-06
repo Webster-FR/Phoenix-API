@@ -8,6 +8,8 @@ import {UsersService} from "../users/users.service";
 @Injectable()
 export class BanksService{
 
+    private readonly banksEncryptionStrength = parseInt(this.configService.get("BANKS_ENCRYPTION_STRENGTH"));
+
     constructor(
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
@@ -27,7 +29,7 @@ export class BanksService{
             }
         });
         for(const bank of banks)
-            bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+            bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
         return banks;
     }
 
@@ -45,7 +47,7 @@ export class BanksService{
         });
         if(!bank)
             throw new NotFoundException("User bank not found");
-        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
         return bank;
     }
 
@@ -59,7 +61,7 @@ export class BanksService{
         const bank: BankEntity = await this.prismaService.banks.create({
             data: {
                 user_id: userId,
-                name: this.encryptionService.encryptSymmetric(bankName, this.configService.get("SYMMETRIC_ENCRYPTION_KEY")),
+                name: this.encryptionService.encryptSymmetric(bankName, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
             }
         });
         bank.name = bankName;
@@ -86,7 +88,7 @@ export class BanksService{
                 id: bankId,
             },
             data: {
-                name: this.encryptionService.encryptSymmetric(name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY")),
+                name: this.encryptionService.encryptSymmetric(name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
             }
         });
         bank.name = name;
@@ -109,7 +111,7 @@ export class BanksService{
                 id: bankId,
             }
         });
-        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"));
+        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
         return bank;
     }
 }

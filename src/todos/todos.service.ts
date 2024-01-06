@@ -3,14 +3,18 @@ import {PrismaService} from "../services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../services/encryption.service";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class TodosService{
+
+    private readonly todosEncryptionStrength = parseInt(this.configService.get("TODOS_ENCRYPTION_STRENGTH"));
 
     constructor(
         private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
         private readonly encryptionService: EncryptionService,
+        private readonly configService: ConfigService,
     ){}
 
     async isTodoExists(userId: number, todoId: number): Promise<boolean>{
@@ -24,7 +28,7 @@ export class TodosService{
             throw new NotFoundException("User not found");
         const todos: TodoEntity[] = await this.prismaService.todos.findMany({where: {user_id: userId}});
         for(const todo of todos)
-            todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret);
+            todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
         return todos;
     }
 
@@ -35,7 +39,7 @@ export class TodosService{
         if(!user)
             throw new NotFoundException("User not found");
         const todo: TodoEntity = await this.prismaService.todos.findUnique({where: {id: todoId}});
-        todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret);
+        todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
         return todo;
     }
 
@@ -45,7 +49,7 @@ export class TodosService{
         const user = await this.usersService.findById(userId);
         if(!user)
             throw new NotFoundException("User not found");
-        const todoName = this.encryptionService.encryptSymmetric(name, user.secret);
+        const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo = await this.prismaService.todos.create({
             data: {
                 user_id: userId,
@@ -97,7 +101,7 @@ export class TodosService{
         const user = await this.usersService.findById(userId);
         if(!user)
             throw new NotFoundException("User not found");
-        const todoName = this.encryptionService.encryptSymmetric(name, user.secret);
+        const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId
@@ -125,7 +129,7 @@ export class TodosService{
                 id: todoId
             },
         });
-        todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret);
+        todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
         return todo;
     }
 }
