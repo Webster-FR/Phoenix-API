@@ -8,8 +8,23 @@ import {TodosModule} from "./todos/todos.module";
 import {TipsModule} from "./tips/tips.module";
 import {MaintenanceModule} from "./maintenance/maintenance.module";
 import {BanksModule} from "./banks/banks.module";
+import {ScheduleModule} from "@nestjs/schedule";
+import {TokenCleanupTask} from "./tasks/token-cleanup.task";
+import {TasksModule} from "./tasks/tasks.module";
 
 @Module({
-    imports: [AuthModule, VersionModule, ConfigModule.forRoot({isGlobal: true}), UsersModule, VerificationCodesModule, TodosModule, TipsModule, MaintenanceModule, BanksModule],
+    imports: [
+        ConfigModule.forRoot({isGlobal: true}),
+        ScheduleModule.forRoot(),
+        AuthModule,
+        VersionModule,
+        UsersModule,
+        VerificationCodesModule,
+        TodosModule,
+        TipsModule,
+        MaintenanceModule,
+        BanksModule,
+        TasksModule,
+    ],
 })
 export class AppModule{}
