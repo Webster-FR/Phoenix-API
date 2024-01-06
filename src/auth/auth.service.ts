@@ -3,7 +3,7 @@ import {
     ConflictException,
     ForbiddenException,
     Injectable, InternalServerErrorException,
-    NotFoundException, UnauthorizedException
+    NotFoundException, PreconditionFailedException, UnauthorizedException
 } from "@nestjs/common";
 import {EncryptionService} from "../services/encryption.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
@@ -28,7 +28,7 @@ export class AuthService{
     async loginUser(email: string, password: string, keepLoggedIn: boolean): Promise<AtRtResponse | AtResponse>{
         const user = await this.usersService.findByEmail(email);
         if(!await this.encryptionService.compareHash(user.password, password))
-            throw new UnauthorizedException("Invalid password");
+            throw new ForbiddenException("Invalid password");
         const code = await this.verificationCodeService.findByUserId(user.id);
         if(code){
             if(!await this.verificationCodeService.checkCodeValidity(code)){
@@ -37,7 +37,7 @@ export class AuthService{
                 await this.emailService.sendConfirmationEmail(user.email, newCode);
                 return null;
             }
-            throw new ForbiddenException("Email not confirmed");
+            throw new PreconditionFailedException("Email not confirmed");
         }
         const accessToken = await this.tokensService.generateAccessToken(user.id);
         if(keepLoggedIn === true){

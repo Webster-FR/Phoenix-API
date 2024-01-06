@@ -29,9 +29,9 @@ export class AuthController{
     @ApiResponse({status: HttpStatus.OK, description: "User logged in successfully", type: AtRtResponse})
     @ApiResponse({status: HttpStatus.ACCEPTED, description: "Confirmation code re-sent"})
     @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Missing required fields"})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid password"})
+    @ApiResponse({status: HttpStatus.FORBIDDEN, description: "Invalid password"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Email not found"})
-    @ApiResponse({status: HttpStatus.FORBIDDEN, description: "Email not confirmed"})
+    @ApiResponse({status: HttpStatus.PRECONDITION_FAILED, description: "Email not confirmed"})
     async login(@Res() res: FastifyReply, @Query() params: KeepParamDto, @Body() loginDto: LoginDto): Promise<AtRtResponse | AtResponse>{
         const response =  await this.authService.loginUser(loginDto.email, loginDto.password, params.keep);
         if(!response)
