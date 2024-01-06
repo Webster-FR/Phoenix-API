@@ -9,5 +9,6 @@ import {BanksModule} from "../banks/banks.module";
     controllers: [AccountsController],
     providers: [AccountsService],
     imports: [ServicesModule, UsersModule, BanksModule],
+    exports: [AccountsService],
 })
 export class AccountsModule{}
