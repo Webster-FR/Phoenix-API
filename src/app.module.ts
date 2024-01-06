@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module} from "@nestjs/common";
+import {Module} from "@nestjs/common";
 import {AuthModule} from "./auth/auth.module";
 import {VersionModule} from "./version/version.module";
 import {ConfigModule} from "@nestjs/config";
@@ -12,7 +12,6 @@ import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";
 import {AccountsModule} from "./accounts/accounts.module";
-import {LoggerMiddleware} from "./middlewares/logger.middleware";
 
 @Module({
     imports: [
@@ -31,8 +30,4 @@ import {LoggerMiddleware} from "./middlewares/logger.middleware";
         AccountsModule,
     ],
 })
-export class AppModule{
-    configure(consumer: MiddlewareConsumer){
-        consumer.apply(LoggerMiddleware).forRoutes("*");
-    }
-}
+export class AppModule{}

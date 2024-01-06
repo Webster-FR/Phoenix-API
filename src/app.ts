@@ -11,11 +11,8 @@ import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as os from "os";
 import {SwaggerTheme} from "swagger-themes";
-import {Logger} from "@nestjs/common";
 
 dotenv.config();
-
-const logger: Logger = new Logger("Main");
 
 async function bootstrap(){
     switch (process.env.SERVER_TYPE){
@@ -30,7 +27,7 @@ async function bootstrap(){
             await startHttpsServer();
             break;
         default:
-            logger.error("Invalid SERVER_TYPE");
+            console.error("Invalid SERVER_TYPE");
             process.exit(1);
     }
 }
@@ -55,7 +52,7 @@ function getServerAddress(bindAddress: string, port: string | number, protocol: 
 }
 
 function logServerStart(bindAddress: string, port: string | number, protocol: string){
-    logger.log(`Server started on ${getServerAddress(bindAddress, port, protocol)}`);
+    console.log(`Server started on ${getServerAddress(bindAddress, port, protocol)}`);
 }
 
 async function startHttpServer(){
@@ -85,6 +82,7 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>, serv
     });
 
     // Middlewares
+    server.use(new LoggerMiddleware().use);
     // await server.register(helmet, {
     //     contentSecurityPolicy: false,
     // });
