@@ -1,11 +1,15 @@
 import {Accounts} from "@prisma/client";
+import {ApiProperty} from "@nestjs/swagger";
 
 export class AccountEntity implements Accounts{
-    name: string;
-    amount: number;
-    bank_id: number;
-    user_id: number;
-    id: number;
-    created_at: Date;
-    updated_at: Date;
+    @ApiProperty()
+        name: string;
+    @ApiProperty()
+        amount: number;
+    @ApiProperty()
+        bank_id: number;
+    @ApiProperty()
+        user_id: number;
+    @ApiProperty()
+        id: number;
 }

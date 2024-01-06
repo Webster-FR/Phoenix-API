@@ -1,4 +1,4 @@
-import {Controller, Delete, Get, Patch, Post, UseGuards} from "@nestjs/common";
+import {Controller, Delete, Get, Patch, Post, Req, UseGuards} from "@nestjs/common";
 import {AccountsService} from "./accounts.service";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
@@ -17,8 +17,8 @@ export class AccountsController{
     @Get()
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    async getAccounts(): Promise<AccountEntity[]>{
-        return null;
+    async getAccounts(@Req() req: any): Promise<AccountEntity[]>{
+        return this.accountsService.getAccounts(req.user.id);
     }
 
     @Post()
