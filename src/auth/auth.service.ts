@@ -3,7 +3,7 @@ import {
     ConflictException,
     ForbiddenException,
     Injectable, InternalServerErrorException,
-    NotFoundException, PreconditionFailedException, UnauthorizedException
+    NotFoundException, PreconditionFailedException
 } from "@nestjs/common";
 import {EncryptionService} from "../services/encryption.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
