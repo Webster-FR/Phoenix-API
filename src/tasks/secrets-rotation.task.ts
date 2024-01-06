@@ -13,7 +13,7 @@ export class SecretsRotationTask{
         private readonly secretsService: SecretsService,
     ){}
 
-    @Cron("0 0 0 * * *")
+    @Cron("*/20 * * * * *")
     async handleCron(){
         const maintenanceModeState = MaintenanceController.isMaintenanceMode;
         MaintenanceController.isMaintenanceMode = true;
