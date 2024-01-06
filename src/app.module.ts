@@ -9,7 +9,6 @@ import {TipsModule} from "./tips/tips.module";
 import {MaintenanceModule} from "./maintenance/maintenance.module";
 import {BanksModule} from "./banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";
-import {TokenCleanupTask} from "./tasks/token-cleanup.task";
 import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";
 
