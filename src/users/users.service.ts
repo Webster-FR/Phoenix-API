@@ -4,6 +4,7 @@ import {UserEntity} from "./models/entities/user.entity";
 import {EncryptionService} from "../services/encryption.service";
 import {ConfigService} from "@nestjs/config";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
+import {VerificationCodeEntity} from "../verification-codes/models/entities/verification-code.entity";
 
 @Injectable()
 export class UsersService{
@@ -55,32 +56,8 @@ export class UsersService{
                 secret: encryptedUserSecret,
             },
         });
-        const verificationCode = await this.verificationCodeService.generateNewCode();
-        return await this.setVerificationCode(user.id, verificationCode.id);
-    }
-
-    async setVerificationCode(userId: number, verificationCodeId: number): Promise<UserEntity>{
-        await this.prismaService.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                verification_code_id: verificationCodeId,
-            },
-        });
-        return this.findById(userId);
-    }
-
-    async clearVerificationCode(userId: number): Promise<UserEntity>{
-        await this.prismaService.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                verification_code_id: null,
-            },
-        });
-        return this.findById(userId);
+        await this.verificationCodeService.setCode(user.id, this.encryptionService.generateSecret());
+        return this.decryptUserData(user);
     }
 
     async updateUsername(id: number, newUsername: string): Promise<UserEntity>{
@@ -104,13 +81,36 @@ export class UsersService{
     async deleteUser(id: number){
         if(!await this.isUserExists(id))
             throw new NotFoundException("User not found");
-        this.prismaService.user.delete({where: {id: id}});
+        await this.prismaService.user.delete({where: {id: id}});
     }
 
     async findByVerificationCode(verificationCodeId: number){
-        const user = await this.prismaService.user.findUnique({where: {verification_code_id: verificationCodeId}});
+        const code: VerificationCodeEntity = await this.verificationCodeService.findById(verificationCodeId);
+        if(!code)
+            throw new NotFoundException("Verification code not found");
+        const user: UserEntity = await this.prismaService.user.findUnique({where: {id: code.user_id}});
         if(!user)
             throw new NotFoundException("User not found");
         return this.decryptUserData(user);
+    }
+
+    async deleteUnverifiedUsers(){
+        const users = await this.prismaService.user.findMany({
+            include: {
+                verification_codes: true,
+            },
+            where: {
+                created_at: {
+                    lte: new Date(Date.now() - 48 * 60 * 60 * 1000), // 48 hours
+                },
+            },
+        });
+        let count = 0;
+        for(const user of users)
+            if(user.verification_codes){
+                await this.prismaService.user.delete({where: {id: user.id}});
+                count++;
+            }
+        return count;
     }
 }
