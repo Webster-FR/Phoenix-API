@@ -99,7 +99,7 @@ async function main(){
         create: {
             id: 1,
             name: encryptionService.encryptSymmetric("User account", userSecret),
-            amount: 0,
+            amount: encryptionService.encryptSymmetric("0", userSecret),
             bank_id: 2,
             user_id: 1,
         },
@@ -113,7 +113,7 @@ async function main(){
             user_id: 1,
             wording: encryptionService.encryptSymmetric("Test", userSecret),
             type: "expense",
-            amount: 10,
+            amount: encryptionService.encryptSymmetric("10", userSecret),
             next_occurrence: new Date(),
             frequency: "monthly",
             from_account_id: 1,

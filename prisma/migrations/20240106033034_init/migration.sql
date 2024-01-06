@@ -67,7 +67,7 @@ CREATE TABLE "banks" (
 CREATE TABLE "accounts" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
-    "amount" REAL NOT NULL,
+    "amount" TEXT NOT NULL,
     "bank_id" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
     CONSTRAINT "accounts_bank_id_fkey" FOREIGN KEY ("bank_id") REFERENCES "banks" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -80,7 +80,7 @@ CREATE TABLE "recurring_transactions" (
     "user_id" INTEGER NOT NULL,
     "wording" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "amount" REAL NOT NULL,
+    "amount" TEXT NOT NULL,
     "next_occurrence" DATETIME NOT NULL,
     "frequency" TEXT NOT NULL,
     "category_id" INTEGER,
@@ -186,7 +186,7 @@ CREATE UNIQUE INDEX "tips_order_key" ON "tips"("order");
 CREATE UNIQUE INDEX "banks_name_user_id_key" ON "banks"("name", "user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "accounts_name_key" ON "accounts"("name");
+CREATE UNIQUE INDEX "accounts_name_user_id_bank_id_key" ON "accounts"("name", "user_id", "bank_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "transaction_types_type_key" ON "transaction_types"("type");
