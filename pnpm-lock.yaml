@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@fastify/basic-auth':
-    specifier: ^5.1.1
-    version: 5.1.1
   '@fastify/compress':
     specifier: ^6.5.0
     version: 6.5.0
@@ -586,13 +583,6 @@ packages:
       ajv: 8.12.0
       ajv-formats: 2.1.1(ajv@8.12.0)
       fast-uri: 2.3.0
-    dev: false
-
-  /@fastify/basic-auth@5.1.1:
-    resolution: {integrity: sha512-L4b7EK5LKZnV6fdH1+rQbjhkKGXjCfiKJ0JkdGHZQPBMHMiXDZF8xbZsCakWGf9c7jDXJicP3FPcIXUPBkuSeQ==}
-    dependencies:
-      '@fastify/error': 3.4.1
-      fastify-plugin: 4.5.1
     dev: false
 
   /@fastify/compress@6.5.0:
