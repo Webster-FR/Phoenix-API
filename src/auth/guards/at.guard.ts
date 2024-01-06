@@ -22,6 +22,9 @@ export class AtGuard implements CanActivate{
         const token = AuthController.extractTokenFromHeader(request);
         if(!token)
             throw new UnauthorizedException("Missing access token");
+        const dbToken = await this.tokensService.getTokenEntity(token, false, false);
+        if(!dbToken)
+            throw new UnauthorizedException("Token not found in database");
         let payload: AtPayloadModel;
         try{
             payload = <AtPayloadModel>this.jwtService.verifyJWT(token, this.configService.get("AT_KEY"));

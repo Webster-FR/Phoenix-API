@@ -25,6 +25,9 @@ export class RtGuard implements CanActivate{
         const token = AuthController.extractTokenFromHeader(request);
         if(!token)
             throw new UnauthorizedException("Missing refresh token");
+        const dbToken = await this.tokensService.getTokenEntity(token, true, false);
+        if(!dbToken)
+            throw new UnauthorizedException("Token not found in database");
         let payload: AtPayloadModel;
         try{
             payload = <RtPayloadModel>this.jwtService.verifyJWT(token, this.configService.get("RT_KEY"));
