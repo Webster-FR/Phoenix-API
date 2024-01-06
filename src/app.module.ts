@@ -11,6 +11,7 @@ import {BanksModule} from "./banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";
+import {AccountsModule} from "./accounts/accounts.module";
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import {SecretsModule} from "./secrets/secrets.module";
         BanksModule,
         TasksModule,
         SecretsModule,
+        AccountsModule,
     ],
 })
 export class AppModule{}
