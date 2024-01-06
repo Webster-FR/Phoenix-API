@@ -22,7 +22,6 @@ async function main(){
             email: "test@exemple.org",
             password: await encryptionService.hash("password"),
             secret: encryptionService.encryptSymmetric(userSecret, encryptionKey),
-            verification_code_id: null,
             created_at: new Date(),
             updated_at: new Date(),
         },
