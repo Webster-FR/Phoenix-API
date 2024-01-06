@@ -146,8 +146,8 @@ model TransactionCategories {
 model InternalLedger {
   id                  Int                    @id @default(autoincrement())
   account_id          Int
-  debit               Float?
-  credit              Float?
+  debit               String?
+  credit              String?
   created_at          DateTime               @default(now())
   account             Accounts               @relation(fields: [account_id], references: [id])
   debit_ledger        InternalTransactions[] @relation("debit_ledger")
