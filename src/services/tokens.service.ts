@@ -21,10 +21,12 @@ export class TokensService{
         const payload = new AtPayloadModel(userId);
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
+        const sum = this.encryptionService.getSum(token).substring(0, 10);
+        console.log(token, sum);
         await this.prismaService.tokens.create({
             data: {
                 user_id: userId,
-                sum: this.encryptionService.getSum(token).substring(0, 10),
+                sum: sum,
                 token: await this.encryptionService.hash(token),
                 is_refresh: false,
                 expires: new Date(expires * 1000)
@@ -37,10 +39,12 @@ export class TokensService{
         const payload = new RtPayloadModel(userId);
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
+        const sum = this.encryptionService.getSum(token).substring(0, 10);
+        console.log(token, sum);
         await this.prismaService.tokens.create({
             data: {
                 user_id: userId,
-                sum: this.encryptionService.getSum(token).substring(0, 10),
+                sum,
                 token: await this.encryptionService.hash(token),
                 is_refresh: true,
                 expires: new Date(expires * 1000)
