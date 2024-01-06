@@ -11,6 +11,7 @@ import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as os from "os";
 import {SwaggerTheme} from "swagger-themes";
+import {LoggerMiddleware} from "./middlewares/logger.middleware";
 
 dotenv.config();
 
