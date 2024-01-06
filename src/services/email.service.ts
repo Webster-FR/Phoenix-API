@@ -28,7 +28,7 @@ export class EmailService{
             from: emailUser,
             to: email,
             subject: "[Phoenix] Confirm your account",
-            text: `Your confirmation code is ${link}/${code}`,
+            text: `Your confirmation code is ${link}${code}`,
         };
         await transporter.sendMail(mailOptions);
     }
