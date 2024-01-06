@@ -75,7 +75,7 @@ export class TokensService{
 
     async blacklistToken(token: string, isRefresh: boolean, exception: boolean = true){
         const dbToken = await this.getTokenEntity(token, isRefresh, exception);
-        if(exception && !dbToken)
+        if(!exception && !dbToken)
             return false;
         await this.prismaService.tokens.update({
             where: {
