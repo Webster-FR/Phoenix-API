@@ -20,6 +20,7 @@ async function main(){
     const recurringTransactionsEncryptionStrength = parseInt(process.env.RECURRING_TRANSACTIONS_ENCRYPTION_STRENGTH);
     const accountsEncryptionStrength = parseInt(process.env.ACCOUNTS_ENCRYPTION_STRENGTH);
     const todosEncryptionStrength = parseInt(process.env.TODOS_ENCRYPTION_STRENGTH);
+    const transactionCategoriesEncryptionStrength = parseInt(process.env.TRANSACTION_CATEGORIES_ENCRYPTION_STRENGTH);
     const testUser = await prisma.user.upsert({
         where: {id: 1},
         update: {},
@@ -153,7 +154,44 @@ async function main(){
         },
     });
 
-    console.log(testUser, test1Todos, test2Todos, tips, defaultBank, userBank, userAccount, recurringTransaction, ledger1, ledger2);
+    const defaultTransactionCategory = await prisma.transactionCategories.upsert({
+        where: {id: 1},
+        update: {},
+        create: {
+            id: 1,
+            user_id: null,
+            name: encryptionService.encryptSymmetric("Default transaction category", encryptionKey, transactionCategoriesEncryptionStrength),
+            icon: "none",
+            color: "none",
+        },
+    });
+
+    const transactionCategory = await prisma.transactionCategories.upsert({
+        where: {id: 2},
+        update: {},
+        create: {
+            id: 2,
+            user_id: 1,
+            name: encryptionService.encryptSymmetric("User transaction category", encryptionKey, transactionCategoriesEncryptionStrength),
+            icon: "none",
+            color: "none",
+        },
+    });
+
+    console.log(
+        testUser,
+        test1Todos,
+        test2Todos,
+        tips,
+        defaultBank,
+        userBank,
+        userAccount,
+        recurringTransaction,
+        ledger1,
+        ledger2,
+        defaultTransactionCategory,
+        transactionCategory
+    );
     console.log("Seeding done !");
 }
 
