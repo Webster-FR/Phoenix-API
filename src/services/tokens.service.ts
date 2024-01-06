@@ -97,4 +97,15 @@ export class TokensService{
         const dbToken = await this.getTokenEntity(token, isRefresh);
         return dbToken.blacklisted;
     }
+
+    async deleteExpiredTokens(){
+        const {count} = await this.prismaService.tokens.deleteMany({
+            where: {
+                expires: {
+                    lt: new Date(),
+                },
+            },
+        });
+        return count;
+    }
 }
