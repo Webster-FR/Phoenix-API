@@ -7,6 +7,7 @@ import {UsersModule} from "../users/users.module";
 @Module({
     controllers: [TipsController],
     providers: [TipsService],
-    imports: [ServicesModule, UsersModule]
+    imports: [ServicesModule, UsersModule],
+    exports: [TipsService]
 })
 export class TipsModule{}
