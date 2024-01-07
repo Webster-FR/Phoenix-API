@@ -1,6 +1,6 @@
-networks:
-  phoenix-network:
-    external: true
+networks: {
+  phoenix-network: {}
+}
 
 services:
   postgres:
