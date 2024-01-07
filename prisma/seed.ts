@@ -3,7 +3,19 @@
 import {PrismaClient} from "@prisma/client";
 import {EncryptionService} from "../src/services/encryption.service";
 import * as dotenv from "dotenv";
-import {getTipsSeed} from "./seeds/tips.seed";
+import tips from "./seeds/tips.seed";
+import usersFunction from "./seeds/users.seed";
+import todosFunction from "./seeds/todos.seed";
+import banks from "./seeds/banks.seed";
+import accountsFunction from "./seeds/accounts.seed";
+import recurringTransactionsFunction from "./seeds/recurring-transactions.seed";
+import transactionCategories from "./seeds/transaction-categories.seed";
+import ledgersFunction from "./seeds/ledgers.seed";
+import {
+    incomeTransactionsFunction,
+    expenseTransactionsFunction,
+    internalTransactionsFunction
+} from "./seeds/transactions.seed";
 
 dotenv.config();
 
@@ -13,189 +25,87 @@ const encryptionService = new EncryptionService();
 
 async function main(){
     const userSecret = encryptionService.generateSecret();
-    const encryptionKey = process.env.SYMMETRIC_ENCRYPTION_KEY;
-    const userSecretsEncryptionStrength = parseInt(process.env.USER_SECRETS_ENCRYPTION_STRENGTH);
-    const usersEncryptionStrength = parseInt(process.env.USERS_ENCRYPTION_STRENGTH);
-    const banksEncryptionStrength = parseInt(process.env.BANKS_ENCRYPTION_STRENGTH);
-    const ledgersEncryptionStrength = parseInt(process.env.LEDGERS_ENCRYPTION_STRENGTH);
-    const recurringTransactionsEncryptionStrength = parseInt(process.env.RECURRING_TRANSACTIONS_ENCRYPTION_STRENGTH);
-    const accountsEncryptionStrength = parseInt(process.env.ACCOUNTS_ENCRYPTION_STRENGTH);
-    const todosEncryptionStrength = parseInt(process.env.TODOS_ENCRYPTION_STRENGTH);
-    const transactionCategoriesEncryptionStrength = parseInt(process.env.TRANSACTION_CATEGORIES_ENCRYPTION_STRENGTH);
-    const testUser = await prisma.user.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            username: encryptionService.encryptSymmetric("test", userSecret, usersEncryptionStrength),
-            email: "test@exemple.org",
-            password: await encryptionService.hash("password"),
-            secret: encryptionService.encryptSymmetric(userSecret, encryptionKey, userSecretsEncryptionStrength),
-            created_at: new Date(),
-            updated_at: new Date(),
-        },
-    });
 
-    const test1Todos = await prisma.todos.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            user_id: 1,
-            name: encryptionService.encryptSymmetric("Test 1", userSecret, todosEncryptionStrength),
-            completed: false,
-            deadline: new Date(),
-            frequency: null,
-            icon: "none",
-            color: "none",
-            created_at: new Date(),
-            updated_at: new Date(),
-        },
-    });
-    const test2Todos = await prisma.todos.upsert({
-        where: {id: 2},
-        update: {},
-        create: {
-            id: 2,
-            user_id: 1,
-            name: encryptionService.encryptSymmetric("Test 2", userSecret, todosEncryptionStrength),
-            completed: false,
-            deadline: new Date(),
-            parent_id: 1,
-            frequency: null,
-            icon: "none",
-            color: "none",
-            created_at: new Date(),
-            updated_at: new Date(),
-        },
-    });
+    const users = await usersFunction(userSecret);
+    await seed(prisma.user, users);
 
-    const tipsSeed = await getTipsSeed();
-    const tips = [];
-    for (let i = 0; i < tipsSeed.length; i++){
-        tips.push(await prisma.tips.upsert({
-            where: {id: i + 1},
-            update: {},
-            create: {
-                id: i + 1,
-                tips: tipsSeed[i].tips,
-                author: tipsSeed[i].author || null,
-                order: i + 1,
-            },
-        }));
-    }
+    const todos = todosFunction(userSecret);
+    await seed(prisma.todos, todos);
 
-    const defaultBank = await prisma.banks.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            name: encryptionService.encryptSymmetric("Default bank", encryptionKey, banksEncryptionStrength),
-        },
-    });
+    await seed(prisma.tips, tips);
 
-    const userBank = await prisma.banks.upsert({
-        where: {id: 2},
-        update: {},
-        create: {
-            id: 2,
-            user_id: 1,
-            name: encryptionService.encryptSymmetric("User bank", encryptionKey, banksEncryptionStrength),
-        },
-    });
+    await seed(prisma.banks, banks);
 
-    const userAccount = await prisma.accounts.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            name: encryptionService.encryptSymmetric("User account", userSecret, accountsEncryptionStrength),
-            amount: encryptionService.encryptSymmetric("0", userSecret, accountsEncryptionStrength),
-            bank_id: 2,
-            user_id: 1,
-        },
-    });
+    const accounts = accountsFunction(userSecret);
+    await seed(prisma.accounts, accounts);
 
-    const recurringTransaction = await prisma.recurringTransaction.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            user_id: 1,
-            wording: encryptionService.encryptSymmetric("Test", userSecret, recurringTransactionsEncryptionStrength),
-            type: "expense",
-            amount: encryptionService.encryptSymmetric("10", userSecret, recurringTransactionsEncryptionStrength),
-            next_occurrence: new Date(),
-            frequency: "monthly",
-            from_account_id: 1,
-            created_at: new Date(),
-            updated_at: new Date(),
-        },
-    });
+    const recurringTransactions = recurringTransactionsFunction(userSecret);
+    await seed(prisma.recurringTransaction, recurringTransactions);
 
-    const ledger1 = await prisma.internalLedger.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            account_id: 1,
-            credit: encryptionService.encryptSymmetric("100", userSecret, ledgersEncryptionStrength),
-            debit: null,
-            created_at: new Date(),
-        },
-    });
+    await seed(prisma.transactionCategories, transactionCategories);
 
-    const ledger2 = await prisma.internalLedger.upsert({
-        where: {id: 2},
-        update: {},
-        create: {
-            id: 2,
-            account_id: 1,
-            credit: null,
-            debit: encryptionService.encryptSymmetric("100", userSecret, ledgersEncryptionStrength),
-            created_at: new Date(),
-        },
-    });
+    const ledgers = ledgersFunction(userSecret);
+    await seed(prisma.internalLedger, ledgers);
 
-    const defaultTransactionCategory = await prisma.transactionCategories.upsert({
-        where: {id: 1},
-        update: {},
-        create: {
-            id: 1,
-            user_id: null,
-            name: encryptionService.encryptSymmetric("Default transaction category", encryptionKey, transactionCategoriesEncryptionStrength),
-            icon: "none",
-            color: "none",
-        },
-    });
-
-    const transactionCategory = await prisma.transactionCategories.upsert({
-        where: {id: 2},
-        update: {},
-        create: {
-            id: 2,
-            user_id: 1,
-            name: encryptionService.encryptSymmetric("User transaction category", encryptionKey, transactionCategoriesEncryptionStrength),
-            icon: "none",
-            color: "none",
-        },
-    });
+    const incomeTransactions = incomeTransactionsFunction(userSecret);
+    await seedTransactions(prisma.incomeTransactions, incomeTransactions, false);
+    const expenseTransactions = expenseTransactionsFunction(userSecret);
+    await seedTransactions(prisma.expenseTransactions, expenseTransactions, false);
+    const internalTransactions = internalTransactionsFunction(userSecret);
+    await seedTransactions(prisma.internalTransactions, internalTransactions, true);
 
     console.log(
-        testUser,
-        test1Todos,
-        test2Todos,
+        users,
+        todos,
         tips,
-        defaultBank,
-        userBank,
-        userAccount,
-        recurringTransaction,
-        ledger1,
-        ledger2,
-        defaultTransactionCategory,
-        transactionCategory
+        banks,
+        accounts,
+        recurringTransactions,
+        transactionCategories,
+        ledgers,
+        incomeTransactions,
+        expenseTransactions,
+        internalTransactions
     );
     console.log("Seeding done !");
+}
+
+async function seed(table: any, data: any[]){
+    for(let i = 1; i <= data.length; i++){
+        await table.upsert({
+            where: {id: i},
+            update: {},
+            create: {
+                id: i,
+                ...data[i - 1],
+            },
+        });
+    }
+}
+
+async function seedTransactions(table: any, data: any[], isInternal: boolean){
+    if(!isInternal)
+        for(let i = 1; i <= 24; i++){
+            if(data.find((d) => d.internal_ledger_id === i))
+                await table.upsert({
+                    where: {internal_ledger_id: i},
+                    update: {},
+                    create: {
+                        ...data.find((d) => d.internal_ledger_id === i),
+                    },
+                });
+        }
+    else
+        for(let i = 1; i <= 24; i++){
+            if(data.find((d) => d.debit_internal_ledger_id === i))
+                await table.upsert({
+                    where: {debit_internal_ledger_id: i},
+                    update: {},
+                    create: {
+                        ...data.find((d) => d.debit_internal_ledger_id === i),
+                    },
+                });
+        }
 }
 
 main().catch((e) => {

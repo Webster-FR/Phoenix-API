@@ -159,19 +159,31 @@ model InternalLedger {
 }
 
 model TransactionTypes {
-  ulid String @id
-  type String @unique
+  ulid             String @id
+  transaction_type String
 
   @@map("transaction_types")
 }
 
+model FutureTransactions {
+  id                Int      @id @default(autoincrement())
+  amount            String
+  wording           String
+  category_id       Int
+  debit_account_id  Int?
+  credit_account_id Int?
+  transaction_type  String
+  processed_at      DateTime
+
+  @@map("future_transactions")
+}
+
 model InternalTransactions {
   ulid                      String                 @id
-  amount                    Float
-  wording                   String
+  wording                   String?
   category_id               Int
-  debit_internal_ledger_id  Int
-  credit_internal_ledger_id Int
+  debit_internal_ledger_id  Int                    @unique
+  credit_internal_ledger_id Int                    @unique
   rectification_ulid        String?
   created_at                DateTime               @default(now())
   category                  TransactionCategories  @relation(fields: [category_id], references: [id])
@@ -185,10 +197,9 @@ model InternalTransactions {
 
 model ExpenseTransactions {
   ulid                 String                @id
-  amount               Float
-  wording              String
+  wording              String?
   category_id          Int
-  internal_ledger_id   Int
+  internal_ledger_id   Int                   @unique
   rectification_ulid   String?
   created_at           DateTime              @default(now())
   category             TransactionCategories @relation(fields: [category_id], references: [id])
@@ -201,10 +212,9 @@ model ExpenseTransactions {
 
 model IncomeTransactions {
   ulid                String                @id
-  amount              Float
-  wording             String
+  wording             String?
   category_id         Int
-  internal_ledger_id  Int
+  internal_ledger_id  Int                   @unique
   rectification_ulid  String?
   created_at          DateTime              @default(now())
   category            TransactionCategories @relation(fields: [category_id], references: [id])

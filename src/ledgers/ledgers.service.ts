@@ -1,25 +1,32 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, forwardRef, Inject, Injectable} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
-import {AccountsService} from "../accounts/accounts.service";
 import {UsersService} from "../users/users.service";
 import {LedgerEntity} from "./models/entities/ledger.entity";
 import {EncryptionService} from "../services/encryption.service";
 import {EncryptedLedgerEntity} from "./models/entities/encrypted-ledger.entity";
 import {ConfigService} from "@nestjs/config";
+import {AccountsService} from "../accounts/accounts.service";
 
 @Injectable()
 export class LedgersService{
 
     private readonly ledgersEncryptionStrength = parseInt(this.configService.get("LEDGERS_ENCRYPTION_STRENGTH"));
+    private readonly accountsEncryptionStrength = parseInt(this.configService.get("ACCOUNTS_ENCRYPTION_STRENGTH"));
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly accountsService: AccountsService,
         private readonly usersService: UsersService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
+        @Inject(forwardRef(() => AccountsService))
+        private readonly accountsService: AccountsService,
     ){}
 
+    /**
+     * Create a ledger
+     * @param accountId The account id
+     * @param amount The amount (+/-)
+     */
     async createLedger(accountId: number, amount: number): Promise<LedgerEntity>{
         if(amount === 0)
             throw new BadRequestException("Amount cannot be zero");
@@ -32,7 +39,7 @@ export class LedgersService{
         if(credit)
             encryptedCredit = this.encryptionService.encryptSymmetric(credit.toString(), user.secret, this.ledgersEncryptionStrength);
         if(debit)
-            encryptedDebit = this.encryptionService.encryptSymmetric(debit.toString(), user.secret, this.ledgersEncryptionStrength);
+            encryptedDebit = this.encryptionService.encryptSymmetric(Math.abs(debit).toString(), user.secret, this.ledgersEncryptionStrength);
         const ledger: EncryptedLedgerEntity = await this.prismaService.internalLedger.create({
             data: {
                 credit: encryptedCredit,
@@ -40,6 +47,7 @@ export class LedgersService{
                 account_id: accountId,
             }
         });
+        await this.accountsService.updateBalance(user, account, amount);
         const ledgerEntity = new LedgerEntity();
         ledgerEntity.id = ledger.id;
         ledgerEntity.account_id = ledger.account_id;

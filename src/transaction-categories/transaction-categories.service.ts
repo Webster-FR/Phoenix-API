@@ -2,8 +2,8 @@ import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {EncryptionService} from "../services/encryption.service";
 import {ConfigService} from "@nestjs/config";
-import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
 import {UsersService} from "../users/users.service";
+import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
 
 @Injectable()
 export class TransactionCategoriesService{
@@ -16,6 +16,18 @@ export class TransactionCategoriesService{
         private readonly configService: ConfigService,
         private readonly usersService: UsersService,
     ){}
+
+    async isTransactionCategoryExists(userId: number, transactionCategoryId: number): Promise<boolean>{
+        return !!await this.prismaService.transactionCategories.findUnique({
+            where: {
+                id: transactionCategoryId,
+                OR: [
+                    {user_id: userId},
+                    {user_id: null},
+                ],
+            },
+        });
+    }
 
     async getTransactionCategories(userId: number): Promise<TransactionCategoryEntity[]>{
         const transactionCategories: TransactionCategoryEntity[] = await this.prismaService.transactionCategories.findMany({

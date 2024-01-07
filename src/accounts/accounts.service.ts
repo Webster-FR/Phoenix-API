@@ -1,4 +1,4 @@
-import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {ConflictException, forwardRef, Inject, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {AccountEntity} from "./models/entities/account.entity";
 import {UsersService} from "../users/users.service";
@@ -6,6 +6,8 @@ import {EncryptionService} from "../services/encryption.service";
 import {EncryptedAccountEntity} from "./models/entities/encrypted-account.entity";
 import {BanksService} from "../banks/banks.service";
 import {ConfigService} from "@nestjs/config";
+import {TransactionsService} from "../transactions/transactions.service";
+import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
 export class AccountsService{
@@ -18,7 +20,18 @@ export class AccountsService{
         private readonly encryptionService: EncryptionService,
         private readonly banksService: BanksService,
         private readonly configService: ConfigService,
+        @Inject(forwardRef(() => TransactionsService))
+        private readonly transactionsService: TransactionsService,
     ){}
+
+    async isAccountExists(userId: number, accountId: number): Promise<boolean>{
+        return !!await this.prismaService.accounts.findUnique({
+            where: {
+                id: accountId,
+                user_id: userId,
+            }
+        });
+    }
 
     async getAccounts(userId: number): Promise<AccountEntity[]>{
         const user = await this.usersService.findById(userId);
@@ -69,7 +82,7 @@ export class AccountsService{
         for(const account of accounts)
             if(account.bank_id === bankId && account.name === name)
                 throw new ConflictException("Account already exists");
-        const encryptedAmount = this.encryptionService.encryptSymmetric(amount.toString(), user.secret, this.accountsEncryptionStrength);
+        const encryptedAmount = this.encryptionService.encryptSymmetric("0", user.secret, this.accountsEncryptionStrength);
         const account: EncryptedAccountEntity = await this.prismaService.accounts.create({
             data: {
                 name: this.encryptionService.encryptSymmetric(name, user.secret, this.accountsEncryptionStrength),
@@ -78,6 +91,7 @@ export class AccountsService{
                 user_id: userId,
             }
         });
+        await this.transactionsService.createOtherTransaction("Init", user.secret, account.id, amount, 1);
         return await this.findById(account.id);
     }
 
@@ -116,5 +130,19 @@ export class AccountsService{
             }
         });
         return account;
+    }
+
+    async updateBalance(user: UserEntity, account: AccountEntity, amount: number){
+        if(!user)
+            throw new NotFoundException("User not found");
+        const newAmount = Math.round((account.amount + amount) * 100) / 100;
+        await this.prismaService.accounts.update({
+            where: {
+                id: account.id,
+            },
+            data: {
+                amount: this.encryptionService.encryptSymmetric(newAmount.toString(), user.secret, this.accountsEncryptionStrength),
+            }
+        });
     }
 }

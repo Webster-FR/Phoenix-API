@@ -14,6 +14,7 @@ import {SecretsModule} from "./secrets/secrets.module";
 import {AccountsModule} from "./accounts/accounts.module";
 import {LedgersModule} from "./ledgers/ledgers.module";
 import {TransactionsModule} from "./transactions/transactions.module";
+import {TransactionCategoriesModule} from "./transaction-categories/transaction-categories.module";
 
 @Module({
     imports: [
@@ -32,6 +33,7 @@ import {TransactionsModule} from "./transactions/transactions.module";
         AccountsModule,
         LedgersModule,
         TransactionsModule,
+        TransactionCategoriesModule,
     ],
 })
 export class AppModule{}

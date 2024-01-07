@@ -117,14 +117,25 @@ CREATE TABLE "internal_ledger" (
 -- CreateTable
 CREATE TABLE "transaction_types" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "type" TEXT NOT NULL
+    "transaction_type" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "future_transactions" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "amount" TEXT NOT NULL,
+    "wording" TEXT NOT NULL,
+    "category_id" INTEGER NOT NULL,
+    "debit_account_id" INTEGER,
+    "credit_account_id" INTEGER,
+    "transaction_type" TEXT NOT NULL,
+    "processed_at" DATETIME NOT NULL
 );
 
 -- CreateTable
 CREATE TABLE "internal_transactions" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "amount" REAL NOT NULL,
-    "wording" TEXT NOT NULL,
+    "wording" TEXT,
     "category_id" INTEGER NOT NULL,
     "debit_internal_ledger_id" INTEGER NOT NULL,
     "credit_internal_ledger_id" INTEGER NOT NULL,
@@ -139,8 +150,7 @@ CREATE TABLE "internal_transactions" (
 -- CreateTable
 CREATE TABLE "expense_transactions" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "amount" REAL NOT NULL,
-    "wording" TEXT NOT NULL,
+    "wording" TEXT,
     "category_id" INTEGER NOT NULL,
     "internal_ledger_id" INTEGER NOT NULL,
     "rectification_ulid" TEXT,
@@ -153,8 +163,7 @@ CREATE TABLE "expense_transactions" (
 -- CreateTable
 CREATE TABLE "income_transactions" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "amount" REAL NOT NULL,
-    "wording" TEXT NOT NULL,
+    "wording" TEXT,
     "category_id" INTEGER NOT NULL,
     "internal_ledger_id" INTEGER NOT NULL,
     "rectification_ulid" TEXT,
@@ -189,4 +198,13 @@ CREATE UNIQUE INDEX "banks_name_user_id_key" ON "banks"("name", "user_id");
 CREATE UNIQUE INDEX "accounts_name_user_id_bank_id_key" ON "accounts"("name", "user_id", "bank_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "transaction_types_type_key" ON "transaction_types"("type");
+CREATE UNIQUE INDEX "internal_transactions_debit_internal_ledger_id_key" ON "internal_transactions"("debit_internal_ledger_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "internal_transactions_credit_internal_ledger_id_key" ON "internal_transactions"("credit_internal_ledger_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "expense_transactions_internal_ledger_id_key" ON "expense_transactions"("internal_ledger_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "income_transactions_internal_ledger_id_key" ON "income_transactions"("internal_ledger_id");

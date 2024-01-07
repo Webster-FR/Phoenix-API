@@ -1,62 +1,62 @@
-import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Get, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
 import {TransactionsService} from "./transactions.service";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
-import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../auth/guards/at.guard";
-import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
-import {TransactionCategoriesService} from "./transaction-categories.service";
-import {TransactionCategoryDto} from "./models/dto/transaction-category.dto";
-import {IdDto} from "../models/dto/id.dto";
+import {AccountIdDto} from "./models/dto/account-id.dto";
+import CreateTransactionDto from "./models/dto/create-transaction.dto";
+import {FutureTransactionEntity} from "./models/entities/future-transaction.entity";
 
 @Controller("transactions")
 @UseGuards(MaintenanceGuard)
 @ApiTags("Transactions")
 export class TransactionsController{
+
     constructor(
         private readonly transactionsService: TransactionsService,
-        private readonly transactionCategoriesService: TransactionCategoriesService,
     ){}
 
-    @Get("/categories")
+    @Get("/:account_id/processed")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Returns all transaction categories"})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Missing or invalid access token"})
-    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
-    async getTransactionCategories(@Req() req: any): Promise<TransactionCategoryEntity[]>{
-        return this.transactionCategoriesService.getTransactionCategories(req.user.id);
+    async getProcessedTransactions(@Req() req: any, @Param() accountIdDto: AccountIdDto): Promise<Transaction[]>{
+        return this.transactionsService.getProcessedTransactions(req.user.id, accountIdDto.account_id);
     }
 
-    @Post("/categories")
+    @Get("/:account_id/unprocessed")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.CREATED, description: "Creates a new transaction category"})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Missing or invalid access token"})
-    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
-    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid transaction category data"})
-    async createTransactionCategory(@Req() req: any, @Body() transactionCategoryDto: TransactionCategoryDto): Promise<TransactionCategoryEntity>{
-        return this.transactionCategoriesService.createTransactionCategory(req.user.id, transactionCategoryDto.name, transactionCategoryDto.icon, transactionCategoryDto.color);
+    async getUnprocessedTransactions(@Req() req: any, @Param() accountIdDto: AccountIdDto): Promise<FutureTransactionEntity[]>{
+        return this.transactionsService.getUnprocessedTransactions(req.user.id, accountIdDto.account_id);
     }
 
-    @Put("/categories/:id")
+    @Post()
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Updates a transaction category"})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Missing or invalid access token"})
-    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
-    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid transaction category data"})
-    async updateTransactionCategory(@Req() req: any, @Param() idDto: IdDto, @Body() transactionCategoryDto: TransactionCategoryDto): Promise<TransactionCategoryEntity>{
-        return this.transactionCategoriesService.updateTransactionCategory(req.user.id, idDto.id, transactionCategoryDto.name, transactionCategoryDto.icon, transactionCategoryDto.color);
+    async createTransaction(@Req() req: any, @Body() createTransactionDto: CreateTransactionDto): Promise<Transaction | FutureTransactionEntity>{
+        return this.transactionsService.createTransaction(req.user.id, createTransactionDto.wording, createTransactionDto.category_id, createTransactionDto.amount, createTransactionDto.from_account_id, createTransactionDto.to_account_id, createTransactionDto.created_at);
     }
 
-    @Delete("/categories/:id")
+    @Put("/unprocessed/:ulid")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Deletes a transaction category"})
-    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Missing or invalid access token"})
-    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
-    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid transaction category id"})
-    async deleteTransactionCategory(@Req() req: any, @Param() idDto: IdDto): Promise<TransactionCategoryEntity>{
-        return this.transactionCategoriesService.deleteTransactionCategory(req.user.id, idDto.id);
+    async updateFutureTransaction(){
+
     }
+
+    @Patch("/:ulid/wording")
+    @UseGuards(AtGuard)
+    @ApiBearerAuth()
+    async updateTransactionWording(){
+
+    }
+
+    @Post("/rectification")
+    @UseGuards(AtGuard)
+    @ApiBearerAuth()
+    async createTransactionRectification(){
+
+    }
+
+
 }
