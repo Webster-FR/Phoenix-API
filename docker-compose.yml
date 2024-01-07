@@ -29,7 +29,7 @@ services:
           condition: service_healthy
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=${DOTENV_KEY}
+      - DOTENV_KEY=${DOTENV_KEY}
     deploy:
       restart_policy:
         condition: on-failure
