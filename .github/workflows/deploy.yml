@@ -59,7 +59,7 @@ jobs:
           script: |
             docker-compose -f docker-compose.yml pull
             docker-compose -f docker-compose.yml down
-            DOTENV_KEY=${{ secrets.DOTENV_KEY }} docker-compose -f docker-compose.yml --env-file ./.env up -d phoenix-api
+            DOTENV_KEY=${{ secrets.DOTENV_KEY }} docker compose -f docker-compose.yml up -d xen0xys/phoenix-api
 
 #jobs:
 #  deploy:
