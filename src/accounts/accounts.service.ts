@@ -6,6 +6,7 @@ import {EncryptionService} from "../services/encryption.service";
 import {EncryptedAccountEntity} from "./models/entities/encrypted-account.entity";
 import {BanksService} from "../banks/banks.service";
 import {ConfigService} from "@nestjs/config";
+import {TransactionsService} from "../transactions/transactions.service";
 
 @Injectable()
 export class AccountsService{
@@ -18,6 +19,7 @@ export class AccountsService{
         private readonly encryptionService: EncryptionService,
         private readonly banksService: BanksService,
         private readonly configService: ConfigService,
+        private readonly transactionsService: TransactionsService,
     ){}
 
     async getAccounts(userId: number): Promise<AccountEntity[]>{

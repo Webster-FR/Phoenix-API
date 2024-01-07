@@ -1,29 +1,49 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
-import {AccountsService} from "../accounts/accounts.service";
 import {UsersService} from "../users/users.service";
 import {LedgerEntity} from "./models/entities/ledger.entity";
 import {EncryptionService} from "../services/encryption.service";
 import {EncryptedLedgerEntity} from "./models/entities/encrypted-ledger.entity";
 import {ConfigService} from "@nestjs/config";
+import {AccountEntity} from "../accounts/models/entities/account.entity";
+import {EncryptedAccountEntity} from "../accounts/models/entities/encrypted-account.entity";
 
 @Injectable()
 export class LedgersService{
 
     private readonly ledgersEncryptionStrength = parseInt(this.configService.get("LEDGERS_ENCRYPTION_STRENGTH"));
+    private readonly accountsEncryptionStrength = parseInt(this.configService.get("ACCOUNTS_ENCRYPTION_STRENGTH"));
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly accountsService: AccountsService,
         private readonly usersService: UsersService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
     ){}
 
+    async findAccountById(accountId: number): Promise<AccountEntity>{
+        // noinspection DuplicatedCode
+        const account: EncryptedAccountEntity = await this.prismaService.accounts.findUnique({
+            where: {
+                id: accountId,
+            }
+        });
+        if(!account)
+            throw new NotFoundException("Account not found");
+        const user = await this.usersService.findById(account.user_id);
+        return {
+            id: account.id,
+            name: this.encryptionService.decryptSymmetric(account.name, user.secret, this.accountsEncryptionStrength),
+            amount: parseFloat(this.encryptionService.decryptSymmetric(account.amount, user.secret, this.accountsEncryptionStrength)),
+            bank_id: account.bank_id,
+            user_id: account.user_id,
+        };
+    }
+
     async createLedger(accountId: number, amount: number): Promise<LedgerEntity>{
         if(amount === 0)
             throw new BadRequestException("Amount cannot be zero");
-        const account = await this.accountsService.findById(accountId);
+        const account = await this.findAccountById(accountId);
         const user = await this.usersService.findById(account.user_id);
         const credit = amount > 0 ? amount : null;
         const debit = amount < 0 ? amount : null;
@@ -50,7 +70,7 @@ export class LedgersService{
     }
 
     async getLedgers(accountId: number): Promise<LedgerEntity[]>{
-        const account = await this.accountsService.findById(accountId);
+        const account = await this.findAccountById(accountId);
         const user = await this.usersService.findById(account.user_id);
         const ledgers: EncryptedLedgerEntity[] = await this.prismaService.internalLedger.findMany({
             where: {
@@ -76,7 +96,7 @@ export class LedgersService{
                 id: ledgerId
             }
         });
-        const account = await this.accountsService.findById(ledger.account_id);
+        const account = await this.findAccountById(ledger.account_id);
         const user = await this.usersService.findById(account.user_id);
         const ledgerEntity = new LedgerEntity();
         ledgerEntity.id = ledger.id;
