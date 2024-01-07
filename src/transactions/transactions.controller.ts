@@ -3,8 +3,10 @@ import {TransactionsService} from "./transactions.service";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../auth/guards/at.guard";
-import {FutureTransactionEntity} from "./models/entities/future-transaction.entity";
+import {EncryptedFutureTransactionEntity} from "./models/entities/encrypted-future-transaction.entity";
 import {AccountIdDto} from "./models/dto/account-id.dto";
+import CreateTransactionDto from "./models/dto/create-transaction.dto";
+import {FutureTransactionEntity} from "./models/entities/future-transaction.entity";
 
 @Controller("transactions")
 @UseGuards(MaintenanceGuard)
@@ -26,14 +28,14 @@ export class TransactionsController{
     @UseGuards(AtGuard)
     @ApiBearerAuth()
     async getUnprocessedTransactions(@Req() req: any, @Param() accountIdDto: AccountIdDto): Promise<FutureTransactionEntity[]>{
-        return null;
+        return this.transactionsService.getUnprocessedTransactions(req.user.id, accountIdDto.account_id);
     }
 
     @Post()
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    async createTransaction(@Req() req: any){
-
+    async createTransaction(@Req() req: any, @Body() createTransactionDto: CreateTransactionDto): Promise<Transaction | FutureTransactionEntity>{
+        return this.transactionsService.createTransaction(req.user.id, createTransactionDto.wording, createTransactionDto.category_id, createTransactionDto.amount, createTransactionDto.from_account_id, createTransactionDto.to_account_id, createTransactionDto.created_at);
     }
 
     @Patch("/:ulid/wording")
