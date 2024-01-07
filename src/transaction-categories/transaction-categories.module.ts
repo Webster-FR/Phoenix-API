@@ -8,5 +8,6 @@ import {UsersModule} from "../users/users.module";
     controllers: [TransactionCategoriesController],
     providers: [TransactionCategoriesService],
     imports: [ServicesModule, UsersModule],
+    exports: [TransactionCategoriesService],
 })
 export class TransactionCategoriesModule{}
