@@ -30,6 +30,7 @@ services:
     environment:
       - NODE_ENV=production
       - DOTENV_KEY=${DOTENV_KEY}
+      - DATABASE_URL=${DATABASE_URL}
     deploy:
       restart_policy:
         condition: on-failure
