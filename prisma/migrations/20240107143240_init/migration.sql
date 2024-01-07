@@ -135,10 +135,8 @@ CREATE TABLE "future_transactions" (
 -- CreateTable
 CREATE TABLE "internal_transactions" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "amount" REAL NOT NULL,
-    "wording" TEXT NOT NULL,
+    "wording" TEXT,
     "category_id" INTEGER NOT NULL,
-    "account_id" INTEGER NOT NULL,
     "debit_internal_ledger_id" INTEGER NOT NULL,
     "credit_internal_ledger_id" INTEGER NOT NULL,
     "rectification_ulid" TEXT,
@@ -146,40 +144,33 @@ CREATE TABLE "internal_transactions" (
     CONSTRAINT "internal_transactions_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "transaction_categories" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "internal_transactions_debit_internal_ledger_id_fkey" FOREIGN KEY ("debit_internal_ledger_id") REFERENCES "internal_ledger" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "internal_transactions_credit_internal_ledger_id_fkey" FOREIGN KEY ("credit_internal_ledger_id") REFERENCES "internal_ledger" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "internal_transactions_rectification_ulid_fkey" FOREIGN KEY ("rectification_ulid") REFERENCES "internal_transactions" ("ulid") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "internal_transactions_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "internal_transactions_rectification_ulid_fkey" FOREIGN KEY ("rectification_ulid") REFERENCES "internal_transactions" ("ulid") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "expense_transactions" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "amount" REAL NOT NULL,
-    "wording" TEXT NOT NULL,
+    "wording" TEXT,
     "category_id" INTEGER NOT NULL,
-    "account_id" INTEGER NOT NULL,
     "internal_ledger_id" INTEGER NOT NULL,
     "rectification_ulid" TEXT,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "expense_transactions_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "transaction_categories" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "expense_transactions_internal_ledger_id_fkey" FOREIGN KEY ("internal_ledger_id") REFERENCES "internal_ledger" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "expense_transactions_rectification_ulid_fkey" FOREIGN KEY ("rectification_ulid") REFERENCES "expense_transactions" ("ulid") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "expense_transactions_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "expense_transactions_rectification_ulid_fkey" FOREIGN KEY ("rectification_ulid") REFERENCES "expense_transactions" ("ulid") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "income_transactions" (
     "ulid" TEXT NOT NULL PRIMARY KEY,
-    "amount" REAL NOT NULL,
-    "wording" TEXT NOT NULL,
+    "wording" TEXT,
     "category_id" INTEGER NOT NULL,
-    "account_id" INTEGER NOT NULL,
     "internal_ledger_id" INTEGER NOT NULL,
     "rectification_ulid" TEXT,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "income_transactions_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "transaction_categories" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "income_transactions_internal_ledger_id_fkey" FOREIGN KEY ("internal_ledger_id") REFERENCES "internal_ledger" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "income_transactions_rectification_ulid_fkey" FOREIGN KEY ("rectification_ulid") REFERENCES "income_transactions" ("ulid") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "income_transactions_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "income_transactions_rectification_ulid_fkey" FOREIGN KEY ("rectification_ulid") REFERENCES "income_transactions" ("ulid") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -205,3 +196,15 @@ CREATE UNIQUE INDEX "banks_name_user_id_key" ON "banks"("name", "user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "accounts_name_user_id_bank_id_key" ON "accounts"("name", "user_id", "bank_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "internal_transactions_debit_internal_ledger_id_key" ON "internal_transactions"("debit_internal_ledger_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "internal_transactions_credit_internal_ledger_id_key" ON "internal_transactions"("credit_internal_ledger_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "expense_transactions_internal_ledger_id_key" ON "expense_transactions"("internal_ledger_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "income_transactions_internal_ledger_id_key" ON "income_transactions"("internal_ledger_id");
