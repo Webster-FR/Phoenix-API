@@ -8,13 +8,19 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=phoenix
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   phoenix-api:
     image: xen0xys/phoenix-api:latest
     container_name: phoenix-api
     ports:
       - "3000:3000"
     depends_on:
-        - postgres
+        postgres:
+          condition: service_healthy
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DOTENV_KEY}
