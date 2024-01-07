@@ -9,11 +9,11 @@ export class IncomeTransactionEntity implements IncomeTransactions, Transaction{
     @ApiProperty()
         category_id: number;
     @ApiProperty()
-        account_id: number;
-    @ApiProperty()
         internal_ledger_id: number;
     @ApiProperty()
         rectification_ulid: string;
     @ApiProperty()
         created_at: Date;
+    @ApiProperty()
+        amount: number;
 }

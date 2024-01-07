@@ -4,4 +4,5 @@ interface Transaction {
     category_id: number;
     rectification_ulid: string;
     created_at: Date;
+    amount?: number;
 }

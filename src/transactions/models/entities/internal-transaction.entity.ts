@@ -9,8 +9,6 @@ export class InternalTransactionEntity implements InternalTransactions, Transact
     @ApiProperty()
         category_id: number;
     @ApiProperty()
-        account_id: number;
-    @ApiProperty()
         debit_internal_ledger_id: number;
     @ApiProperty()
         credit_internal_ledger_id: number;
@@ -18,4 +16,6 @@ export class InternalTransactionEntity implements InternalTransactions, Transact
         rectification_ulid: string;
     @ApiProperty()
         created_at: Date;
+    @ApiProperty()
+        amount?: number;
 }
