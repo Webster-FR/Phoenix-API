@@ -1,12 +1,10 @@
-import {BadRequestException, forwardRef, Inject, Injectable, NotFoundException} from "@nestjs/common";
+import {BadRequestException, forwardRef, Inject, Injectable} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {UsersService} from "../users/users.service";
 import {LedgerEntity} from "./models/entities/ledger.entity";
 import {EncryptionService} from "../services/encryption.service";
 import {EncryptedLedgerEntity} from "./models/entities/encrypted-ledger.entity";
 import {ConfigService} from "@nestjs/config";
-import {AccountEntity} from "../accounts/models/entities/account.entity";
-import {EncryptedAccountEntity} from "../accounts/models/entities/encrypted-account.entity";
 import {AccountsService} from "../accounts/accounts.service";
 
 @Injectable()
