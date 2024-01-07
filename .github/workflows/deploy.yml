@@ -40,6 +40,15 @@ jobs:
           tags: xen0xys/phoenix-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: Deploy docker-compose
+        if: env.SECRET_NOT_DEFINED != 'true'
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "/home/${{ secrets.SERVER_USERNAME }}"
       - name: SSH into Server and Deploy
         if: env.SECRET_NOT_DEFINED != 'true'
         uses: appleboy/ssh-action@v1.0.2
@@ -48,7 +57,54 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           script: |
-            docker pull xen0xys/phoenix-api:latest
-            docker stop phoenix-api || true
-            docker rm phoenix-api || true
-            docker run -d -p 3000:3000 -e DOTENV_KEY=${{ secrets.DOTENV_KEY }} -v /home/${{ secrets.SERVER_USERNAME }}/keys:/home/keys --name phoenix-api --restart on-failure:2 xen0xys/phoenix-api
+            docker-compose -f docker-compose.yml pull
+            docker-compose -f docker-compose.yml down
+            DOTENV_KEY=${{ secrets.DOTENV_KEY }} docker-compose -f docker-compose.yml --env-file ./.env up -d phoenix-api
+
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Secret check
+#        env:
+#          YOUR_SECRET: ${{ secrets.DOCKER_PASSWORD }}
+#        run: |
+#          if [ -z "$YOUR_SECRET" ]; then
+#            echo "The secret is not defined. Exiting."
+#            echo "SECRET_NOT_DEFINED=true" >> "$GITHUB_ENV"
+#          else
+#            echo "The secret is defined. Continuing."
+#          fi
+#      - name: Checkout
+#        if: env.SECRET_NOT_DEFINED != 'true'
+#        uses: actions/checkout@v4
+#      - name: Set up Docker Buildx
+#        if: env.SECRET_NOT_DEFINED != 'true'
+#        uses: docker/setup-buildx-action@v3
+#      - name: Login to Docker Hub
+#        if: env.SECRET_NOT_DEFINED != 'true'
+#        uses: docker/login-action@v3
+#        with:
+#          username: xen0xys
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#      - name: Build and Push Docker Image
+#        if: env.SECRET_NOT_DEFINED != 'true'
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+#          push: true
+#          tags: xen0xys/phoenix-api:latest
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+#      - name: SSH into Server and Deploy
+#        if: env.SECRET_NOT_DEFINED != 'true'
+#        uses: appleboy/ssh-action@v1.0.2
+#        with:
+#          host: ${{ secrets.SERVER_ADDRESS }}
+#          username: ${{ secrets.SERVER_USERNAME }}
+#          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+#          script: |
+#            docker pull xen0xys/phoenix-api:latest
+#            docker stop phoenix-api || true
+#            docker rm phoenix-api || true
+#            docker run -d -p 3000:3000 -e DOTENV_KEY=${{ secrets.DOTENV_KEY }} -v /home/${{ secrets.SERVER_USERNAME }}/keys:/home/keys --name phoenix-api --restart on-failure:2 xen0xys/phoenix-api

@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=phoenix
+    restart: always
+  phoenix-api:
+    image: xen0xys/phoenix-api:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+        - postgres
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DOTENV_KEY}
+    restart: always
