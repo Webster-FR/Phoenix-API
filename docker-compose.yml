@@ -1,3 +1,7 @@
+networks:
+  phoenix-network:
+    external: true
+
 services:
   postgres:
     image: postgres:latest
@@ -13,6 +17,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - phoenix-network
   phoenix-api:
     image: xen0xys/phoenix-api:latest
     container_name: phoenix-api
@@ -24,4 +30,11 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DOTENV_KEY}
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 2
+        window: 60s
+    networks:
+      - phoenix-network
