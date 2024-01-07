@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {TipEntity} from "./models/entities/tip.entity";
 
@@ -11,12 +11,15 @@ export class TipsService{
     ){}
 
     async getTipOfTheDay(){
-        const day = new Date().getDay();
-        return this.prismaService.tips.findUnique({
+        const day = new Date().getDate();
+        const tod = await this.prismaService.tips.findUnique({
             where: {
                 order: day
             }
         });
+        if(!tod)
+            throw new NotFoundException("Tip of the day not found");
+        return tod;
     }
 
     async randomizeTipsOrder(){
