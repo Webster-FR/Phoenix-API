@@ -7,8 +7,6 @@ const encryptionService = new EncryptionService();
 const encryptionKey = process.env.SYMMETRIC_ENCRYPTION_KEY;
 const banksEncryptionStrength = parseInt(process.env.BANKS_ENCRYPTION_STRENGTH);
 
-console.log(encryptionKey, banksEncryptionStrength);
-
 export default [
     {
         name: encryptionService.encryptSymmetric("Default bank", encryptionKey, banksEncryptionStrength),

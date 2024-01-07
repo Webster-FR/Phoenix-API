@@ -1,5 +1,8 @@
 import {EncryptionService} from "../../src/services/encryption.service";
 import {ulid} from "ulid";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const encryptionService = new EncryptionService();
 const transactionsEncryptionStrength = parseInt(process.env.TRANSACTIONS_ENCRYPTION_STRENGTH);
