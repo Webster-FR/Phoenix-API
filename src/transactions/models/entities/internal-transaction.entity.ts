@@ -5,8 +5,6 @@ export class InternalTransactionEntity implements InternalTransactions, Transact
     @ApiProperty()
         ulid: string;
     @ApiProperty()
-        amount: number;
-    @ApiProperty()
         wording: string;
     @ApiProperty()
         category_id: number;

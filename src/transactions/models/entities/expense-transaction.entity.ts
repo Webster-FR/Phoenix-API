@@ -5,8 +5,6 @@ export class ExpenseTransactionEntity implements IncomeTransactions, Transaction
     @ApiProperty()
         ulid: string;
     @ApiProperty()
-        amount: number;
-    @ApiProperty()
         wording: string;
     @ApiProperty()
         category_id: number;
