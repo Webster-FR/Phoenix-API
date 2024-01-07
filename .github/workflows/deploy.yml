@@ -57,8 +57,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           script: |
-            docker-compose -f docker-compose.yml pull
-            docker-compose -f docker-compose.yml down
+            docker compose -f docker-compose.yml pull
+            docker compose -f docker-compose.yml down
             DOTENV_KEY=${{ secrets.DOTENV_KEY }} docker compose -f docker-compose.yml up -d xen0xys/phoenix-api
 
 #jobs:
