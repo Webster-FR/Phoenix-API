@@ -38,17 +38,24 @@ export class TransactionsController{
         return this.transactionsService.createTransaction(req.user.id, createTransactionDto.wording, createTransactionDto.category_id, createTransactionDto.amount, createTransactionDto.from_account_id, createTransactionDto.to_account_id, createTransactionDto.created_at);
     }
 
+    @Put("/unprocessed/:ulid")
+    @UseGuards(AtGuard)
+    @ApiBearerAuth()
+    async updateFutureTransaction(){
+
+    }
+
     @Patch("/:ulid/wording")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    async updateTransactionWording(@Req() req: any){
+    async updateTransactionWording(){
 
     }
 
     @Post("/rectification")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    async createTransactionRectification(@Req() req: any){
+    async createTransactionRectification(){
 
     }
 
