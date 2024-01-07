@@ -8,6 +8,7 @@ import {LedgersModule} from "../ledgers/ledgers.module";
 @Module({
     controllers: [TransactionsController],
     providers: [TransactionsService],
-    imports: [ServicesModule, UsersModule, LedgersModule]
+    imports: [ServicesModule, UsersModule, LedgersModule],
+    exports: [TransactionsService],
 })
 export class TransactionsModule{}
