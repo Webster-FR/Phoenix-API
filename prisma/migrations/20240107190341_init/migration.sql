@@ -123,7 +123,7 @@ CREATE TABLE "transaction_types" (
 -- CreateTable
 CREATE TABLE "future_transactions" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "amount" REAL NOT NULL,
+    "amount" TEXT NOT NULL,
     "wording" TEXT NOT NULL,
     "category_id" INTEGER NOT NULL,
     "debit_account_id" INTEGER,

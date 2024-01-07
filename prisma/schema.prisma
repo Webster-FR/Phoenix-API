@@ -167,7 +167,7 @@ model TransactionTypes {
 
 model FutureTransactions {
   id                Int      @id @default(autoincrement())
-  amount            Float
+  amount            String
   wording           String
   category_id       Int
   debit_account_id  Int?
