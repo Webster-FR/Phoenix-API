@@ -60,6 +60,7 @@ jobs:
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml down
             export DOTENV_KEY=${{ secrets.DOTENV_KEY }}
+            export DATABASE_URL=${{ secrets.DATABASE_URL }}
             docker compose -f docker-compose.yml up -d
 
 #jobs:
