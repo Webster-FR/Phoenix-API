@@ -17,6 +17,18 @@ export class TransactionCategoriesService{
         private readonly usersService: UsersService,
     ){}
 
+    async isTransactionCategoryExists(userId: number, transactionCategoryId: number): Promise<boolean>{
+        return !!await this.prismaService.transactionCategories.findUnique({
+            where: {
+                id: transactionCategoryId,
+                OR: [
+                    {user_id: userId},
+                    {user_id: null},
+                ],
+            },
+        });
+    }
+
     async getTransactionCategories(userId: number): Promise<TransactionCategoryEntity[]>{
         const transactionCategories: TransactionCategoryEntity[] = await this.prismaService.transactionCategories.findMany({
             where: {
