@@ -102,6 +102,9 @@ model Accounts {
   from_recurring_transactions RecurringTransaction[] @relation("from_account")
   to_recurring_transactions   RecurringTransaction[] @relation("to_account")
   internal_ledger             InternalLedger[]
+  InternalTransactions        InternalTransactions[]
+  ExpenseTransactions         ExpenseTransactions[]
+  IncomeTransactions          IncomeTransactions[]
 
   @@unique([name, user_id, bank_id])
   @@map("accounts")
@@ -159,10 +162,23 @@ model InternalLedger {
 }
 
 model TransactionTypes {
-  ulid String @id
-  type String @unique
+  ulid             String @id
+  transaction_type String
 
   @@map("transaction_types")
+}
+
+model FutureTransactions {
+  id                Int      @id @default(autoincrement())
+  amount            Float
+  wording           String
+  category_id       Int
+  debit_account_id  Int?
+  credit_account_id Int?
+  transaction_type  String
+  processed_at      DateTime
+
+  @@map("future_transactions")
 }
 
 model InternalTransactions {
@@ -170,6 +186,7 @@ model InternalTransactions {
   amount                    Float
   wording                   String
   category_id               Int
+  account_id                Int
   debit_internal_ledger_id  Int
   credit_internal_ledger_id Int
   rectification_ulid        String?
@@ -179,6 +196,7 @@ model InternalTransactions {
   credit_ledger             InternalLedger         @relation("credit_ledger", fields: [credit_internal_ledger_id], references: [id])
   rectification             InternalTransactions?  @relation("rectification", fields: [rectification_ulid], references: [ulid])
   internal_transactions     InternalTransactions[] @relation("rectification")
+  account                   Accounts               @relation(fields: [account_id], references: [id])
 
   @@map("internal_transactions")
 }
@@ -188,6 +206,7 @@ model ExpenseTransactions {
   amount               Float
   wording              String
   category_id          Int
+  account_id           Int
   internal_ledger_id   Int
   rectification_ulid   String?
   created_at           DateTime              @default(now())
@@ -195,6 +214,7 @@ model ExpenseTransactions {
   internal_ledger      InternalLedger        @relation(fields: [internal_ledger_id], references: [id])
   rectification        ExpenseTransactions?  @relation("rectification", fields: [rectification_ulid], references: [ulid])
   expense_transactions ExpenseTransactions[] @relation("rectification")
+  account              Accounts              @relation(fields: [account_id], references: [id])
 
   @@map("expense_transactions")
 }
@@ -204,6 +224,7 @@ model IncomeTransactions {
   amount              Float
   wording             String
   category_id         Int
+  account_id          Int
   internal_ledger_id  Int
   rectification_ulid  String?
   created_at          DateTime              @default(now())
@@ -211,6 +232,7 @@ model IncomeTransactions {
   internal_ledger     InternalLedger        @relation(fields: [internal_ledger_id], references: [id])
   rectification       IncomeTransactions?   @relation("rectification", fields: [rectification_ulid], references: [ulid])
   income_transactions IncomeTransactions[]  @relation("rectification")
+  account             Accounts              @relation(fields: [account_id], references: [id])
 
   @@map("income_transactions")
 }
