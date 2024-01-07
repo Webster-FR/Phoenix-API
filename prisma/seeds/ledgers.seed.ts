@@ -8,7 +8,7 @@ function makeTransaction(userSecret: string, accountId: number, amount: number){
         return {
             account_id: accountId,
             credit: null,
-            debit: encryptionService.encryptSymmetric(amount.toString(), userSecret, ledgersEncryptionStrength),
+            debit: encryptionService.encryptSymmetric(Math.abs(amount).toString(), userSecret, ledgersEncryptionStrength),
             created_at: new Date(),
         };
     }else if(amount > 0){
@@ -40,7 +40,7 @@ export default (userSecret: string) => [
 
     // Expense transactions
     makeTransaction(userSecret, 1, -18.16), // Expense transaction 1
-    makeTransaction(userSecret, 1, -95.48), // Expense transaction 2
+    makeTransaction(userSecret, 1, -95.48), // Expense transaction 2 (-116,98)
     makeTransaction(userSecret, 1, -21.5), // Expense transaction 2 rectification 1
     makeTransaction(userSecret, 1, -78.15), // Expense transaction 3
     makeTransaction(userSecret, 1, 1.28), // Expense transaction 3 rectification 1
