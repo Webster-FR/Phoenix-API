@@ -38,7 +38,7 @@ export class RtGuard implements CanActivate{
         const dbToken = await this.tokensService.getTokenEntity(token, true, false);
         if(!dbToken)
             throw new UnauthorizedException("Token not found in database");
-        if(await this.tokensService.isTokenBlacklisted(token, true)){
+        if(dbToken.blacklisted){
             await this.authService.logoutAll(payload.user_id);
             throw new UnauthorizedException("Blacklisted refresh token, logout user from all devices");
         }
