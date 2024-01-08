@@ -21,7 +21,7 @@ import {CacheModule} from "@nestjs/cache-manager";
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
         ScheduleModule.forRoot(),
-        CacheModule.register(),
+        CacheModule.register({isGlobal: true}),
         AuthModule,
         VersionModule,
         UsersModule,
