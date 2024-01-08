@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {UserEntity} from "./models/entities/user.entity";
 import {EncryptionService} from "../services/encryption.service";
@@ -57,7 +57,7 @@ export class UsersService{
     async createUser(username: string, email: string, password: string): Promise<UserEntity>{
         const userExists = await this.findByEmail(email, false);
         if(userExists)
-            throw new Error("User already exists");
+            throw new ConflictException("Email already used");
         const passwordHash = await this.encryptionService.hash(password);
         const userSecret = this.encryptionService.generateSecret();
         const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
@@ -70,7 +70,7 @@ export class UsersService{
                 secret: encryptedUserSecret,
             },
         });
-        await this.verificationCodeService.setCode(user.id, this.encryptionService.generateSecret());
+        await this.verificationCodeService.createCode(user, this.encryptionService.generateSecret());
         return this.decryptUserData(user);
     }
 
