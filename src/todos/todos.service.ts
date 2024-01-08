@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
+import {Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
