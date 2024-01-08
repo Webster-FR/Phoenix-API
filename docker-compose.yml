@@ -5,6 +5,7 @@ networks: {
 services:
   postgres:
     image: postgres:latest
+    container_name: phoenix-postgres
     ports:
       - "5432:5432"
     environment:
