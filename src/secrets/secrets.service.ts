@@ -44,7 +44,7 @@ export class SecretsService{
     }
 
     async rotateTodos(user: UserEntity, secret: string, newSecret: string){
-        const todos = await this.todosService.getTodos(user.id);
+        const todos = await this.todosService.getTodos(user);
         for(const todo of todos){
             const encryptedName = this.encryptionService.encryptSymmetric(todo.name, newSecret, this.todosEncryptionStrength);
             await this.prismaService.todos.update({

@@ -35,7 +35,7 @@ export class AtGuard implements CanActivate{
         const dbToken = await this.tokensService.getTokenEntity(token, false, false);
         if(!dbToken)
             throw new UnauthorizedException("Token not found in database");
-        if(await this.tokensService.isTokenBlacklisted(token, false))
+        if(dbToken.blacklisted)
             throw new UnauthorizedException("Blacklisted access token");
         const user = await this.usersService.findById(payload.user_id);
         if(!user)

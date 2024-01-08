@@ -28,31 +28,42 @@ async function main(){
 
     const users = await usersFunction(userSecret);
     await seed(prisma.user, users);
+    console.log("✅  User seed done !");
 
     const todos = todosFunction(userSecret);
     await seed(prisma.todos, todos);
+    console.log("✅  Todo seed done !");
 
     await seed(prisma.tips, tips);
+    console.log("✅  Tip seed done !");
 
     await seed(prisma.banks, banks);
+    console.log("✅  Bank seed done !");
 
     const accounts = accountsFunction(userSecret);
     await seed(prisma.accounts, accounts);
+    console.log("✅  Account seed done !");
 
     const recurringTransactions = recurringTransactionsFunction(userSecret);
     await seed(prisma.recurringTransaction, recurringTransactions);
+    console.log("✅  Recurring transaction seed done !");
 
     await seed(prisma.transactionCategories, transactionCategories);
+    console.log("✅  Transaction category seed done !");
 
     const ledgers = ledgersFunction(userSecret);
     await seed(prisma.internalLedger, ledgers);
+    console.log("✅  Ledger seed done !");
 
     const incomeTransactions = incomeTransactionsFunction(userSecret);
     await seedTransactions(prisma.incomeTransactions, incomeTransactions, false);
+    console.log("✅  Income transaction seed done !");
     const expenseTransactions = expenseTransactionsFunction(userSecret);
     await seedTransactions(prisma.expenseTransactions, expenseTransactions, false);
+    console.log("✅  Expense transaction seed done !");
     const internalTransactions = internalTransactionsFunction(userSecret);
     await seedTransactions(prisma.internalTransactions, internalTransactions, true);
+    console.log("✅  Internal transaction seed done !");
 
     console.log(
         users,
@@ -67,7 +78,7 @@ async function main(){
         expenseTransactions,
         internalTransactions
     );
-    console.log("Seeding done !");
+    console.log("✅  Seeding done !");
 }
 
 async function seed(table: any, data: any[]){
@@ -76,7 +87,6 @@ async function seed(table: any, data: any[]){
             where: {id: i},
             update: {},
             create: {
-                id: i,
                 ...data[i - 1],
             },
         });

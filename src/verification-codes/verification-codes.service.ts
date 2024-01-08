@@ -3,6 +3,7 @@ import {VerificationCodeEntity} from "./models/entities/verification-code.entity
 import {PrismaService} from "../services/prisma.service";
 import {ConfigService} from "@nestjs/config";
 import {EncryptionService} from "../services/encryption.service";
+import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
 export class VerificationCodesService{
@@ -44,23 +45,24 @@ export class VerificationCodesService{
         return this.prismaService.verificationCodes.delete({where: {id: id}});
     }
 
-    async setCode(userId: number, code: string): Promise<VerificationCodeEntity>{
-        const verificationCode = await this.findByUserId(userId);
-        if(!verificationCode){
-            return this.prismaService.verificationCodes.create({
-                data: {
-                    user_id: userId,
-                    code: code,
-                    iat: new Date(),
-                },
-            });
-        }
+    async createCode(user: UserEntity, code: string): Promise<VerificationCodeEntity>{
+        return this.prismaService.verificationCodes.create({
+            data: {
+                user_id: user.id,
+                code: code,
+                iat: new Date(),
+            },
+        });
+    }
+
+    async setCode(user: UserEntity, code: VerificationCodeEntity, newCode: string): Promise<VerificationCodeEntity>{
         return this.prismaService.verificationCodes.update({
             where: {
-                id: verificationCode.id,
+                id: code.id,
+                user_id: user.id,
             },
             data: {
-                code: code,
+                code: newCode,
                 iat: new Date(),
             },
         });

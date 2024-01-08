@@ -25,7 +25,7 @@ export class TokensService{
             data: {
                 user_id: userId,
                 sum: sum,
-                token: await this.encryptionService.hash(token),
+                token: await this.encryptionService.hash(token, 6),
                 is_refresh: false,
                 expires: new Date(expires * 1000)
             }
@@ -42,7 +42,7 @@ export class TokensService{
             data: {
                 user_id: userId,
                 sum,
-                token: await this.encryptionService.hash(token),
+                token: await this.encryptionService.hash(token, 6),
                 is_refresh: true,
                 expires: new Date(expires * 1000)
             }
@@ -93,11 +93,6 @@ export class TokensService{
                 blacklisted: true,
             },
         });
-    }
-
-    async isTokenBlacklisted(token: string, isRefresh: boolean): Promise<boolean>{
-        const dbToken = await this.getTokenEntity(token, isRefresh);
-        return dbToken.blacklisted;
     }
 
     async deleteExpiredTokens(){

@@ -13,6 +13,9 @@ import {EmailService} from "../services/email.service";
 import {UsersService} from "../users/users.service";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {ConfigService} from "@nestjs/config";
+import {PrismaService} from "../services/prisma.service";
+import {UserEntity} from "../users/models/entities/user.entity";
+import {VerificationCodeEntity} from "../verification-codes/models/entities/verification-code.entity";
 
 @Injectable()
 export class AuthService{
@@ -22,18 +25,25 @@ export class AuthService{
         private readonly emailService: EmailService,
         private readonly usersService: UsersService,
         private readonly verificationCodeService: VerificationCodesService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly prismaService: PrismaService
     ){}
 
     async loginUser(email: string, password: string, keepLoggedIn: boolean): Promise<AtRtResponse | AtResponse>{
-        const user = await this.usersService.findByEmail(email);
+        const user = await this.prismaService.user.findUnique({
+            include: {
+                verification_codes: true
+            },
+            where: {
+                email: email
+            }
+        });
         if(!await this.encryptionService.compareHash(user.password, password))
             throw new ForbiddenException("Invalid password");
-        const code = await this.verificationCodeService.findByUserId(user.id);
-        if(code){
-            if(!await this.verificationCodeService.checkCodeValidity(code)){
+        if(user.verification_codes){
+            if(!await this.verificationCodeService.checkCodeValidity(user.verification_codes)){
                 const newCode = this.encryptionService.generateSecret();
-                await this.verificationCodeService.setCode(user.id, newCode);
+                await this.verificationCodeService.setCode(user, user.verification_codes, newCode);
                 await this.emailService.sendConfirmationEmail(user.email, newCode);
                 return null;
             }
@@ -58,11 +68,8 @@ export class AuthService{
     }
 
     async registerUser(username: string, email: string, password: string): Promise<void>{
-        const user = await this.usersService.findByEmail(email, false);
-        if(user)
-            throw new ConflictException("Email already exists");
-        const newUser = await this.usersService.createUser(username, email, password);
-        const code = await this.verificationCodeService.findByUserId(newUser.id);
+        const newUser: UserEntity = await this.usersService.createUser(username, email, password);
+        const code: VerificationCodeEntity = await this.verificationCodeService.findByUserId(newUser.id);
         if(!code)
             throw new InternalServerErrorException("Verification code not found");
         await this.emailService.sendConfirmationEmail(newUser.email, code.code);
@@ -82,10 +89,17 @@ export class AuthService{
     }
 
     async confirmAccount(requestCode: string){
-        const verificationCode = await this.verificationCodeService.findByCode(requestCode);
+        const verificationCode = await this.prismaService.verificationCodes.findUnique({
+            include: {
+                user: true
+            },
+            where: {
+                code: requestCode
+            }
+        });
         if(!verificationCode)
             throw new NotFoundException("Verification code not found");
-        const user = await this.usersService.findByVerificationCode(verificationCode.id);
+        const user: UserEntity = verificationCode.user;
         if(!user)
             throw new NotFoundException("No user found for this code");
         if(!await this.verificationCodeService.checkCode(verificationCode, requestCode))
