@@ -1,13 +1,11 @@
-networks: {
-  phoenix-network: {}
-}
+networks:
+  phoenix-network:
+    driver: bridge
 
 services:
   postgres:
     image: postgres:latest
     container_name: phoenix-postgres
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
