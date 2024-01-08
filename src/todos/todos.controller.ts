@@ -24,7 +24,7 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.OK, description: "Get all todos", type: TodoEntity, isArray: true})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     async getTodos(@Req() req: any): Promise<TodoEntity[]>{
-        return this.todosService.getTodos(req.user.id);
+        return this.todosService.getTodos(req.user);
     }
 
     @Post()
@@ -34,7 +34,7 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     async createTodo(@Req() req: any, @Body() createTodoDto: CreateTodoDto): Promise<TodoEntity>{
         return await this.todosService.createTodo(
-            req.user.id,
+            req.user,
             createTodoDto.name,
             createTodoDto.deadline,
             createTodoDto.parent_id,
@@ -51,7 +51,7 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
     async setTodoParent(@Req() req: any, @Param() todoIdDto: IdDto, @Body() updateParentDto: UpdateParentDto): Promise<TodoEntity>{
-        return await this.todosService.setTodoParent(req.user.id, todoIdDto.id, updateParentDto.parent_id);
+        return await this.todosService.setTodoParent(req.user, todoIdDto.id, updateParentDto.parent_id);
     }
 
     @Patch(":id/completed")
@@ -61,7 +61,7 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
     async setTodoCompleted(@Req() req: any, @Param() todoIdDto: IdDto, @Body() updateCompletedDto: UpdateCompletedDto): Promise<TodoEntity>{
-        return await this.todosService.setTodoCompleted(req.user.id, todoIdDto.id, updateCompletedDto.completed);
+        return await this.todosService.setTodoCompleted(req.user, todoIdDto.id, updateCompletedDto.completed);
     }
 
     @Put(":id")
@@ -72,7 +72,7 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
     async updateTodo(@Req() req: any, @Param() todoIdDto: IdDto, @Body() updateTodoDto: UpdateTodoDto): Promise<TodoEntity>{
         return await this.todosService.updateTodo(
-            req.user.id,
+            req.user,
             todoIdDto.id,
             updateTodoDto.name,
             updateTodoDto.deadline,
@@ -90,6 +90,6 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
     async deleteTodo(@Req() req: any, @Param() todoIdDto: IdDto): Promise<TodoEntity>{
-        return await this.todosService.deleteTodo(req.user.id, todoIdDto.id);
+        return await this.todosService.deleteTodo(req.user, todoIdDto.id);
     }
 }

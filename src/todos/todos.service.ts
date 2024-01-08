@@ -4,6 +4,7 @@ import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../services/encryption.service";
 import {ConfigService} from "@nestjs/config";
+import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
 export class TodosService{
@@ -17,42 +18,44 @@ export class TodosService{
         private readonly configService: ConfigService,
     ){}
 
-    async isTodoExists(userId: number, todoId: number): Promise<boolean>{
-        const todo: TodoEntity = await this.prismaService.todos.findUnique({where: {id: todoId, user_id: userId}});
-        return todo !== null;
-    }
-
-    async getTodos(userId: number): Promise<TodoEntity[]>{
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
-        const todos: TodoEntity[] = await this.prismaService.todos.findMany({where: {user_id: userId}});
-        for(const todo of todos)
-            todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
-        return todos;
-    }
-
-    async findTodoById(userId: number, todoId: number): Promise<TodoEntity>{
-        if(!await this.isTodoExists(userId, todoId))
-            throw new NotFoundException(`Todo with id ${todoId} not found`);
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
-        const todo: TodoEntity = await this.prismaService.todos.findUnique({where: {id: todoId}});
+    decryptTodo(user: UserEntity, todo: TodoEntity): TodoEntity{
         todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
         return todo;
     }
 
-    async createTodo(userId: number, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string): Promise<TodoEntity>{
-        if(parentId !== undefined && !await this.isTodoExists(userId, parentId))
-            throw new NotFoundException(`Todo with id ${parentId} not found`);
-        const user = await this.usersService.findById(userId);
+    async isTodoExists(user: UserEntity, todoId: number): Promise<boolean>{
+        return !!await this.prismaService.todos.findUnique({where: {id: todoId, user_id: user.id}});
+    }
+
+    async getTodos(user: UserEntity): Promise<TodoEntity[]>{
         if(!user)
             throw new NotFoundException("User not found");
+        const todos: TodoEntity[] = await this.prismaService.todos.findMany({where: {user_id: user.id}});
+        const decryptedTodos: TodoEntity[] = [];
+        for(const todo of todos)
+            decryptedTodos.push(this.decryptTodo(user, todo));
+        return decryptedTodos;
+    }
+
+    async findTodoById(user: UserEntity, todoId: number): Promise<TodoEntity>{
+        const todo: TodoEntity = await this.prismaService.todos.findUnique({
+            where: {
+                id: todoId,
+                user_id: user.id
+            }
+        });
+        if(!todo)
+            throw new NotFoundException("Todo not found");
+        return this.decryptTodo(user, todo);
+    }
+
+    async createTodo(user: UserEntity, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string): Promise<TodoEntity>{
+        if(parentId !== undefined && !await this.isTodoExists(user, parentId))
+            throw new NotFoundException("Parent todo not found");
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
-        const todo = await this.prismaService.todos.create({
+        const todo: TodoEntity = await this.prismaService.todos.create({
             data: {
-                user_id: userId,
+                user_id: user.id,
                 name: todoName,
                 deadline: deadline,
                 parent_id: parentId,
@@ -61,50 +64,46 @@ export class TodosService{
                 color: color,
             },
         });
-        return this.findTodoById(userId, todo.id);
+        todo.name = name;
+        return todo;
     }
 
-    async setTodoParent(userId: number, todoId: number, parentId: number): Promise<TodoEntity>{
-        if(todoId === parentId)
-            throw new BadRequestException(`Todo with id ${todoId} cannot be its own parent`);
-        if(!await this.isTodoExists(userId, parentId))
-            throw new NotFoundException(`Todo with id ${parentId} not found`);
+    async setTodoParent(user: UserEntity, todoId: number, parentId: number): Promise<TodoEntity>{
         const todo = await this.prismaService.todos.update({
             where: {
-                id: todoId
+                id: todoId,
+                user_id: user.id
             },
             data: {
                 parent_id: parentId
             },
         });
-        return this.findTodoById(userId, todo.id);
+        if(!todo)
+            throw new NotFoundException("Todo not found");
+        return this.decryptTodo(user, todo);
     }
 
-    async setTodoCompleted(userId: number, todoId: number, completed: boolean): Promise<TodoEntity>{
-        if(!await this.isTodoExists(userId, todoId))
-            throw new NotFoundException(`Todo with id ${todoId} not found`);
-        const todo = await this.prismaService.todos.update({
+    async setTodoCompleted(user: UserEntity, todoId: number, completed: boolean): Promise<TodoEntity>{
+        const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
                 id: todoId,
-                user_id: userId
+                user_id: user.id
             },
             data: {
                 completed: completed
             },
         });
-        return this.findTodoById(userId, todo.id);
+        if(!todo)
+            throw new NotFoundException("Todo not found");
+        return this.decryptTodo(user, todo);
     }
 
-    async updateTodo(userId: number, todoId: number, name: string, deadline: Date, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
-        if(!await this.isTodoExists(userId, todoId))
-            throw new NotFoundException(`Todo with id ${todoId} not found`);
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
+    async updateTodo(user: UserEntity, todoId: number, name: string, deadline: Date, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
-        const todo = await this.prismaService.todos.update({
+        const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
-                id: todoId
+                id: todoId,
+                user_id: user.id
             },
             data: {
                 name: todoName,
@@ -115,21 +114,19 @@ export class TodosService{
                 completed: completed,
             },
         });
-        return this.findTodoById(userId, todo.id);
+        if(!todo)
+            throw new NotFoundException("Todo not found");
+        return this.decryptTodo(user, todo);
     }
 
-    async deleteTodo(userId: number, todoId: number): Promise<TodoEntity>{
-        if(!await this.isTodoExists(userId, todoId))
-            throw new NotFoundException(`Todo with id ${todoId} not found`);
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
+    async deleteTodo(user: UserEntity, todoId: number): Promise<TodoEntity>{
         const todo = await this.prismaService.todos.delete({
             where: {
                 id: todoId
             },
         });
-        todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
-        return todo;
+        if(!todo)
+            throw new NotFoundException("Todo not found");
+        return this.decryptTodo(user, todo);
     }
 }
