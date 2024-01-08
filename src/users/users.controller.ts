@@ -11,6 +11,7 @@ import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 @ApiTags("Users")
 @UseGuards(MaintenanceGuard)
 export class UsersController{
+
     constructor(
         private readonly usersService: UsersService
     ){}
@@ -22,8 +23,7 @@ export class UsersController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     async getMe(@Req() req: any): Promise<UserResponse>{
-        const user = await this.usersService.findById(req.user.id);
-        return new UserResponse(user);
+        return new UserResponse(req.user);
     }
 
     @Patch("/me/username")
@@ -33,8 +33,7 @@ export class UsersController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     async updateUsername(@Req() req: any, @Body() updateUsernameDto: UpdateUsernameDto): Promise<UserResponse>{
-        const user = await this.usersService.updateUsername(req.user.id, updateUsernameDto.username);
-        return new UserResponse(user);
+        return new UserResponse(await this.usersService.updateUsername(req.user, updateUsernameDto.username));
     }
 
     @Patch("/me/password")
@@ -44,8 +43,7 @@ export class UsersController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     async updatePassword(@Req() req: any, @Body() updatePasswordDto: UpdatePasswordDto): Promise<UserResponse>{
-        const user = await this.usersService.updatePassword(req.user.id, updatePasswordDto.password);
-        return new UserResponse(user);
+        return new UserResponse(await this.usersService.updatePassword(req.user, updatePasswordDto.password));
     }
 
     @Delete("/me")
@@ -54,7 +52,7 @@ export class UsersController{
     @ApiResponse({status: HttpStatus.OK, description: "User deleted successfully"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
-    async deleteUser(@Req() req: any): Promise<void>{
-        await this.usersService.deleteUser(req.user.id);
+    async deleteUser(@Req() req: any): Promise<UserResponse>{
+        return new UserResponse(await this.usersService.deleteUser(req.user));
     }
 }
