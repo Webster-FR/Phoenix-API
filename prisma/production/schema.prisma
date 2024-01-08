@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// mkdir prisma/production/migrations/0_init/;prisma migrate diff --from-empty --to-schema-datamodel prisma/production/schema.prisma --script > prisma/production/migrations/0_init/migration.sql
-
 generator client {
   provider = "prisma-client-js"
 }
