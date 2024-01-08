@@ -8,6 +8,7 @@ import {RtPayloadModel} from "../auth/models/models/rt-payload.model";
 import {TokenEntity} from "../auth/models/entities/token.entity";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
+import {CachedTokenEntity} from "../auth/models/entities/cached-token.entity";
 
 @Injectable()
 export class TokensService{
@@ -23,23 +24,23 @@ export class TokensService{
     }
 
     async getTokenFromCache(token: string): Promise<TokenEntity>{
-        const tokens = await this.cacheManager.get<TokenEntity[]>("tokens");
-        if(!tokens)
-            return null;
-        for(const dbToken of tokens)
-            if(await this.encryptionService.compareHash(dbToken.token, token)){
-                return dbToken;
+        const tokens = await this.cacheManager.get<CachedTokenEntity[]>("tokens");
+        const tokenSum = this.encryptionService.getSum(token);
+        for(const cachedToken of tokens)
+            if(cachedToken.sum == tokenSum){
+                return cachedToken;
             }
         return null;
     }
 
     async addTokenToCache(token: TokenEntity){
-        console.log(await this.cacheManager.get<TokenEntity[]>("tokens"));
-        await this.cacheManager.set("tokens", [...(await this.cacheManager.get<TokenEntity[]>("tokens")), token], 0);
+        const cachedToken = token as CachedTokenEntity;
+        cachedToken.sum = this.encryptionService.getSum(token.token);
+        await this.cacheManager.set("tokens", [...(await this.cacheManager.get<CachedTokenEntity[]>("tokens")), cachedToken], 0);
     }
 
     async blacklistTokenInCache(token: TokenEntity, blacklisted: boolean){
-        const tokens = await this.cacheManager.get<TokenEntity[]>("tokens");
+        const tokens = await this.cacheManager.get<CachedTokenEntity[]>("tokens");
         const index = tokens.findIndex(t => t.id == token.id);
         tokens[index].blacklisted = blacklisted;
         await this.cacheManager.set("tokens", tokens, 0);
@@ -59,6 +60,7 @@ export class TokensService{
                 expires: new Date(expires * 1000)
             }
         });
+        dbToken.token = token;
         await this.addTokenToCache(dbToken);
         return token;
     }
@@ -77,6 +79,7 @@ export class TokensService{
                 expires: new Date(expires * 1000)
             }
         });
+        dbToken.token = token;
         await this.addTokenToCache(dbToken);
         return token;
     }
@@ -96,7 +99,9 @@ export class TokensService{
             throw new NotFoundException("Token not found");
         for(const dbToken of tokens)
             if(await this.encryptionService.compareHash(dbToken.token, token)){
-                await this.addTokenToCache(dbToken);
+                const tempToken = dbToken as CachedTokenEntity;
+                tempToken.token = token;
+                await this.addTokenToCache(tempToken);
                 return dbToken;
             }
         if(exception)
