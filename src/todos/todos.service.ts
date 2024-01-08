@@ -83,7 +83,7 @@ export class TodosService{
         return this.decryptTodo(user, todo);
     }
 
-    async setTodoCompleted(user: UserEntity, todoId: number, completed: boolean): Promise<TodoEntity>{
+    async setTodoCompleted(user: UserEntity, todoId: number, completed: boolean): Promise<void>{
         const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
                 id: todoId,
@@ -95,7 +95,6 @@ export class TodosService{
         });
         if(!todo)
             throw new NotFoundException("Todo not found");
-        return this.decryptTodo(user, todo);
     }
 
     async updateTodo(user: UserEntity, todoId: number, name: string, deadline: Date, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
