@@ -15,11 +15,13 @@ import {AccountsModule} from "./accounts/accounts.module";
 import {LedgersModule} from "./ledgers/ledgers.module";
 import {TransactionsModule} from "./transactions/transactions.module";
 import {TransactionCategoriesModule} from "./transaction-categories/transaction-categories.module";
+import {CacheModule} from "@nestjs/cache-manager";
 
 @Module({
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
         ScheduleModule.forRoot(),
+        CacheModule.register(),
         AuthModule,
         VersionModule,
         UsersModule,
