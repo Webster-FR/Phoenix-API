@@ -19,7 +19,7 @@ export class TokensService{
         @Inject(CACHE_MANAGER)
         private readonly cacheManager: Cache
     ){
-        cacheManager.set("tokens", []).then(r => r);
+        cacheManager.set("tokens", [], 0).then(r => r);
     }
 
     async getTokenFromCache(token: string): Promise<TokenEntity>{
@@ -31,6 +31,11 @@ export class TokensService{
                 return dbToken;
             }
         return null;
+    }
+
+    async addTokenToCache(token: TokenEntity){
+        console.log(await this.cacheManager.get<TokenEntity[]>("tokens"));
+        await this.cacheManager.set("tokens", [...(await this.cacheManager.get<TokenEntity[]>("tokens")), token], 0);
     }
 
     async blacklistTokenInCache(token: TokenEntity, blacklisted: boolean){
@@ -54,7 +59,7 @@ export class TokensService{
                 expires: new Date(expires * 1000)
             }
         });
-        await this.cacheManager.set("tokens", [...(await this.cacheManager.get<any[]>("tokens")), dbToken]);
+        await this.addTokenToCache(dbToken);
         return token;
     }
 
@@ -72,7 +77,7 @@ export class TokensService{
                 expires: new Date(expires * 1000)
             }
         });
-        await this.cacheManager.set("tokens", [...(await this.cacheManager.get<TokenEntity[]>("tokens")), dbToken]);
+        await this.addTokenToCache(dbToken);
         return token;
     }
 
@@ -91,7 +96,7 @@ export class TokensService{
             throw new NotFoundException("Token not found");
         for(const dbToken of tokens)
             if(await this.encryptionService.compareHash(dbToken.token, token)){
-                await this.cacheManager.set("tokens", [...(await this.cacheManager.get<TokenEntity[]>("tokens")), dbToken], 0);
+                await this.addTokenToCache(dbToken);
                 return dbToken;
             }
         if(exception)
