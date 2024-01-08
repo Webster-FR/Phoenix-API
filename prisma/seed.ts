@@ -76,7 +76,6 @@ async function seed(table: any, data: any[]){
             where: {id: i},
             update: {},
             create: {
-                id: i,
                 ...data[i - 1],
             },
         });
