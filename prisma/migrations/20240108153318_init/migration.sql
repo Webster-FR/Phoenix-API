@@ -40,7 +40,7 @@ CREATE TABLE "todos" (
     "user_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
-    "deadline" TIMESTAMP(3) NOT NULL,
+    "deadline" TIMESTAMP(3),
     "parent_id" INTEGER,
     "frequency" TEXT,
     "icon" TEXT NOT NULL,

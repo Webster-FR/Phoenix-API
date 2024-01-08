@@ -54,20 +54,20 @@ model Tokens {
 }
 
 model Todos {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   user_id    Int
   name       String
-  completed  Boolean  @default(false)
-  deadline   DateTime
+  completed  Boolean   @default(false)
+  deadline   DateTime?
   parent_id  Int?
   frequency  String?
   icon       String
   color      String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  parent     Todos?   @relation("child_todos", fields: [parent_id], references: [id])
-  todos      Todos[]  @relation("child_todos")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parent     Todos?    @relation("child_todos", fields: [parent_id], references: [id])
+  todos      Todos[]   @relation("child_todos")
 
   @@map("todos")
 }
