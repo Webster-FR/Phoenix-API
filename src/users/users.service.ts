@@ -1,10 +1,11 @@
-import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {ConflictException, Inject, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {UserEntity} from "./models/entities/user.entity";
 import {EncryptionService} from "../services/encryption.service";
 import {ConfigService} from "@nestjs/config";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
-import {VerificationCodeEntity} from "../verification-codes/models/entities/verification-code.entity";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
+import {Cache} from "cache-manager";
 
 @Injectable()
 export class UsersService{
@@ -17,7 +18,11 @@ export class UsersService{
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
         private readonly verificationCodeService: VerificationCodesService,
-    ){}
+        @Inject(CACHE_MANAGER)
+        private readonly cacheManager: Cache,
+    ){
+        this.cacheManager.set("users", [], 0).then(r => r);
+    }
 
     decryptUserData(user: UserEntity): UserEntity{
         user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
@@ -38,10 +43,15 @@ export class UsersService{
     }
 
     async findById(userId: number, exception: boolean = true): Promise<UserEntity>{
-        const user: UserEntity = await this.prismaService.user.findUnique({where: {id: userId}});
+        let user = (await this.cacheManager.get<UserEntity[]>("users")).find(user => user.id === userId);
+        if(user)
+            return user;
+        user = await this.prismaService.user.findUnique({where: {id: userId}});
         if(!user && exception)
             throw new NotFoundException("User not found");
-        return this.decryptUserData(user);
+        user = this.decryptUserData(user);
+        this.cacheManager.set("users", [...(await this.cacheManager.get<UserEntity[]>("users")), user], 0).then(r => r);
+        return user;
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
@@ -62,7 +72,7 @@ export class UsersService{
         const userSecret = this.encryptionService.generateSecret();
         const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         const encryptedUsername = this.encryptionService.encryptSymmetric(username, userSecret, this.usersEncryptionStrength);
-        const user = await this.prismaService.user.create({
+        const user: UserEntity = await this.prismaService.user.create({
             data: {
                 username: encryptedUsername,
                 email,
@@ -110,16 +120,6 @@ export class UsersService{
         if(!dbUser)
             throw new NotFoundException("User not found");
         return dbUser;
-    }
-
-    async findByVerificationCode(verificationCodeId: number): Promise<UserEntity>{
-        const code: VerificationCodeEntity = await this.verificationCodeService.findById(verificationCodeId);
-        if(!code)
-            throw new NotFoundException("Verification code not found");
-        const user: UserEntity = await this.prismaService.user.findUnique({where: {id: code.user_id}});
-        if(!user)
-            throw new NotFoundException("User not found");
-        return this.decryptUserData(user);
     }
 
     async deleteUnverifiedUsers(): Promise<number>{
