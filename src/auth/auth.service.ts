@@ -38,6 +38,8 @@ export class AuthService{
                 email: email
             }
         });
+        if(!user)
+            throw new NotFoundException("User not found");
         if(!await this.encryptionService.compareHash(user.password, password))
             throw new ForbiddenException("Invalid password");
         if(user.verification_codes){

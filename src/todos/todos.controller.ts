@@ -60,8 +60,8 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.OK, description: "Set todo completed", type: TodoEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
-    async setTodoCompleted(@Req() req: any, @Param() todoIdDto: IdDto, @Body() updateCompletedDto: UpdateCompletedDto): Promise<TodoEntity>{
-        return await this.todosService.setTodoCompleted(req.user, todoIdDto.id, updateCompletedDto.completed);
+    async setTodoCompleted(@Req() req: any, @Param() todoIdDto: IdDto, @Body() updateCompletedDto: UpdateCompletedDto): Promise<void>{
+        await this.todosService.setTodoCompleted(req.user, todoIdDto.id, updateCompletedDto.completed);
     }
 
     @Put(":id")
