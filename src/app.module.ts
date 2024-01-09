@@ -16,6 +16,8 @@ import {LedgersModule} from "./ledgers/ledgers.module";
 import {TransactionsModule} from "./transactions/transactions.module";
 import {TransactionCategoriesModule} from "./transaction-categories/transaction-categories.module";
 import {CacheModule} from "@nestjs/cache-manager";
+import {CacheService} from "./cache/cache.service";
+import {CacheModule as InternalCacheModule} from "./cache/cache.module";
 
 @Module({
     imports: [
@@ -36,6 +38,8 @@ import {CacheModule} from "@nestjs/cache-manager";
         LedgersModule,
         TransactionsModule,
         TransactionCategoriesModule,
+        InternalCacheModule,
     ],
+    providers: [CacheService],
 })
 export class AppModule{}
