@@ -1,14 +1,13 @@
-import {Inject, Injectable, NotFoundException} from "@nestjs/common";
-import {JwtService} from "./jwt.service";
-import {PrismaService} from "./prisma.service";
+import {Injectable, NotFoundException} from "@nestjs/common";
+import {JwtService} from "../services/jwt.service";
+import {PrismaService} from "../services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "./encryption.service";
-import {AtPayloadModel} from "../auth/models/models/at-payload.model";
-import {RtPayloadModel} from "../auth/models/models/rt-payload.model";
-import {TokenEntity} from "../auth/models/entities/token.entity";
-import {CACHE_MANAGER} from "@nestjs/cache-manager";
-import {Cache} from "cache-manager";
-import {CachedTokenEntity} from "../auth/models/entities/cached-token.entity";
+import {EncryptionService} from "../services/encryption.service";
+import {AtPayloadModel} from "./models/models/at-payload.model";
+import {RtPayloadModel} from "./models/models/rt-payload.model";
+import {TokenEntity} from "./models/entities/token.entity";
+import {CacheService} from "../cache/cache.service";
+import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
 export class TokensService{
@@ -17,43 +16,17 @@ export class TokensService{
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly encryptionService: EncryptionService,
-        @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache
-    ){
-        cacheManager.set("tokens", [], 0).then(r => r);
-    }
+        private readonly cacheService: CacheService
+    ){}
 
-    async getTokenFromCache(token: string): Promise<TokenEntity>{
-        const tokens = await this.cacheManager.get<CachedTokenEntity[]>("tokens");
-        const tokenSum = this.encryptionService.getSum(token);
-        for(const cachedToken of tokens)
-            if(cachedToken.sum == tokenSum){
-                return cachedToken;
-            }
-        return null;
-    }
-
-    async addTokenToCache(token: TokenEntity){
-        const cachedToken = token as CachedTokenEntity;
-        cachedToken.sum = this.encryptionService.getSum(token.token);
-        await this.cacheManager.set("tokens", [...(await this.cacheManager.get<CachedTokenEntity[]>("tokens")), cachedToken], 0);
-    }
-
-    async blacklistTokenInCache(token: TokenEntity, blacklisted: boolean){
-        const tokens = await this.cacheManager.get<CachedTokenEntity[]>("tokens");
-        const index = tokens.findIndex(t => t.id == token.id);
-        tokens[index].blacklisted = blacklisted;
-        await this.cacheManager.set("tokens", tokens, 0);
-    }
-
-    async generateAccessToken(userId: number): Promise<string>{
-        const payload = new AtPayloadModel(userId, this.encryptionService.generateSecret());
+    async generateAccessToken(user: UserEntity): Promise<string>{
+        const payload = new AtPayloadModel(user.id, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
         const dbToken: TokenEntity = await this.prismaService.tokens.create({
             data: {
-                user_id: userId,
+                user_id: user.id,
                 sum: sum,
                 token: await this.encryptionService.hash(token, 6),
                 is_refresh: false,
@@ -61,18 +34,18 @@ export class TokensService{
             }
         });
         dbToken.token = token;
-        await this.addTokenToCache(dbToken);
+        await this.cacheService.addToken(dbToken);
         return token;
     }
 
-    async generateRefreshToken(userId: number): Promise<string>{
-        const payload = new RtPayloadModel(userId, this.encryptionService.generateSecret());
+    async generateRefreshToken(user: UserEntity): Promise<string>{
+        const payload = new RtPayloadModel(user.id, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
         const dbToken: TokenEntity = await this.prismaService.tokens.create({
             data: {
-                user_id: userId,
+                user_id: user.id,
                 sum,
                 token: await this.encryptionService.hash(token, 6),
                 is_refresh: true,
@@ -80,16 +53,16 @@ export class TokensService{
             }
         });
         dbToken.token = token;
-        await this.addTokenToCache(dbToken);
+        await this.cacheService.addToken(dbToken);
         return token;
     }
 
     async getTokenEntity(token: string, isRefresh: boolean, exception: boolean = true): Promise<TokenEntity>{
-        const cachedToken = await this.getTokenFromCache(token);
+        const cachedToken = await this.cacheService.getTokenFromString(token);
         if(cachedToken)
             return cachedToken;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const tokens = await this.prismaService.tokens.findMany({
+        const tokens: TokenEntity[] = await this.prismaService.tokens.findMany({
             where: {
                 sum: sum,
                 is_refresh: isRefresh,
@@ -99,9 +72,9 @@ export class TokensService{
             throw new NotFoundException("Token not found");
         for(const dbToken of tokens)
             if(await this.encryptionService.compareHash(dbToken.token, token)){
-                const tempToken = dbToken as CachedTokenEntity;
+                const tempToken = dbToken;
                 tempToken.token = token;
-                await this.addTokenToCache(tempToken);
+                await this.cacheService.addToken(tempToken);
                 return dbToken;
             }
         if(exception)
@@ -122,23 +95,20 @@ export class TokensService{
                 blacklisted: true,
             },
         });
-        await this.blacklistTokenInCache(dbToken, true);
+        await this.cacheService.blackListToken(token);
         return true;
     }
 
-    async blacklistUserTokens(userId: number){
+    async blacklistUserTokens(user: UserEntity){
         await this.prismaService.tokens.updateMany({
             where: {
-                user_id: userId,
+                user_id: user.id,
             },
             data: {
                 blacklisted: true,
             },
         });
-        const tokens = await this.cacheManager.get<TokenEntity[]>("tokens");
-        for(const token of tokens)
-            if(token.user_id == userId)
-                await this.blacklistTokenInCache(token, true);
+        await this.cacheService.blackListUserTokens(user);
     }
 
     async deleteExpiredTokens(){
@@ -149,7 +119,7 @@ export class TokensService{
                 },
             },
         });
-        await this.cacheManager.set("tokens", (await this.cacheManager.get<TokenEntity[]>("tokens")).filter(t => t.expires > new Date()), 0);
+        await this.cacheService.deleteExpiredTokens();
         return count;
     }
 }
