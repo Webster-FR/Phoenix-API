@@ -5,11 +5,12 @@ import {ServicesModule} from "../services/services.module";
 import {UsersModule} from "../users/users.module";
 import {BanksModule} from "../banks/banks.module";
 import {TransactionsModule} from "../transactions/transactions.module";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
     controllers: [AccountsController],
     providers: [AccountsService],
-    imports: [ServicesModule, UsersModule, BanksModule, forwardRef(() => TransactionsModule)],
+    imports: [ServicesModule, UsersModule, BanksModule, forwardRef(() => TransactionsModule), AuthModule],
     exports: [AccountsService],
 })
 export class AccountsModule{}

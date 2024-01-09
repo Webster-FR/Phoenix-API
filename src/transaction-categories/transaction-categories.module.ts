@@ -3,11 +3,12 @@ import {TransactionCategoriesService} from "./transaction-categories.service";
 import {TransactionCategoriesController} from "./transaction-categories.controller";
 import {ServicesModule} from "../services/services.module";
 import {UsersModule} from "../users/users.module";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
     controllers: [TransactionCategoriesController],
     providers: [TransactionCategoriesService],
-    imports: [ServicesModule, UsersModule],
+    imports: [ServicesModule, UsersModule, AuthModule],
     exports: [TransactionCategoriesService],
 })
 export class TransactionCategoriesModule{}

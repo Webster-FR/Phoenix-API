@@ -1,13 +1,12 @@
 import {
     BadRequestException,
-    ConflictException,
     ForbiddenException,
     Injectable, InternalServerErrorException,
     NotFoundException, PreconditionFailedException
 } from "@nestjs/common";
 import {EncryptionService} from "../services/encryption.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
-import {TokensService} from "../services/tokens.service";
+import {TokensService} from "./tokens.service";
 import {AtResponse} from "./models/responses/at.response";
 import {EmailService} from "../services/email.service";
 import {UsersService} from "../users/users.service";
@@ -51,9 +50,9 @@ export class AuthService{
             }
             throw new PreconditionFailedException("Email not confirmed");
         }
-        const accessToken = await this.tokensService.generateAccessToken(user.id);
+        const accessToken = await this.tokensService.generateAccessToken(user);
         if(keepLoggedIn === true){
-            const refreshToken = await this.tokensService.generateRefreshToken(user.id);
+            const refreshToken = await this.tokensService.generateRefreshToken(user);
             return new AtRtResponse(accessToken, refreshToken);
         }
         return new AtRtResponse(accessToken);
@@ -65,8 +64,8 @@ export class AuthService{
             await this.tokensService.blacklistToken(rt, true);
     }
 
-    async logoutAll(userId: number){
-        await this.tokensService.blacklistUserTokens(userId);
+    async logoutAll(user: UserEntity){
+        await this.tokensService.blacklistUserTokens(user);
     }
 
     async registerUser(username: string, email: string, password: string): Promise<void>{
@@ -77,16 +76,11 @@ export class AuthService{
         await this.emailService.sendConfirmationEmail(newUser.email, code.code);
     }
 
-    async refresh(at: string, rt: string): Promise<AtRtResponse>{
+    async refresh(user: UserEntity, at: string, rt: string): Promise<AtRtResponse>{
         await this.tokensService.blacklistToken(at, false, false);
-        const rtDbToken = await this.tokensService.getTokenEntity(rt, true);
-        if(rtDbToken.blacklisted){
-            await this.logoutAll(rtDbToken.user_id);
-            throw new ConflictException("Refresh token already used");
-        }
         await this.tokensService.blacklistToken(rt, true);
-        const accessToken = await this.tokensService.generateAccessToken(rtDbToken.user_id);
-        const refreshToken = await this.tokensService.generateRefreshToken(rtDbToken.user_id);
+        const accessToken = await this.tokensService.generateAccessToken(user);
+        const refreshToken = await this.tokensService.generateRefreshToken(user);
         return new AtRtResponse(accessToken, refreshToken);
     }
 

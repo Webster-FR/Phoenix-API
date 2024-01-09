@@ -18,6 +18,7 @@ import {TransactionCategoriesModule} from "./transaction-categories/transaction-
 import {CacheModule} from "@nestjs/cache-manager";
 import {CacheService} from "./cache/cache.service";
 import {CacheModule as InternalCacheModule} from "./cache/cache.module";
+import {ServicesModule} from "./services/services.module";
 
 @Module({
     imports: [
@@ -39,6 +40,7 @@ import {CacheModule as InternalCacheModule} from "./cache/cache.module";
         TransactionsModule,
         TransactionCategoriesModule,
         InternalCacheModule,
+        ServicesModule,
     ],
     providers: [CacheService],
 })

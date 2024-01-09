@@ -1,15 +1,17 @@
 import {AuthController} from "./auth.controller";
 import {AtGuard} from "./guards/at.guard";
 import {AuthService} from "./auth.service";
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 import {ServicesModule} from "../services/services.module";
 import {UsersModule} from "../users/users.module";
 import {VerificationCodesModule} from "../verification-codes/verification-codes.module";
+import {TokensService} from "./tokens.service";
+import {CacheModule} from "../cache/cache.module";
 
 @Module({
     controllers: [AuthController],
-    providers: [AuthService, AtGuard],
-    exports: [AtGuard],
-    imports: [ServicesModule, UsersModule, VerificationCodesModule]
+    providers: [AuthService, AtGuard, TokensService],
+    exports: [AtGuard, TokensService],
+    imports: [ServicesModule, forwardRef(() => UsersModule), VerificationCodesModule, CacheModule]
 })
 export class AuthModule{}
