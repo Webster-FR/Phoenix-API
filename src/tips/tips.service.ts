@@ -1,8 +1,7 @@
-import {Inject, Injectable, NotFoundException} from "@nestjs/common";
+import {Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {TipEntity} from "./models/entities/tip.entity";
-import {CACHE_MANAGER} from "@nestjs/cache-manager";
-import {Cache} from "cache-manager";
+import {TipsCacheService} from "../cache/tips-cache.service";
 
 // noinspection TypeScriptValidateJSTypes
 @Injectable()
@@ -10,15 +9,12 @@ export class TipsService{
 
     constructor(
         private readonly prismaService: PrismaService,
-        @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache,
-    ){
-        this.cacheManager.set("tips", null, 0).then(r => r);
-    }
+        private readonly tipsCacheService: TipsCacheService,
+    ){}
 
     async getTipOfTheDay(){
         const day = new Date().getDate();
-        let tod: TipEntity = (await this.cacheManager.get<TipEntity>("tips"));
+        let tod: TipEntity = await this.tipsCacheService.getTip();
         if(!tod || tod.order !== day){
             tod = await this.prismaService.tips.findUnique({
                 where: {
@@ -28,7 +24,7 @@ export class TipsService{
         }
         if(!tod)
             throw new NotFoundException("Tip of the day not found");
-        this.cacheManager.set("tips", tod, 0).then(r => r);
+        await this.tipsCacheService.updateTip(tod);
         return tod;
     }
 

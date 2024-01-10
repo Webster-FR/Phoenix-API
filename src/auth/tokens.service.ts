@@ -6,7 +6,7 @@ import {EncryptionService} from "../services/encryption.service";
 import {AtPayloadModel} from "./models/models/at-payload.model";
 import {RtPayloadModel} from "./models/models/rt-payload.model";
 import {TokenEntity} from "./models/entities/token.entity";
-import {CacheService} from "../cache/cache.service";
+import {TokenCacheService} from "../cache/token-cache.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
@@ -16,7 +16,7 @@ export class TokensService{
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly encryptionService: EncryptionService,
-        private readonly cacheService: CacheService
+        private readonly cacheService: TokenCacheService
     ){}
 
     async generateAccessToken(user: UserEntity): Promise<string>{

@@ -4,7 +4,8 @@ import {UserEntity} from "./models/entities/user.entity";
 import {EncryptionService} from "../services/encryption.service";
 import {ConfigService} from "@nestjs/config";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
-import {CacheService} from "../cache/cache.service";
+import {TokenCacheService} from "../cache/token-cache.service";
+import {UserCacheService} from "../cache/user-cache.service";
 
 @Injectable()
 export class UsersService{
@@ -17,7 +18,7 @@ export class UsersService{
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
         private readonly verificationCodeService: VerificationCodesService,
-        private readonly cacheService: CacheService,
+        private readonly userCacheService: UserCacheService,
     ){}
 
     decryptUserData(user: UserEntity): UserEntity{
@@ -27,7 +28,7 @@ export class UsersService{
     }
 
     async isUserExists(userId: number): Promise<boolean>{
-        let user: UserEntity = await this.cacheService.getUserFromId(userId);
+        let user: UserEntity = await this.userCacheService.getUserFromId(userId);
         if(user)
             return true;
         user = await this.prismaService.user.findUnique({where: {id: userId}});
@@ -42,19 +43,19 @@ export class UsersService{
     }
 
     async findById(userId: number, exception: boolean = true): Promise<UserEntity>{
-        let user = await this.cacheService.getUserFromId(userId);
+        let user = await this.userCacheService.getUserFromId(userId);
         if(user)
             return user;
         user = await this.prismaService.user.findUnique({where: {id: userId}});
         if(!user && exception)
             throw new NotFoundException("User not found");
         user = this.decryptUserData(user);
-        await this.cacheService.updateUser(user);
+        await this.userCacheService.updateUser(user);
         return user;
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
-        let user: UserEntity = await this.cacheService.getUserFromEmail(email);
+        let user: UserEntity = await this.userCacheService.getUserFromEmail(email);
         if(user)
             return user;
         user = await this.prismaService.user.findUnique({where: {email: email}});
@@ -99,7 +100,7 @@ export class UsersService{
         if(!dbUser)
             throw new NotFoundException("User not found");
         user.username = newUsername;
-        await this.cacheService.updateUser(user);
+        await this.userCacheService.updateUser(user);
         return user;
     }
 
@@ -116,7 +117,7 @@ export class UsersService{
         if(!dbUser)
             throw new NotFoundException("User not found");
         user.password = passwordHash;
-        await this.cacheService.updateUser(user);
+        await this.userCacheService.updateUser(user);
         return user;
     }
 
@@ -124,7 +125,7 @@ export class UsersService{
         const dbUser: UserEntity = await this.prismaService.user.delete({where: {id: user.id}});
         if(!dbUser)
             throw new NotFoundException("User not found");
-        await this.cacheService.deleteUser(user);
+        await this.userCacheService.deleteUser(user);
         return user;
     }
 
@@ -144,7 +145,7 @@ export class UsersService{
             if(user.verification_codes)
                 usersToDelete.push(user);
         const {count} = await this.prismaService.user.deleteMany({where: {id: {in: usersToDelete.map(user => user.id)}}});
-        await this.cacheService.deleteManyUsers(usersToDelete);
+        await this.userCacheService.deleteManyUsers(usersToDelete);
         return count;
     }
 
@@ -163,7 +164,7 @@ export class UsersService{
         if(!dbUser)
             throw new NotFoundException("User not found");
         user.secret = secret;
-        await this.cacheService.updateUser(user);
+        await this.userCacheService.updateUser(user);
         return user;
     }
 }
