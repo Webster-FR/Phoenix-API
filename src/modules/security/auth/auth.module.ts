@@ -7,10 +7,11 @@ import {UsersModule} from "../users/users.module";
 import {VerificationCodesModule} from "../verification-codes/verification-codes.module";
 import {TokensService} from "./tokens.service";
 import {CacheModule} from "../../cache/cache.module";
+import {RtGuard} from "./guards/rt.guard";
 
 @Module({
     controllers: [AuthController],
-    providers: [AuthService, AtGuard, TokensService],
+    providers: [AuthService, AtGuard, RtGuard, TokensService],
     exports: [AtGuard, TokensService],
     imports: [ServicesModule, forwardRef(() => UsersModule), VerificationCodesModule, CacheModule]
 })
