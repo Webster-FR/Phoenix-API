@@ -25,13 +25,13 @@ import * as redisStore from "cache-manager-redis-store";
 const redisUrl = process.env.REDIS_URL;
 const redisPassword = process.env.REDIS_PASSWORD;
 console.log(redisUrl);
-console.log(redisUrl === "");
+console.log(redisUrl && redisUrl === "");
 
 @Module({
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
         ScheduleModule.forRoot(),
-        redisUrl === "" ? CacheModule.register({isGlobal: true}) : CacheModule.register<RedisClientOptions>({
+        redisUrl && redisUrl === "" ? CacheModule.register({isGlobal: true}) : CacheModule.register<RedisClientOptions>({
             store: redisStore,
             url: redisUrl,
             password: redisPassword,
