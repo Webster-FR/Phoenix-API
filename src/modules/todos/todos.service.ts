@@ -25,6 +25,15 @@ export class TodosService{
         return todo;
     }
 
+    async isTodoExists(user: UserEntity, todoId: number): Promise<boolean>{
+        return !!await this.prismaService.todos.findUnique({
+            where: {
+                id: todoId,
+                user_id: user.id
+            }
+        });
+    }
+
     async getTodos(user: UserEntity): Promise<TodoEntity[]>{
         if(!user)
             throw new NotFoundException("User not found");
@@ -83,6 +92,8 @@ export class TodosService{
         const parentTodo = await this.findTodoById(user, parentId);
         if(parentTodo.parent_id !== null)
             throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
+        if(!await this.isTodoExists(user, todoId))
+            throw new NotFoundException("Todo not found");
         const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId,
@@ -177,6 +188,8 @@ export class TodosService{
             if(parentTodo.parent_id !== null)
                 throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
         }
+        if(!await this.isTodoExists(user, todoId))
+            throw new NotFoundException("Todo not found");
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
@@ -201,6 +214,8 @@ export class TodosService{
     }
 
     async deleteTodo(user: UserEntity, todoId: number, children: boolean): Promise<void>{
+        if(!await this.isTodoExists(user, todoId))
+            throw new NotFoundException("Todo not found");
         if(children)
             await this.deleteTodoChildren(user, todoId);
         const todo: TodoEntity = await this.prismaService.todos.delete({
@@ -214,6 +229,8 @@ export class TodosService{
     }
 
     async deleteTodoChildren(user: UserEntity, todoId: number): Promise<void>{
+        if(!await this.isTodoExists(user, todoId))
+            throw new NotFoundException("Todo not found");
         await this.prismaService.todos.deleteMany({
             where: {
                 user_id: user.id,
