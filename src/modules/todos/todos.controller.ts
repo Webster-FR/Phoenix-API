@@ -88,7 +88,7 @@ export class TodosController{
     @Delete(":id")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Delete a todo", type: TodoEntity})
+    @ApiResponse({status: HttpStatus.OK, description: "Delete a todo"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
     async deleteTodo(@Req() req: any, @Param() deleteTodoDto: DeleteTodoParamDto): Promise<void>{
@@ -100,6 +100,7 @@ export class TodosController{
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Delete all completed todos"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
+    @ApiResponse({status: HttpStatus.PRECONDITION_FAILED, description: "Cannot purge todos because a child is not completed"})
     async deleteCompletedTodos(@Req() req: any): Promise<void>{
         await this.todosService.purgeTodos(req.user);
     }
