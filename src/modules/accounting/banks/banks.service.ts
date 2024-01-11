@@ -1,9 +1,10 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {BankEntity} from "./models/entities/bank.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
 import {EncryptionService} from "../../../common/services/encryption.service";
-import {UsersService} from "../../security/users/users.service";
+import {UserEntity} from "../../security/users/models/entities/user.entity";
+import {BankCacheService} from "../../cache/bank-cache.service";
 
 @Injectable()
 export class BanksService{
@@ -14,33 +15,36 @@ export class BanksService{
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
         private readonly encryptionService: EncryptionService,
-        private readonly usersService: UsersService,
+        private readonly bankCacheService: BankCacheService
     ){}
 
-    async getBanks(userId: number): Promise<BankEntity[]>{
-        if(!await this.usersService.isUserExists(userId))
-            throw new NotFoundException("User not found");
-        const banks: BankEntity[] = await this.prismaService.banks.findMany({
+    async getBanks(user: UserEntity): Promise<BankEntity[]>{
+        let banks = await this.bankCacheService.getBanks(user);
+        if(banks)
+            return banks;
+        banks = await this.prismaService.banks.findMany({
             where: {
                 OR: [
-                    {user_id: userId},
+                    {user_id: user.id},
                     {user_id: null},
                 ],
             }
         });
         for(const bank of banks)
             bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
+        await this.bankCacheService.setBanks(user, banks);
         return banks;
     }
 
-    async findOne(userId: number, bankId: number): Promise<BankEntity>{
-        if(!await this.usersService.isUserExists(userId))
-            throw new NotFoundException("User not found");
-        const bank: BankEntity = await this.prismaService.banks.findUnique({
+    async findOne(user: UserEntity, bankId: number): Promise<BankEntity>{
+        let bank = await this.bankCacheService.getBank(user, bankId);
+        if(bank)
+            return bank;
+        bank = await this.prismaService.banks.findUnique({
             where: {
                 id: bankId,
                 OR: [
-                    {user_id: userId},
+                    {user_id: user.id},
                     {user_id: null},
                 ],
             }
@@ -51,67 +55,72 @@ export class BanksService{
         return bank;
     }
 
-    async addBank(userId: number, bankName: string): Promise<BankEntity>{
-        if(!await this.usersService.isUserExists(userId))
-            throw new NotFoundException("User not found");
-        const banks = await this.getBanks(userId);
+    async addBank(user: UserEntity, bankName: string): Promise<BankEntity>{
+        let banks = await this.bankCacheService.getBanks(user);
+        if(!banks)
+            banks = await this.getBanks(user);
         for(const bank of banks)
             if(bank.name === bankName)
-                throw new NotFoundException("Bank already exists");
+                throw new ConflictException("Bank already exists whit this name");
         const bank: BankEntity = await this.prismaService.banks.create({
             data: {
-                user_id: userId,
+                user_id: user.id,
                 name: this.encryptionService.encryptSymmetric(bankName, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
             }
         });
         bank.name = bankName;
+        await this.bankCacheService.addBank(user, bank);
         return bank;
     }
 
-    async updateBankName(userId: number, bankId: number, name: string): Promise<BankEntity>{
-        if(!await this.usersService.isUserExists(userId))
-            throw new NotFoundException("User not found");
-        const bank: BankEntity = await this.prismaService.banks.findUnique({
+    async updateBankName(user: UserEntity, bankId: number, name: string): Promise<BankEntity>{
+        let banks = await this.bankCacheService.getBanks(user);
+        if(!banks)
+            banks = await this.getBanks(user);
+        for(const bank of banks)
+            if(bank.name === name)
+                throw new ConflictException("Bank already exists with this name");
+        // Check if bank exists
+        let bank: BankEntity = await this.prismaService.banks.findUnique({
             where: {
                 id: bankId,
-                user_id: userId,
+                user_id: user.id,
             }
         });
         if(!bank)
             throw new NotFoundException("User bank not found");
-        const banks = await this.getBanks(userId);
-        for(const bank of banks)
-            if(bank.name === name)
-                throw new NotFoundException("Bank already exists with this name");
-        await this.prismaService.banks.update({
+        // Update bank name
+        bank = await this.prismaService.banks.update({
             where: {
                 id: bankId,
+                user_id: user.id,
             },
             data: {
                 name: this.encryptionService.encryptSymmetric(name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
             }
         });
         bank.name = name;
+        await this.bankCacheService.updateBank(user, bank);
         return bank;
     }
 
-    async deleteBank(userId: number, bankId: number): Promise<BankEntity>{
-        if(!await this.usersService.isUserExists(userId))
-            throw new NotFoundException("User not found");
+    async deleteBank(user: UserEntity, bankId: number): Promise<void>{
+        // Check if bank exists
         const bank: BankEntity = await this.prismaService.banks.findUnique({
             where: {
                 id: bankId,
-                user_id: userId,
+                user_id: user.id,
             }
         });
         if(!bank)
             throw new NotFoundException("User bank not found");
+        // Delete bank
         await this.prismaService.banks.delete({
             where: {
                 id: bankId,
+                user_id: user.id,
             }
         });
-        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
-        return bank;
+        await this.bankCacheService.deleteBank(user, bank);
     }
 }

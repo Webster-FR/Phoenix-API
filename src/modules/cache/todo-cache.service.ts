@@ -1,7 +1,6 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
-import {EncryptionService} from "../../common/services/encryption.service";
 import {UserEntity} from "../security/users/models/entities/user.entity";
 import {TodoEntity} from "../todos/models/entities/todo.entity";
 
@@ -9,7 +8,6 @@ import {TodoEntity} from "../todos/models/entities/todo.entity";
 export class TodoCacheService{
 
     constructor(
-        private readonly encryptionService: EncryptionService,
         @Inject(CACHE_MANAGER)
         private readonly cacheManager: Cache
     ){}

@@ -75,7 +75,7 @@ export class AccountsService{
         const user = await this.usersService.findById(userId);
         if(!user)
             throw new NotFoundException("User not found");
-        const bank = await this.banksService.findOne(userId, bankId);
+        const bank = await this.banksService.findOne(user, bankId);
         if(!bank)
             throw new NotFoundException("User or default bank not found");
         const accounts = await this.getAccounts(userId);

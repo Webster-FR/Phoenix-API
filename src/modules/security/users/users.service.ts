@@ -89,6 +89,8 @@ export class UsersService{
     }
 
     async updateUsername(user: UserEntity, newUsername: string): Promise<UserEntity>{
+        if(!await this.isUserExists(user.id))
+            throw new NotFoundException("User not found");
         const encryptedUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret, this.usersEncryptionStrength);
         const dbUser: UserEntity = await this.prismaService.user.update({
             where: {
@@ -112,6 +114,8 @@ export class UsersService{
     }
 
     async setPassword(user: UserEntity, newPassword: string): Promise<UserEntity>{
+        if(!await this.isUserExists(user.id))
+            throw new NotFoundException("User not found");
         const passwordHash = await this.encryptionService.hash(newPassword);
         const dbUser: UserEntity = await this.prismaService.user.update({
             where: {
@@ -129,6 +133,8 @@ export class UsersService{
     }
 
     async deleteUser(user: UserEntity): Promise<UserEntity>{
+        if(!await this.isUserExists(user.id))
+            throw new NotFoundException("User not found");
         const dbUser: UserEntity = await this.prismaService.user.delete({where: {id: user.id}});
         if(!dbUser)
             throw new NotFoundException("User not found");
@@ -157,6 +163,8 @@ export class UsersService{
     }
 
     async setUserSecret(user: UserEntity, secret: string): Promise<UserEntity>{
+        if(!await this.isUserExists(user.id))
+            throw new NotFoundException("User not found");
         const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
         const dbUser = await this.prismaService.user.update({

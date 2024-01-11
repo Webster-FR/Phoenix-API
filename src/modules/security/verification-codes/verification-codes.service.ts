@@ -1,8 +1,7 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, NotFoundException} from "@nestjs/common";
 import {VerificationCodeEntity} from "./models/entities/verification-code.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../../../common/services/encryption.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
@@ -11,7 +10,6 @@ export class VerificationCodesService{
     constructor(
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
-        private readonly encryptionService: EncryptionService,
     ){}
 
     async checkCode(verificationCode: VerificationCodeEntity, code: string): Promise<boolean>{
@@ -33,15 +31,13 @@ export class VerificationCodesService{
         return this.prismaService.verificationCodes.findUnique({where: {id: id}});
     }
 
-    async findByCode(code: string): Promise<VerificationCodeEntity>{
-        return this.prismaService.verificationCodes.findUnique({where: {code: code}});
-    }
-
     async findByUserId(userId: number): Promise<VerificationCodeEntity>{
         return this.prismaService.verificationCodes.findUnique({where: {user_id: userId}});
     }
 
     async deleteById(id: number): Promise<VerificationCodeEntity>{
+        if(!await this.findById(id))
+            throw new NotFoundException("Code not found");
         return this.prismaService.verificationCodes.delete({where: {id: id}});
     }
 

@@ -3,13 +3,11 @@ import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
 import {UserEntity} from "../security/users/models/entities/user.entity";
 import {TokenEntity} from "../security/auth/models/entities/token.entity";
-import {EncryptionService} from "../../common/services/encryption.service";
 
 @Injectable()
 export class TokenCacheService{
 
     constructor(
-        private readonly encryptionService: EncryptionService,
         @Inject(CACHE_MANAGER)
         private readonly cacheManager: Cache
     ){}
@@ -47,8 +45,11 @@ export class TokenCacheService{
 
     async blackListUserTokens(user: UserEntity){
         const tokens: TokenEntity[] = await this.getTokens();
-        const tokensToKeep = tokens.filter(t => t.user_id !== user.id);
-        await this.cacheManager.set("tokens", tokensToKeep, 0);
+        const userTokens = tokens.filter(t => t.user_id === user.id);
+        for(const userToken of userTokens){
+            userToken.blacklisted = true;
+            await this.cacheManager.set("tokens", tokens, 0);
+        }
     }
 
     async deleteExpiredTokens(){
