@@ -1,13 +1,13 @@
 import {Injectable, Logger} from "@nestjs/common";
-import {PrismaService} from "../common/services/prisma.service";
-import {UserEntity} from "../users/models/entities/user.entity";
-import {UsersService} from "../users/users.service";
-import {EncryptionService} from "../common/services/encryption.service";
-import {TodosService} from "../modules/todos/todos.service";
-import {AccountsService} from "../modules/accounting/accounts/accounts.service";
-import {LedgersService} from "../modules/accounting/ledgers/ledgers.service";
-import {LedgerEntity} from "../modules/accounting/ledgers/models/entities/ledger.entity";
-import {EncryptedAccountEntity} from "../modules/accounting/accounts/models/entities/encrypted-account.entity";
+import {PrismaService} from "../../../common/services/prisma.service";
+import {UserEntity} from "../../../users/models/entities/user.entity";
+import {UsersService} from "../../../users/users.service";
+import {EncryptionService} from "../../../common/services/encryption.service";
+import {TodosService} from "../../todos/todos.service";
+import {AccountsService} from "../../accounting/accounts/accounts.service";
+import {LedgersService} from "../../accounting/ledgers/ledgers.service";
+import {LedgerEntity} from "../../accounting/ledgers/models/entities/ledger.entity";
+import {EncryptedAccountEntity} from "../../accounting/accounts/models/entities/encrypted-account.entity";
 
 
 @Injectable()
