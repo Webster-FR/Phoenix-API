@@ -1,8 +1,6 @@
 import {Module} from "@nestjs/common";
 import {AuthModule} from "./modules/security/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
-import {UsersModule} from "./modules/security/users/users.module";
-import {VerificationCodesModule} from "./modules/security/verification-codes/verification-codes.module";
 import {TodosModule} from "./modules/todos/todos.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./modules/tasks/tasks.module";
@@ -31,7 +29,6 @@ const redisPassword = process.env.REDIS_PASSWORD;
             isGlobal: true,
         }),
         AuthModule,
-        UsersModule,
         TodosModule,
         TasksModule,
         SecretsModule,
