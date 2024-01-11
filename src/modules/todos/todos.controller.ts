@@ -95,12 +95,12 @@ export class TodosController{
         await this.todosService.deleteTodo(req.user, deleteTodoDto.id, deleteTodoDto.children);
     }
 
-    @Delete("/completed")
+    @Delete("/purge")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Delete all completed todos"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     async deleteCompletedTodos(@Req() req: any): Promise<void>{
-        await this.todosService.deleteCompletedTodos(req.user);
+        await this.todosService.purgeTodos(req.user);
     }
 }

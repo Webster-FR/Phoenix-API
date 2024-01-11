@@ -1,4 +1,4 @@
-import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
+import {Injectable, InternalServerErrorException, NotFoundException, PreconditionFailedException} from "@nestjs/common";
 import {PrismaService} from "../../common/services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../security/users/users.service";
@@ -90,17 +90,69 @@ export class TodosService{
     }
 
     async setTodoCompleted(user: UserEntity, todoId: number, completed: boolean): Promise<void>{
-        const todo: TodoEntity = await this.prismaService.todos.update({
+        const todo: TodoEntity = await this.prismaService.todos.findUnique({
+            where: {
+                id: todoId,
+                user_id: user.id
+            }
+        });
+        if(!todo)
+            throw new NotFoundException("Todo not found");
+        if(!completed){
+            if(todo.parent_id !== null){
+                const parent: TodoEntity = await this.prismaService.todos.update({
+                    where: {
+                        id: todo.parent_id,
+                        user_id: user.id
+                    },
+                    data: {
+                        completed: false
+                    }
+                });
+                if(!parent)
+                    throw new NotFoundException("Parent not found");
+            }
+            await this.prismaService.todos.update({
+                where: {
+                    id: todoId,
+                    user_id: user.id
+                },
+                data: {
+                    completed: false
+                }
+            });
+            return;
+        }
+        if(todo.parent_id !== null){
+            await this.prismaService.todos.update({
+                where: {
+                    id: todoId,
+                    user_id: user.id
+                },
+                data: {
+                    completed: true
+                }
+            });
+            return;
+        }
+        const children: TodoEntity[] = await this.prismaService.todos.findMany({
+            where: {
+                user_id: user.id,
+                parent_id: todoId
+            }
+        });
+        for(const child of children)
+            if(child.completed === false)
+                throw new PreconditionFailedException("Cannot complete todo because a child is not completed");
+        await this.prismaService.todos.update({
             where: {
                 id: todoId,
                 user_id: user.id
             },
             data: {
-                completed: completed
-            },
+                completed: true
+            }
         });
-        if(!todo)
-            throw new NotFoundException("Todo not found");
     }
 
     async updateTodo(user: UserEntity, todoId: number, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
@@ -143,20 +195,37 @@ export class TodosService{
     }
 
     async deleteTodoChildren(user: UserEntity, todoId: number): Promise<void>{
-        console.log("Deleting children of todo " + todoId);
         await this.prismaService.todos.deleteMany({
             where: {
+                user_id: user.id,
                 parent_id: todoId
             },
         });
     }
 
-    async deleteCompletedTodos(user: UserEntity){
-        await this.prismaService.todos.deleteMany({
+    async purgeTodos(user: UserEntity){
+        const userTodos: TodoEntity[] = await this.prismaService.todos.findMany({
             where: {
-                user_id: user.id,
-                completed: true
+                user_id: user.id
             }
         });
+        for(const todo of userTodos)
+            if(todo.parent_id === null && todo.completed === true){
+                const children = await this.prismaService.todos.findMany({
+                    where: {
+                        user_id: user.id,
+                        parent_id: todo.id
+                    }
+                });
+                for(const child of children)
+                    if(child.completed === false)
+                        throw new PreconditionFailedException("Cannot purge todos because a child is not completed");
+                await this.deleteTodoChildren(user, todo.id);
+                await this.prismaService.todos.delete({
+                    where: {
+                        id: todo.id
+                    }
+                });
+            }
     }
 }
