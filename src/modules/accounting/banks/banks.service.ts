@@ -4,6 +4,7 @@ import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
 import {EncryptionService} from "../../../common/services/encryption.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
+import {BankCacheService} from "../../cache/bank-cache.service";
 
 @Injectable()
 export class BanksService{
@@ -14,10 +15,14 @@ export class BanksService{
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
         private readonly encryptionService: EncryptionService,
+        private readonly bankCacheService: BankCacheService
     ){}
 
     async getBanks(user: UserEntity): Promise<BankEntity[]>{
-        const banks: BankEntity[] = await this.prismaService.banks.findMany({
+        let banks = await this.bankCacheService.getBanks(user);
+        if(banks)
+            return banks;
+        banks = await this.prismaService.banks.findMany({
             where: {
                 OR: [
                     {user_id: user.id},
@@ -27,11 +32,15 @@ export class BanksService{
         });
         for(const bank of banks)
             bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
+        await this.bankCacheService.setBanks(user, banks);
         return banks;
     }
 
     async findOne(user: UserEntity, bankId: number): Promise<BankEntity>{
-        const bank: BankEntity = await this.prismaService.banks.findUnique({
+        let bank = await this.bankCacheService.getBank(user, bankId);
+        if(bank)
+            return bank;
+        bank = await this.prismaService.banks.findUnique({
             where: {
                 id: bankId,
                 OR: [
@@ -47,7 +56,9 @@ export class BanksService{
     }
 
     async addBank(user: UserEntity, bankName: string): Promise<BankEntity>{
-        const banks = await this.getBanks(user);
+        let banks = await this.bankCacheService.getBanks(user);
+        if(!banks)
+            banks = await this.getBanks(user);
         for(const bank of banks)
             if(bank.name === bankName)
                 throw new ConflictException("Bank already exists whit this name");
@@ -58,11 +69,14 @@ export class BanksService{
             }
         });
         bank.name = bankName;
+        await this.bankCacheService.addBank(user, bank);
         return bank;
     }
 
     async updateBankName(user: UserEntity, bankId: number, name: string): Promise<BankEntity>{
-        const banks = await this.getBanks(user);
+        let banks = await this.bankCacheService.getBanks(user);
+        if(!banks)
+            banks = await this.getBanks(user);
         for(const bank of banks)
             if(bank.name === name)
                 throw new ConflictException("Bank already exists with this name");
@@ -86,6 +100,7 @@ export class BanksService{
             }
         });
         bank.name = name;
+        await this.bankCacheService.updateBank(user, bank);
         return bank;
     }
 
@@ -106,5 +121,6 @@ export class BanksService{
                 user_id: user.id,
             }
         });
+        await this.bankCacheService.deleteBank(user, bank);
     }
 }
