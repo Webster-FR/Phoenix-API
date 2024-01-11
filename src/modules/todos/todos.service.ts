@@ -1,10 +1,10 @@
 import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../common/services/prisma.service";
+import {PrismaService} from "../../common/services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
-import {UsersService} from "../users/users.service";
-import {EncryptionService} from "../common/services/encryption.service";
+import {UsersService} from "../../users/users.service";
+import {EncryptionService} from "../../common/services/encryption.service";
 import {ConfigService} from "@nestjs/config";
-import {UserEntity} from "../users/models/entities/user.entity";
+import {UserEntity} from "../../users/models/entities/user.entity";
 
 @Injectable()
 export class TodosService{
