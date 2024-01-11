@@ -1,12 +1,9 @@
 import {Module} from "@nestjs/common";
 import {AuthModule} from "./modules/security/auth/auth.module";
-import {VersionModule} from "./modules/misc/version/version.module";
 import {ConfigModule} from "@nestjs/config";
 import {UsersModule} from "./modules/security/users/users.module";
 import {VerificationCodesModule} from "./modules/security/verification-codes/verification-codes.module";
 import {TodosModule} from "./modules/todos/todos.module";
-import {TipsModule} from "./modules/misc/tips/tips.module";
-import {MaintenanceModule} from "./modules/misc/maintenance/maintenance.module";
 import {BanksModule} from "./modules/accounting/banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./modules/tasks/tasks.module";
@@ -21,6 +18,7 @@ import {CacheModule as InternalCacheModule} from "./modules/cache/cache.module";
 import {ServicesModule} from "./common/services/services.module";
 import type {RedisClientOptions} from "redis";
 import * as redisStore from "cache-manager-redis-store";
+import {MiscModule} from "./modules/misc/misc.module";
 
 const redisUrl = process.env.REDIS_URL;
 const redisPassword = process.env.REDIS_PASSWORD;
@@ -36,12 +34,9 @@ const redisPassword = process.env.REDIS_PASSWORD;
             isGlobal: true,
         }),
         AuthModule,
-        VersionModule,
         UsersModule,
         VerificationCodesModule,
         TodosModule,
-        TipsModule,
-        MaintenanceModule,
         BanksModule,
         TasksModule,
         SecretsModule,
@@ -51,6 +46,7 @@ const redisPassword = process.env.REDIS_PASSWORD;
         TransactionCategoriesModule,
         InternalCacheModule,
         ServicesModule,
+        MiscModule
     ],
     providers: [TokenCacheService],
 })
