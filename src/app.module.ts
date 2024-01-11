@@ -15,16 +15,26 @@ import {AccountsModule} from "./accounts/accounts.module";
 import {LedgersModule} from "./ledgers/ledgers.module";
 import {TransactionsModule} from "./transactions/transactions.module";
 import {TransactionCategoriesModule} from "./transaction-categories/transaction-categories.module";
-import {CacheModule} from "@nestjs/cache-manager";
-import {CacheService} from "./cache/cache.service";
+import {CacheModule, CacheStore} from "@nestjs/cache-manager";
+import {TokenCacheService} from "./cache/token-cache.service";
 import {CacheModule as InternalCacheModule} from "./cache/cache.module";
 import {ServicesModule} from "./services/services.module";
+import type {RedisClientOptions} from "redis";
+import * as redisStore from "cache-manager-redis-store";
+
+const redisUrl = process.env.REDIS_URL;
+const redisPassword = process.env.REDIS_PASSWORD;
 
 @Module({
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
         ScheduleModule.forRoot(),
-        CacheModule.register({isGlobal: true}),
+        redisUrl === "" ? CacheModule.register({isGlobal: true}) : CacheModule.register<RedisClientOptions>({
+            store: redisStore,
+            url: redisUrl,
+            password: redisPassword,
+            isGlobal: true,
+        }),
         AuthModule,
         VersionModule,
         UsersModule,
@@ -42,6 +52,6 @@ import {ServicesModule} from "./services/services.module";
         InternalCacheModule,
         ServicesModule,
     ],
-    providers: [CacheService],
+    providers: [TokenCacheService],
 })
 export class AppModule{}
