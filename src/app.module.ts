@@ -17,8 +17,6 @@ import {PasswordRecoveryModule} from "./modules/security/password-recovery/passw
 import * as dotenv from "dotenv";
 dotenv.config();
 
-console.log(process.env.REDIS_URL);
-
 @Module({
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
@@ -32,7 +30,7 @@ console.log(process.env.REDIS_URL);
                 isGlobal: true,
                 store: redisStore,
                 url: process.env.REDIS_URL,
-                password: process.env.REDIS_PASSWORD,
+                password: process.env.REDIS_PASSWORD === "" ? undefined : process.env.REDIS_PASSWORD,
             });
         })(),
         AuthModule,
