@@ -21,7 +21,7 @@ console.log(process.env.REDIS_URL);
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
         ScheduleModule.forRoot(),
-        !process.env.REDIS_URL || process.env.REDIS_URL === "" ? (() => {
+        process.env.REDIS_URL === "" ? (() => {
             console.log("Using in-memory cache");
             return CacheModule.register({isGlobal: true});
         })() : (() => {
@@ -29,7 +29,7 @@ console.log(process.env.REDIS_URL);
             return CacheModule.register<RedisClientOptions>({
                 isGlobal: true,
                 store: redisStore,
-                url: process.env.REDIS_URL,
+                url: "redis://redis:6379",
                 password: process.env.REDIS_PASSWORD,
             });
         })(),
