@@ -12,7 +12,7 @@ import {RtGuard} from "./guards/rt.guard";
 @Module({
     controllers: [AuthController],
     providers: [AuthService, AtGuard, RtGuard, TokensService],
-    exports: [AtGuard, TokensService],
+    exports: [AtGuard, TokensService, AuthService],
     imports: [ServicesModule, forwardRef(() => UsersModule), VerificationCodesModule, CacheModule]
 })
 export class AuthModule{}
