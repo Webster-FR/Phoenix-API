@@ -1,7 +1,6 @@
 import {Body, Controller, Post} from "@nestjs/common";
 import {PasswordRecoveryService} from "./password-recovery.service";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
-import {UsersService} from "../users/users.service";
 import {ResetPasswordDto} from "./models/dto/reset-password.dto";
 import {EmailDto} from "./models/dto/email.dto";
 
@@ -11,7 +10,6 @@ export class PasswordRecoveryController{
 
     constructor(
         private readonly passwordRecoveryService: PasswordRecoveryService,
-        private readonly usersService: UsersService
     ){}
 
     @Post("/reset/email")
