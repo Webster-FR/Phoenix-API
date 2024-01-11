@@ -5,7 +5,7 @@ import {ConfigModule} from "@nestjs/config";
 import {UsersModule} from "./modules/security/users/users.module";
 import {VerificationCodesModule} from "./modules/security/verification-codes/verification-codes.module";
 import {TodosModule} from "./modules/todos/todos.module";
-import {TipsModule} from "./tips/tips.module";
+import {TipsModule} from "./modules/misc/tips/tips.module";
 import {MaintenanceModule} from "./modules/misc/maintenance/maintenance.module";
 import {BanksModule} from "./modules/accounting/banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";

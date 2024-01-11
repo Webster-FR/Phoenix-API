@@ -5,7 +5,7 @@ import {UserCleanupTask} from "./user-cleanup.task";
 import {SecretsRotationTask} from "./secrets-rotation.task";
 import {UsersModule} from "../modules/security/users/users.module";
 import {SecretsModule} from "../modules/security/secrets/secrets.module";
-import {TipsModule} from "../tips/tips.module";
+import {TipsModule} from "../modules/misc/tips/tips.module";
 import {TipsRandomizingTask} from "./tips-randomizing.task";
 import {AuthModule} from "../auth/auth.module";
 

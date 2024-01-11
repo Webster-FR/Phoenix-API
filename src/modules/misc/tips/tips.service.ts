@@ -1,7 +1,7 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../common/services/prisma.service";
+import {PrismaService} from "../../../common/services/prisma.service";
 import {TipEntity} from "./models/entities/tip.entity";
-import {TipsCacheService} from "../modules/cache/tips-cache.service";
+import {TipsCacheService} from "../../cache/tips-cache.service";
 
 // noinspection TypeScriptValidateJSTypes
 @Injectable()
