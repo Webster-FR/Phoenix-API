@@ -76,7 +76,6 @@ export class TodoCacheService{
                 if(todo.parent_id === todoId)
                     todo.parent_id = null;
         }
-        console.log(cachedTodos.filter(t => t.id !== todoId));
         await this.cacheManager.set(`todos-${user.id}`, cachedTodos.filter(t => t.id !== todoId), 0);
     }
 
