@@ -8,7 +8,7 @@ import {LedgersModule} from "../../accounting/ledgers/ledgers.module";
 
 @Module({
     providers: [SecretsService],
-    imports: [ServicesModule, UsersModule, TodosModule, AccountsModule, LedgersModule],
     exports: [SecretsService],
+    imports: [ServicesModule, UsersModule, TodosModule, AccountsModule, LedgersModule],
 })
 export class SecretsModule{}
