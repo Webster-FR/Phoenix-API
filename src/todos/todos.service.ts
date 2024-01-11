@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
@@ -119,14 +119,23 @@ export class TodosService{
         return this.decryptTodo(user, todo);
     }
 
-    async deleteTodo(user: UserEntity, todoId: number): Promise<TodoEntity>{
-        const todo = await this.prismaService.todos.delete({
+    async deleteTodo(user: UserEntity, todoId: number, children: boolean): Promise<void>{
+        if(children)
+            await this.deleteTodoChildren(user, todoId);
+        const todo: TodoEntity = await this.prismaService.todos.delete({
             where: {
                 id: todoId
             },
         });
         if(!todo)
             throw new NotFoundException("Todo not found");
-        return this.decryptTodo(user, todo);
+    }
+
+    async deleteTodoChildren(user: UserEntity, todoId: number): Promise<void>{
+        await this.prismaService.todos.deleteMany({
+            where: {
+                parent_id: todoId
+            },
+        });
     }
 }

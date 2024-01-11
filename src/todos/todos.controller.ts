@@ -9,6 +9,7 @@ import {IdDto} from "../models/dto/id.dto";
 import {AtGuard} from "../auth/guards/at.guard";
 import {TodosService} from "./todos.service";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
+import {DeleteTodoParamDto} from "./models/dto/delete-todo-param.dto";
 
 @Controller("todos")
 @ApiTags("Todos")
@@ -90,7 +91,7 @@ export class TodosController{
     @ApiResponse({status: HttpStatus.OK, description: "Delete a todo", type: TodoEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo not found"})
-    async deleteTodo(@Req() req: any, @Param() todoIdDto: IdDto): Promise<TodoEntity>{
-        return await this.todosService.deleteTodo(req.user, todoIdDto.id);
+    async deleteTodo(@Req() req: any, @Param() deleteTodoDto: DeleteTodoParamDto): Promise<void>{
+        await this.todosService.deleteTodo(req.user, deleteTodoDto.id, deleteTodoDto.children);
     }
 }

@@ -65,7 +65,7 @@ model Todos {
   color      String
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [user_id], references: [id], onDelete: SetNull)
   parent     Todos?    @relation("child_todos", fields: [parent_id], references: [id])
   todos      Todos[]   @relation("child_todos")
 
