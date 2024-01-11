@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {AuthModule} from "./auth/auth.module";
-import {VersionModule} from "./version/version.module";
+import {VersionModule} from "./modules/misc/version/version.module";
 import {ConfigModule} from "@nestjs/config";
 import {UsersModule} from "./modules/security/users/users.module";
 import {VerificationCodesModule} from "./modules/security/verification-codes/verification-codes.module";
