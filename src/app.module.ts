@@ -24,6 +24,8 @@ import * as redisStore from "cache-manager-redis-store";
 
 const redisUrl = process.env.REDIS_URL;
 const redisPassword = process.env.REDIS_PASSWORD;
+console.log(redisUrl);
+console.log(redisUrl === "");
 
 @Module({
     imports: [
