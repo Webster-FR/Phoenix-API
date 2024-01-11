@@ -45,11 +45,10 @@ export class TokenCacheService{
 
     async blackListUserTokens(user: UserEntity){
         const tokens: TokenEntity[] = await this.getTokens();
-        const userTokens = tokens.filter(t => t.user_id === user.id);
-        for(const userToken of userTokens){
-            userToken.blacklisted = true;
-            await this.cacheManager.set("tokens", tokens, 0);
-        }
+        for(let i = 0; i < tokens.length; i++)
+            if(tokens[i].user_id === user.id)
+                tokens[i].blacklisted = true;
+        await this.cacheManager.set("tokens", tokens, 0);
     }
 
     async deleteExpiredTokens(){

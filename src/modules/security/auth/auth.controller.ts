@@ -73,7 +73,7 @@ export class AuthController{
     @ApiResponse({status: HttpStatus.OK, description: "All tokens invalidated"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid access token"})
     async logoutAll(@Req() req: any){
-        return await this.authService.logoutAll(req.user.id);
+        return await this.authService.logoutAll(req.user);
     }
 
     @Post("refresh")
