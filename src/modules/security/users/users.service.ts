@@ -115,7 +115,7 @@ export class UsersService{
         throw new ForbiddenException("Wrong password");
     }
 
-    async setPassword(user: UserEntity, newPassword: string){
+    async setPassword(user: UserEntity, newPassword: string): Promise<UserEntity>{
         const passwordHash = await this.encryptionService.hash(newPassword);
         const dbUser: UserEntity = await this.prismaService.user.update({
             where: {
