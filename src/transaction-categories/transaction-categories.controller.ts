@@ -4,7 +4,7 @@ import {AtGuard} from "../auth/guards/at.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
 import {TransactionCategoryDto} from "./models/dto/transaction-category.dto";
-import {IdDto} from "../models/dto/id.dto";
+import {IdDto} from "../common/models/dto/id.dto";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 
 @Controller("transaction/categories")

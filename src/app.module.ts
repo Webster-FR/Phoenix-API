@@ -18,7 +18,7 @@ import {TransactionCategoriesModule} from "./transaction-categories/transaction-
 import {CacheModule} from "@nestjs/cache-manager";
 import {TokenCacheService} from "./cache/token-cache.service";
 import {CacheModule as InternalCacheModule} from "./cache/cache.module";
-import {ServicesModule} from "./services/services.module";
+import {ServicesModule} from "./common/services/services.module";
 import type {RedisClientOptions} from "redis";
 import * as redisStore from "cache-manager-redis-store";
 

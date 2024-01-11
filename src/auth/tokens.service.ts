@@ -1,8 +1,8 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {JwtService} from "../services/jwt.service";
-import {PrismaService} from "../services/prisma.service";
+import {JwtService} from "../common/services/jwt.service";
+import {PrismaService} from "../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../services/encryption.service";
+import {EncryptionService} from "../common/services/encryption.service";
 import {AtPayloadModel} from "./models/models/at-payload.model";
 import {RtPayloadModel} from "./models/models/rt-payload.model";
 import {TokenEntity} from "./models/entities/token.entity";

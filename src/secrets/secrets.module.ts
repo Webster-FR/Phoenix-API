@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {SecretsService} from "./secrets.service";
-import {ServicesModule} from "../services/services.module";
+import {ServicesModule} from "../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {TodosModule} from "../todos/todos.module";
 import {AccountsModule} from "../accounts/accounts.module";

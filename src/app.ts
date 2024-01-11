@@ -1,5 +1,4 @@
 import {FastifyAdapter, NestFastifyApplication} from "@nestjs/platform-fastify";
-import {CustomValidationPipe} from "./pipes/custom-validation.pipe";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 import {RawServerDefault} from "fastify";
 import {NestFactory} from "@nestjs/core";
@@ -9,8 +8,9 @@ import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as os from "os";
 import {SwaggerTheme} from "swagger-themes";
-import {LoggerMiddleware} from "./middlewares/logger.middleware";
+import {LoggerMiddleware} from "./common/middlewares/logger.middleware";
 import {Logger} from "@nestjs/common";
+import {CustomValidationPipe} from "./common/pipes/custom-validation.pipe";
 // import compression from "@fastify/compress";
 // import helmet from "@fastify/helmet";
 

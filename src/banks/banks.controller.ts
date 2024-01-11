@@ -5,7 +5,7 @@ import {AtGuard} from "../auth/guards/at.guard";
 import {BanksService} from "./banks.service";
 import {BankEntity} from "./models/entities/bank.entity";
 import {BankNameDto} from "./models/dto/bank-name.dto";
-import {IdDto} from "../models/dto/id.dto";
+import {IdDto} from "../common/models/dto/id.dto";
 
 @Controller("banks")
 @ApiTags("Banks")

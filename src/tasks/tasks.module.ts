@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {TokenCleanupTask} from "./token-cleanup.task";
-import {ServicesModule} from "../services/services.module";
+import {ServicesModule} from "../common/services/services.module";
 import {UserCleanupTask} from "./user-cleanup.task";
 import {SecretsRotationTask} from "./secrets-rotation.task";
 import {UsersModule} from "../users/users.module";

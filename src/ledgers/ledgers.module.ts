@@ -1,6 +1,6 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {LedgersService} from "./ledgers.service";
-import {ServicesModule} from "../services/services.module";
+import {ServicesModule} from "../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {AccountsModule} from "../accounts/accounts.module";
 

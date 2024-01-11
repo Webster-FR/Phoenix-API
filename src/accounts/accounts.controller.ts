@@ -6,7 +6,7 @@ import {AtGuard} from "../auth/guards/at.guard";
 import {AccountEntity} from "./models/entities/account.entity";
 import {CreateAccountDto} from "./models/dto/create-account.dto";
 import {RenameAccountDto} from "./models/dto/rename-account.dto";
-import {IdDto} from "../models/dto/id.dto";
+import {IdDto} from "../common/models/dto/id.dto";
 
 @Controller("accounts")
 @ApiTags("Accounts")

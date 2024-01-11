@@ -1,8 +1,8 @@
 import {ConflictException, forwardRef, Inject, Injectable, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../services/prisma.service";
+import {PrismaService} from "../common/services/prisma.service";
 import {AccountEntity} from "./models/entities/account.entity";
 import {UsersService} from "../users/users.service";
-import {EncryptionService} from "../services/encryption.service";
+import {EncryptionService} from "../common/services/encryption.service";
 import {EncryptedAccountEntity} from "./models/entities/encrypted-account.entity";
 import {BanksService} from "../banks/banks.service";
 import {ConfigService} from "@nestjs/config";

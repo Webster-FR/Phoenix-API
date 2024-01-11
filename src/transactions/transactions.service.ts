@@ -1,6 +1,6 @@
 import {BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException} from "@nestjs/common";
-import {PrismaService} from "../services/prisma.service";
-import {EncryptionService} from "../services/encryption.service";
+import {PrismaService} from "../common/services/prisma.service";
+import {EncryptionService} from "../common/services/encryption.service";
 import {LedgersService} from "../ledgers/ledgers.service";
 import {ConfigService} from "@nestjs/config";
 import {UsersService} from "../users/users.service";

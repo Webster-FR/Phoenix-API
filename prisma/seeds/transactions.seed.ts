@@ -1,4 +1,4 @@
-import {EncryptionService} from "../../src/services/encryption.service";
+import {EncryptionService} from "../../src/common/services/encryption.service";
 import {ulid} from "ulid";
 import * as dotenv from "dotenv";
 

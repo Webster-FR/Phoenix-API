@@ -1,5 +1,5 @@
 import {CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException} from "@nestjs/common";
-import {JwtService} from "../../services/jwt.service";
+import {JwtService} from "../../common/services/jwt.service";
 import {UsersService} from "../../users/users.service";
 import {ConfigService} from "@nestjs/config";
 import {TokensService} from "../tokens.service";

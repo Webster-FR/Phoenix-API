@@ -4,15 +4,15 @@ import {
     Injectable, InternalServerErrorException,
     NotFoundException, PreconditionFailedException
 } from "@nestjs/common";
-import {EncryptionService} from "../services/encryption.service";
+import {EncryptionService} from "../common/services/encryption.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
 import {TokensService} from "./tokens.service";
 import {AtResponse} from "./models/responses/at.response";
-import {EmailService} from "../services/email.service";
+import {EmailService} from "../common/services/email.service";
 import {UsersService} from "../users/users.service";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {ConfigService} from "@nestjs/config";
-import {PrismaService} from "../services/prisma.service";
+import {PrismaService} from "../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {VerificationCodeEntity} from "../verification-codes/models/entities/verification-code.entity";
 

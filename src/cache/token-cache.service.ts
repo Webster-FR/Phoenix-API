@@ -3,7 +3,7 @@ import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {TokenEntity} from "../auth/models/entities/token.entity";
-import {EncryptionService} from "../services/encryption.service";
+import {EncryptionService} from "../common/services/encryption.service";
 
 @Injectable()
 export class TokenCacheService{
