@@ -6,7 +6,6 @@ export class UpdateTodoDto{
     @IsNotEmpty()
         name: string;
     @ApiProperty()
-    @IsNotEmpty()
         deadline: Date;
     @ApiProperty()
         frequency: string;
@@ -19,4 +18,6 @@ export class UpdateTodoDto{
     @ApiProperty()
     @IsNotEmpty()
         color: string;
+    @ApiProperty()
+        parent_id: number;
 }

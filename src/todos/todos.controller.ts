@@ -76,6 +76,7 @@ export class TodosController{
             todoIdDto.id,
             updateTodoDto.name,
             updateTodoDto.deadline,
+            updateTodoDto.parent_id,
             updateTodoDto.frequency,
             updateTodoDto.icon,
             updateTodoDto.color,
