@@ -1,9 +1,9 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {BankEntity} from "./models/entities/bank.entity";
-import {PrismaService} from "../common/services/prisma.service";
+import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../common/services/encryption.service";
-import {UsersService} from "../users/users.service";
+import {EncryptionService} from "../../../common/services/encryption.service";
+import {UsersService} from "../../../users/users.service";
 
 @Injectable()
 export class BanksService{

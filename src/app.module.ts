@@ -7,7 +7,7 @@ import {VerificationCodesModule} from "./verification-codes/verification-codes.m
 import {TodosModule} from "./modules/todos/todos.module";
 import {TipsModule} from "./tips/tips.module";
 import {MaintenanceModule} from "./maintenance/maintenance.module";
-import {BanksModule} from "./banks/banks.module";
+import {BanksModule} from "./modules/accounting/banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";

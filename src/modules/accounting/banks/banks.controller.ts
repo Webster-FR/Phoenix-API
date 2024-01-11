@@ -1,11 +1,11 @@
 import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req, UseGuards} from "@nestjs/common";
-import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
+import {MaintenanceGuard} from "../../../maintenance/guards/maintenance.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
-import {AtGuard} from "../auth/guards/at.guard";
+import {AtGuard} from "../../../auth/guards/at.guard";
 import {BanksService} from "./banks.service";
 import {BankEntity} from "./models/entities/bank.entity";
 import {BankNameDto} from "./models/dto/bank-name.dto";
-import {IdDto} from "../common/models/dto/id.dto";
+import {IdDto} from "../../../common/models/dto/id.dto";
 
 @Controller("banks")
 @ApiTags("Banks")
