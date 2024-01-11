@@ -6,7 +6,7 @@ import {EncryptionService} from "../../../common/services/encryption.service";
 import {EncryptedAccountEntity} from "./models/entities/encrypted-account.entity";
 import {BanksService} from "../banks/banks.service";
 import {ConfigService} from "@nestjs/config";
-import {TransactionsService} from "../../../transactions/transactions.service";
+import {TransactionsService} from "../transactions/transactions.service";
 import {UserEntity} from "../../../users/models/entities/user.entity";
 
 @Injectable()

@@ -1,15 +1,15 @@
 import {BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException} from "@nestjs/common";
-import {PrismaService} from "../common/services/prisma.service";
-import {EncryptionService} from "../common/services/encryption.service";
-import {LedgersService} from "../modules/accounting/ledgers/ledgers.service";
+import {PrismaService} from "../../../common/services/prisma.service";
+import {EncryptionService} from "../../../common/services/encryption.service";
+import {LedgersService} from "../ledgers/ledgers.service";
 import {ConfigService} from "@nestjs/config";
-import {UsersService} from "../users/users.service";
+import {UsersService} from "../../../users/users.service";
 import {InternalTransactionEntity} from "./models/entities/internal-transaction.entity";
 import {EncryptedFutureTransactionEntity} from "./models/entities/encrypted-future-transaction.entity";
 import {ulid} from "ulid";
 import {ExpenseTransactionEntity} from "./models/entities/expense-transaction.entity";
-import {AccountsService} from "../modules/accounting/accounts/accounts.service";
-import {TransactionCategoriesService} from "../modules/accounting/transaction-categories/transaction-categories.service";
+import {AccountsService} from "../accounts/accounts.service";
+import {TransactionCategoriesService} from "../transaction-categories/transaction-categories.service";
 import {FutureTransactionEntity} from "./models/entities/future-transaction.entity";
 
 @Injectable()

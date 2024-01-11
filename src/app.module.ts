@@ -13,7 +13,7 @@ import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";
 import {AccountsModule} from "./modules/accounting/accounts/accounts.module";
 import {LedgersModule} from "./modules/accounting/ledgers/ledgers.module";
-import {TransactionsModule} from "./transactions/transactions.module";
+import {TransactionsModule} from "./modules/accounting/transactions/transactions.module";
 import {TransactionCategoriesModule} from "./modules/accounting/transaction-categories/transaction-categories.module";
 import {CacheModule} from "@nestjs/cache-manager";
 import {TokenCacheService} from "./cache/token-cache.service";
