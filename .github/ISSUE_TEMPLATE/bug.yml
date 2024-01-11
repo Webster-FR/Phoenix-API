@@ -1,22 +1,22 @@
-name: Rapporter un bug
-description: Permet de rapporter un bug sur un service de Quartzly !
+name: Report a bug or suggest a feature
+description: Allow you to report a bug or suggest a feature on the Phoenix-API !
 body:
   - type: textarea
     attributes:
-      label: Description du problème
-      description:
+      label: Problem/Feature description
+      description: Describe the problem you are facing or the feature you would like to see.
     validations:
       required: true
   - type: textarea
     attributes:
-      label: Captures d'écran et/ou vidéos
-      description: Ajoutez des captures d'écran et/ou des vidéos illustrant le problème.
-      placeholder: Faites glisser et déposez les captures d'écran/vidéos dans cette boîte.
+      label: Screenshots and/or videos
+      description: Add screenshots and/or videos illustrating the problem.
+      placeholder: Drag and drop screenshots/videos into this box.
     validations:
       required: false
   - type: input
     attributes:
       label: Version
-      description: Version utilisée
+      description: Version used
     validations:
       required: true

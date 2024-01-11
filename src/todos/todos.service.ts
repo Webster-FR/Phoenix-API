@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../services/prisma.service";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {UsersService} from "../users/users.service";
@@ -50,8 +50,11 @@ export class TodosService{
     }
 
     async createTodo(user: UserEntity, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string): Promise<TodoEntity>{
-        if(parentId !== undefined && !await this.isTodoExists(user, parentId))
-            throw new NotFoundException("Parent todo not found");
+        if(parentId !== undefined){
+            const parentTodo = await this.findTodoById(user, parentId);
+            if(parentTodo.parent_id !== null)
+                throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
+        }
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo: TodoEntity = await this.prismaService.todos.create({
             data: {
@@ -69,6 +72,9 @@ export class TodosService{
     }
 
     async setTodoParent(user: UserEntity, todoId: number, parentId: number): Promise<TodoEntity>{
+        const parentTodo = await this.findTodoById(user, parentId);
+        if(parentTodo.parent_id !== null)
+            throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
         const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId,
@@ -97,7 +103,12 @@ export class TodosService{
             throw new NotFoundException("Todo not found");
     }
 
-    async updateTodo(user: UserEntity, todoId: number, name: string, deadline: Date, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
+    async updateTodo(user: UserEntity, todoId: number, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
+        if(parentId !== undefined){
+            const parentTodo = await this.findTodoById(user, parentId);
+            if(parentTodo.parent_id !== null)
+                throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
+        }
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
@@ -111,6 +122,7 @@ export class TodosService{
                 icon: icon,
                 color: color,
                 completed: completed,
+                parent_id: parentId
             },
         });
         if(!todo)
@@ -118,14 +130,33 @@ export class TodosService{
         return this.decryptTodo(user, todo);
     }
 
-    async deleteTodo(user: UserEntity, todoId: number): Promise<TodoEntity>{
-        const todo = await this.prismaService.todos.delete({
+    async deleteTodo(user: UserEntity, todoId: number, children: boolean): Promise<void>{
+        if(children)
+            await this.deleteTodoChildren(user, todoId);
+        const todo: TodoEntity = await this.prismaService.todos.delete({
             where: {
                 id: todoId
             },
         });
         if(!todo)
             throw new NotFoundException("Todo not found");
-        return this.decryptTodo(user, todo);
+    }
+
+    async deleteTodoChildren(user: UserEntity, todoId: number): Promise<void>{
+        console.log("Deleting children of todo " + todoId);
+        await this.prismaService.todos.deleteMany({
+            where: {
+                parent_id: todoId
+            },
+        });
+    }
+
+    async deleteCompletedTodos(user: UserEntity){
+        await this.prismaService.todos.deleteMany({
+            where: {
+                user_id: user.id,
+                completed: true
+            }
+        });
     }
 }
