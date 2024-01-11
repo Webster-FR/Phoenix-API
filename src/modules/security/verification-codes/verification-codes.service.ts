@@ -1,9 +1,9 @@
 import {Injectable} from "@nestjs/common";
 import {VerificationCodeEntity} from "./models/entities/verification-code.entity";
-import {PrismaService} from "../common/services/prisma.service";
+import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../common/services/encryption.service";
-import {UserEntity} from "../modules/security/users/models/entities/user.entity";
+import {EncryptionService} from "../../../common/services/encryption.service";
+import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()
 export class VerificationCodesService{

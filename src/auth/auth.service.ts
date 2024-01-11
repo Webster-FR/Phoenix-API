@@ -10,11 +10,11 @@ import {TokensService} from "./tokens.service";
 import {AtResponse} from "./models/responses/at.response";
 import {EmailService} from "../common/services/email.service";
 import {UsersService} from "../modules/security/users/users.service";
-import {VerificationCodesService} from "../verification-codes/verification-codes.service";
+import {VerificationCodesService} from "../modules/security/verification-codes/verification-codes.service";
 import {ConfigService} from "@nestjs/config";
 import {PrismaService} from "../common/services/prisma.service";
 import {UserEntity} from "../modules/security/users/models/entities/user.entity";
-import {VerificationCodeEntity} from "../verification-codes/models/entities/verification-code.entity";
+import {VerificationCodeEntity} from "../modules/security/verification-codes/models/entities/verification-code.entity";
 
 @Injectable()
 export class AuthService{
