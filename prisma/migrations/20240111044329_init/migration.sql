@@ -22,6 +22,16 @@ CREATE TABLE "verification_codes" (
 );
 
 -- CreateTable
+CREATE TABLE "password_recovery_codes" (
+    "id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "code" TEXT NOT NULL,
+    "iat" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "password_recovery_codes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tokens" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
@@ -190,6 +200,12 @@ CREATE UNIQUE INDEX "verification_codes_user_id_key" ON "verification_codes"("us
 CREATE UNIQUE INDEX "verification_codes_code_key" ON "verification_codes"("code");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "password_recovery_codes_user_id_key" ON "password_recovery_codes"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "password_recovery_codes_code_key" ON "password_recovery_codes"("code");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "tokens_sum_key" ON "tokens"("sum");
 
 -- CreateIndex
@@ -218,6 +234,9 @@ CREATE UNIQUE INDEX "income_transactions_internal_ledger_id_key" ON "income_tran
 
 -- AddForeignKey
 ALTER TABLE "verification_codes" ADD CONSTRAINT "verification_codes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "password_recovery_codes" ADD CONSTRAINT "password_recovery_codes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
