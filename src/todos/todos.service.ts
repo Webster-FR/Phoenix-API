@@ -150,4 +150,13 @@ export class TodosService{
             },
         });
     }
+
+    async deleteCompletedTodos(user: UserEntity){
+        await this.prismaService.todos.deleteMany({
+            where: {
+                user_id: user.id,
+                completed: true
+            }
+        });
+    }
 }
