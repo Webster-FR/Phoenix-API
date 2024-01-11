@@ -12,7 +12,7 @@ import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./tasks/tasks.module";
 import {SecretsModule} from "./secrets/secrets.module";
 import {AccountsModule} from "./modules/accounting/accounts/accounts.module";
-import {LedgersModule} from "./ledgers/ledgers.module";
+import {LedgersModule} from "./modules/accounting/ledgers/ledgers.module";
 import {TransactionsModule} from "./transactions/transactions.module";
 import {TransactionCategoriesModule} from "./transaction-categories/transaction-categories.module";
 import {CacheModule} from "@nestjs/cache-manager";

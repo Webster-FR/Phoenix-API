@@ -4,7 +4,7 @@ import {ServicesModule} from "../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {TodosModule} from "../modules/todos/todos.module";
 import {AccountsModule} from "../modules/accounting/accounts/accounts.module";
-import {LedgersModule} from "../ledgers/ledgers.module";
+import {LedgersModule} from "../modules/accounting/ledgers/ledgers.module";
 
 @Module({
     providers: [SecretsService],

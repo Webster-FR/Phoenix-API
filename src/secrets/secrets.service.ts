@@ -5,8 +5,8 @@ import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../common/services/encryption.service";
 import {TodosService} from "../modules/todos/todos.service";
 import {AccountsService} from "../modules/accounting/accounts/accounts.service";
-import {LedgersService} from "../ledgers/ledgers.service";
-import {LedgerEntity} from "../ledgers/models/entities/ledger.entity";
+import {LedgersService} from "../modules/accounting/ledgers/ledgers.service";
+import {LedgerEntity} from "../modules/accounting/ledgers/models/entities/ledger.entity";
 import {EncryptedAccountEntity} from "../modules/accounting/accounts/models/entities/encrypted-account.entity";
 
 
