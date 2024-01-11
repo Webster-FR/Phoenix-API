@@ -1,11 +1,11 @@
 import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, UseGuards} from "@nestjs/common";
 import {TransactionCategoriesService} from "./transaction-categories.service";
-import {AtGuard} from "../auth/guards/at.guard";
+import {AtGuard} from "../../../auth/guards/at.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
 import {TransactionCategoryDto} from "./models/dto/transaction-category.dto";
-import {IdDto} from "../common/models/dto/id.dto";
-import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
+import {IdDto} from "../../../common/models/dto/id.dto";
+import {MaintenanceGuard} from "../../../maintenance/guards/maintenance.guard";
 
 @Controller("transaction/categories")
 @UseGuards(MaintenanceGuard)

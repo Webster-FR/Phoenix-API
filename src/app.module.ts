@@ -14,7 +14,7 @@ import {SecretsModule} from "./secrets/secrets.module";
 import {AccountsModule} from "./modules/accounting/accounts/accounts.module";
 import {LedgersModule} from "./modules/accounting/ledgers/ledgers.module";
 import {TransactionsModule} from "./transactions/transactions.module";
-import {TransactionCategoriesModule} from "./transaction-categories/transaction-categories.module";
+import {TransactionCategoriesModule} from "./modules/accounting/transaction-categories/transaction-categories.module";
 import {CacheModule} from "@nestjs/cache-manager";
 import {TokenCacheService} from "./cache/token-cache.service";
 import {CacheModule as InternalCacheModule} from "./cache/cache.module";

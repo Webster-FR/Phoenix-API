@@ -9,7 +9,7 @@ import {EncryptedFutureTransactionEntity} from "./models/entities/encrypted-futu
 import {ulid} from "ulid";
 import {ExpenseTransactionEntity} from "./models/entities/expense-transaction.entity";
 import {AccountsService} from "../modules/accounting/accounts/accounts.service";
-import {TransactionCategoriesService} from "../transaction-categories/transaction-categories.service";
+import {TransactionCategoriesService} from "../modules/accounting/transaction-categories/transaction-categories.service";
 import {FutureTransactionEntity} from "./models/entities/future-transaction.entity";
 
 @Injectable()
