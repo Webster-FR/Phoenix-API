@@ -6,7 +6,7 @@ import {EncryptionService} from "../common/services/encryption.service";
 import {AtPayloadModel} from "./models/models/at-payload.model";
 import {RtPayloadModel} from "./models/models/rt-payload.model";
 import {TokenEntity} from "./models/entities/token.entity";
-import {TokenCacheService} from "../cache/token-cache.service";
+import {TokenCacheService} from "../modules/cache/token-cache.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 
 @Injectable()

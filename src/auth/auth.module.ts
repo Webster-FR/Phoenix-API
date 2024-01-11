@@ -6,7 +6,7 @@ import {ServicesModule} from "../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {VerificationCodesModule} from "../verification-codes/verification-codes.module";
 import {TokensService} from "./tokens.service";
-import {CacheModule} from "../cache/cache.module";
+import {CacheModule} from "../modules/cache/cache.module";
 
 @Module({
     controllers: [AuthController],

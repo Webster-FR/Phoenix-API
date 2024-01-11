@@ -4,7 +4,7 @@ import {TipsController} from "./tips.controller";
 import {ServicesModule} from "../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {AuthModule} from "../auth/auth.module";
-import {CacheModule} from "../cache/cache.module";
+import {CacheModule} from "../modules/cache/cache.module";
 
 @Module({
     controllers: [TipsController],
