@@ -22,7 +22,7 @@ export class BanksController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     async getBanks(@Req() req: any): Promise<BankEntity[]>{
-        return this.banksService.getBanks(req.user.id);
+        return this.banksService.getBanks(req.user);
     }
 
     @Post()
@@ -33,7 +33,7 @@ export class BanksController{
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     @ApiResponse({status: HttpStatus.CONFLICT, description: "Bank already exists"})
     async addBank(@Req() req: any, @Body() bankNameDto: BankNameDto): Promise<BankEntity>{
-        return this.banksService.addBank(req.user.id, bankNameDto.name);
+        return this.banksService.addBank(req.user, bankNameDto.name);
     }
 
     @Patch(":id/name")
@@ -43,7 +43,7 @@ export class BanksController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User or bank not found"})
     async updateBankName(@Req() req: any, @Param() idDto: IdDto, @Body() bankNameDto: BankNameDto): Promise<BankEntity>{
-        return this.banksService.updateBankName(req.user.id, idDto.id, bankNameDto.name);
+        return this.banksService.updateBankName(req.user, idDto.id, bankNameDto.name);
     }
 
     @Delete(":id")
@@ -52,7 +52,7 @@ export class BanksController{
     @ApiResponse({status: HttpStatus.OK, description: "Bank deleted", type: BankEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User or bank not found"})
-    async deleteBank(@Req() req: any, @Param() idDto: IdDto): Promise<BankEntity>{
-        return this.banksService.deleteBank(req.user.id, idDto.id);
+    async deleteBank(@Req() req: any, @Param() idDto: IdDto): Promise<void>{
+        await this.banksService.deleteBank(req.user, idDto.id);
     }
 }
