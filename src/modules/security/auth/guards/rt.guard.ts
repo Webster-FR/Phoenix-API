@@ -45,7 +45,6 @@ export class RtGuard implements CanActivate{
             await this.authService.logoutAll(user);
             throw new UnauthorizedException("Blacklisted refresh token, logout user from all devices");
         }
-        delete user.password;
         request.user = user;
         request.token = {...payload, token};
         return true;

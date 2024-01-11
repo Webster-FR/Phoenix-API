@@ -40,7 +40,6 @@ export class AtGuard implements CanActivate{
         const user = await this.usersService.findById(payload.user_id);
         if(!user)
             throw new NotFoundException("User not found");
-        delete user.password;
         request.user = user;
         request.token = {...payload, token};
         return true;

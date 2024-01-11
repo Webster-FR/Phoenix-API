@@ -41,9 +41,11 @@ export class UsersController{
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "User's password updated successfully", type: UserResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
+    @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid or missing fields"})
+    @ApiResponse({status: HttpStatus.FORBIDDEN, description: "Invalid old password"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     async updatePassword(@Req() req: any, @Body() updatePasswordDto: UpdatePasswordDto): Promise<UserResponse>{
-        return new UserResponse(await this.usersService.updatePassword(req.user, updatePasswordDto.password));
+        return new UserResponse(await this.usersService.updatePassword(req.user, updatePasswordDto.old_password, updatePasswordDto.password));
     }
 
     @Delete("/me")

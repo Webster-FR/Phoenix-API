@@ -69,7 +69,7 @@ export class PasswordRecoveryService{
             throw new NotFoundException("No user found with this recovery code");
         if(!this.checkCode(recoveryCode, code))
             throw new BadRequestException("Invalid recovery code");
-        await this.usersService.updatePassword(user, password);
+        await this.usersService.setPassword(user, password);
         await this.prismaService.passwordRecoveryCodes.deleteMany({
             where: {
                 user_id: user.id,

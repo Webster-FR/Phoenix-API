@@ -1,4 +1,9 @@
-import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {
+    ConflictException,
+    ForbiddenException,
+    Injectable,
+    NotFoundException
+} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "./models/entities/user.entity";
 import {EncryptionService} from "../../../common/services/encryption.service";
@@ -103,7 +108,13 @@ export class UsersService{
         return user;
     }
 
-    async updatePassword(user: UserEntity, newPassword: string): Promise<UserEntity>{
+    async updatePassword(user: UserEntity, oldPassword: string, newPassword: string): Promise<UserEntity>{
+        if(await this.encryptionService.compareHash(user.password, oldPassword))
+            return await this.setPassword(user, newPassword);
+        throw new ForbiddenException("Wrong password");
+    }
+
+    async setPassword(user: UserEntity, newPassword: string): Promise<UserEntity>{
         const passwordHash = await this.encryptionService.hash(newPassword);
         const dbUser: UserEntity = await this.prismaService.user.update({
             where: {
