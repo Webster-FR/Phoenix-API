@@ -50,8 +50,11 @@ export class TodosService{
     }
 
     async createTodo(user: UserEntity, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string): Promise<TodoEntity>{
-        if(parentId !== undefined && !await this.isTodoExists(user, parentId))
-            throw new NotFoundException("Parent todo not found");
+        if(parentId !== undefined){
+            const parentTodo = await this.findTodoById(user, parentId);
+            if(parentTodo.parent_id !== null)
+                throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
+        }
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo: TodoEntity = await this.prismaService.todos.create({
             data: {
@@ -69,6 +72,9 @@ export class TodosService{
     }
 
     async setTodoParent(user: UserEntity, todoId: number, parentId: number): Promise<TodoEntity>{
+        const parentTodo = await this.findTodoById(user, parentId);
+        if(parentTodo.parent_id !== null)
+            throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
         const todo = await this.prismaService.todos.update({
             where: {
                 id: todoId,
@@ -98,6 +104,11 @@ export class TodosService{
     }
 
     async updateTodo(user: UserEntity, todoId: number, name: string, deadline: Date, parentId: number, frequency: string, icon: string, color: string, completed: boolean): Promise<TodoEntity>{
+        if(parentId !== undefined){
+            const parentTodo = await this.findTodoById(user, parentId);
+            if(parentTodo.parent_id !== null)
+                throw new InternalServerErrorException("Todo cannot have a parent that has a parent");
+        }
         const todoName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
