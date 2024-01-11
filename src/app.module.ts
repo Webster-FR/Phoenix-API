@@ -15,18 +15,17 @@ import {AccountingModule} from "./modules/accounting/accounting.module";
 import {SecurityModule} from "./modules/security/security.module";
 import {PasswordRecoveryModule} from "./modules/security/password-recovery/password-recovery.module";
 
-const redisUrl = process.env.REDIS_URL;
-const redisPassword = process.env.REDIS_PASSWORD;
+console.log(process.env.REDIS_URL);
 
 @Module({
     imports: [
         ConfigModule.forRoot({isGlobal: true}),
         ScheduleModule.forRoot(),
-        !redisUrl || redisUrl === "" ? CacheModule.register({isGlobal: true}) : CacheModule.register<RedisClientOptions>({
-            store: redisStore,
-            url: redisUrl,
-            password: redisPassword,
+        !process.env.REDIS_URL || process.env.REDIS_URL === "" ? CacheModule.register({isGlobal: true}) : CacheModule.register<RedisClientOptions>({
             isGlobal: true,
+            store: redisStore,
+            url: process.env.REDIS_URL,
+            password: process.env.REDIS_PASSWORD,
         }),
         AuthModule,
         TodosModule,
