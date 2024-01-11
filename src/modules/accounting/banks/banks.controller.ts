@@ -42,6 +42,7 @@ export class BanksController{
     @ApiResponse({status: HttpStatus.OK, description: "Bank name updated", type: BankEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User or bank not found"})
+    @ApiResponse({status: HttpStatus.CONFLICT, description: "Bank already exists"})
     async updateBankName(@Req() req: any, @Param() idDto: IdDto, @Body() bankNameDto: BankNameDto): Promise<BankEntity>{
         return this.banksService.updateBankName(req.user, idDto.id, bankNameDto.name);
     }
