@@ -4,7 +4,6 @@ import {ConfigModule} from "@nestjs/config";
 import {TodosModule} from "./modules/todos/todos.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./modules/tasks/tasks.module";
-import {SecretsModule} from "./modules/security/secrets/secrets.module";
 import {CacheModule} from "@nestjs/cache-manager";
 import {TokenCacheService} from "./modules/cache/token-cache.service";
 import {CacheModule as InternalCacheModule} from "./modules/cache/cache.module";
