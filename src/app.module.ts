@@ -15,6 +15,7 @@ import type {RedisClientOptions} from "redis";
 import * as redisStore from "cache-manager-redis-store";
 import {MiscModule} from "./modules/misc/misc.module";
 import {AccountingModule} from "./modules/accounting/accounting.module";
+import {SecurityModule} from "./modules/security/security.module";
 
 const redisUrl = process.env.REDIS_URL;
 const redisPassword = process.env.REDIS_PASSWORD;
@@ -31,14 +32,14 @@ const redisPassword = process.env.REDIS_PASSWORD;
         }),
         AuthModule,
         UsersModule,
-        VerificationCodesModule,
         TodosModule,
         TasksModule,
         SecretsModule,
         InternalCacheModule,
         ServicesModule,
         MiscModule,
-        AccountingModule
+        AccountingModule,
+        SecurityModule
     ],
     providers: [TokenCacheService],
 })
