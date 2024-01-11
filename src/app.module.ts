@@ -14,6 +14,8 @@ import {MiscModule} from "./modules/misc/misc.module";
 import {AccountingModule} from "./modules/accounting/accounting.module";
 import {SecurityModule} from "./modules/security/security.module";
 import {PasswordRecoveryModule} from "./modules/security/password-recovery/password-recovery.module";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 console.log(process.env.REDIS_URL);
 
@@ -29,7 +31,7 @@ console.log(process.env.REDIS_URL);
             return CacheModule.register<RedisClientOptions>({
                 isGlobal: true,
                 store: redisStore,
-                url: "redis://redis:6379",
+                url: process.env.REDIS_URL,
                 password: process.env.REDIS_PASSWORD,
             });
         })(),
