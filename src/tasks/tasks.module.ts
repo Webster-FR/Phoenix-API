@@ -7,9 +7,10 @@ import {UsersModule} from "../users/users.module";
 import {SecretsModule} from "../secrets/secrets.module";
 import {TipsModule} from "../tips/tips.module";
 import {TipsRandomizingTask} from "./tips-randomizing.task";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
     providers: [TokenCleanupTask, UserCleanupTask, SecretsRotationTask, TipsRandomizingTask],
-    imports: [ServicesModule, UsersModule, SecretsModule, TipsModule],
+    imports: [ServicesModule, UsersModule, SecretsModule, TipsModule, AuthModule],
 })
 export class TasksModule{}

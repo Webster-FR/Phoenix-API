@@ -85,6 +85,6 @@ export class AuthController{
     async refresh(@Req() req: any, @Body() body: AtDto): Promise<AtRtResponse>{
         const at = body.access_token;
         const rt = req.token.token;
-        return this.authService.refresh(at, rt);
+        return this.authService.refresh(req.user, at, rt);
     }
 }

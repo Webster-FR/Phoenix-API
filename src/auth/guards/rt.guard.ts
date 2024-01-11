@@ -2,7 +2,7 @@ import {CanActivate, ExecutionContext, Injectable, NotFoundException, Unauthoriz
 import {JwtService} from "../../services/jwt.service";
 import {UsersService} from "../../users/users.service";
 import {ConfigService} from "@nestjs/config";
-import {TokensService} from "../../services/tokens.service";
+import {TokensService} from "../tokens.service";
 import {AuthController} from "../auth.controller";
 import {AtPayloadModel} from "../models/models/at-payload.model";
 import {TokenType} from "../models/models/token-type";
@@ -38,13 +38,13 @@ export class RtGuard implements CanActivate{
         const dbToken = await this.tokensService.getTokenEntity(token, true, false);
         if(!dbToken)
             throw new UnauthorizedException("Token not found in database");
-        if(dbToken.blacklisted){
-            await this.authService.logoutAll(payload.user_id);
-            throw new UnauthorizedException("Blacklisted refresh token, logout user from all devices");
-        }
         const user = await this.usersService.findById(payload.user_id);
         if(!user)
             throw new NotFoundException("User not found");
+        if(dbToken.blacklisted){
+            await this.authService.logoutAll(user);
+            throw new UnauthorizedException("Blacklisted refresh token, logout user from all devices");
+        }
         delete user.password;
         request.user = user;
         request.token = {...payload, token};
