@@ -20,6 +20,7 @@ model User {
   created_at             DateTime                @default(now())
   updated_at             DateTime                @updatedAt
   verification_codes     VerificationCodes?
+  PasswordRecoveryCodes  PasswordRecoveryCodes?
   tokens                 Tokens[]
   todos                  Todos[]
   banks                  Banks[]
@@ -38,6 +39,16 @@ model VerificationCodes {
   user    User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("verification_codes")
+}
+
+model PasswordRecoveryCodes {
+  id      Int      @id @default(autoincrement())
+  user_id Int      @unique
+  code    String   @unique
+  iat     DateTime
+  user    User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("password_recovery_codes")
 }
 
 model Tokens {

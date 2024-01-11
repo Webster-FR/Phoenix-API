@@ -10,7 +10,7 @@ export class EmailService{
         private readonly configService: ConfigService,
     ){}
 
-    async sendConfirmationEmail(email: string, code: string): Promise<void>{
+    async sendMail(email: string, subject: string, content: string){
         const emailUser = this.configService.get("EMAIL_USER");
         const emailPassword = this.configService.get("EMAIL_PASSWORD");
         const emailHost = this.configService.get("EMAIL_HOST");
@@ -23,13 +23,22 @@ export class EmailService{
                 pass: emailPassword,
             },
         });
-        const link = this.configService.get("VERIFICATION_LINK");
         const mailOptions = {
             from: emailUser,
             to: email,
-            subject: "[Phoenix] Confirm your account",
-            text: `Your confirmation code is ${link}${code}`,
+            subject: subject,
+            text: content,
         };
         await transporter.sendMail(mailOptions);
+    }
+
+    async sendConfirmationEmail(email: string, code: string): Promise<void>{
+        const link = this.configService.get("VERIFICATION_LINK");
+        await this.sendMail(email, "[Phoenix] Confirm your account", `Your confirmation link is ${link}${code}`);
+    }
+
+    async sendPasswordRecoveryEmail(email: string, code: string): Promise<void>{
+        const link = this.configService.get("PASSWORD_RECOVERY_LINK");
+        await this.sendMail(email, "[Phoenix] Reset your password", `Your password recovery link is ${link}${code}`);
     }
 }
