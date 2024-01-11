@@ -1,4 +1,4 @@
-import {EncryptionService} from "../../src/services/encryption.service";
+import {EncryptionService} from "../../src/common/services/encryption.service";
 import * as dotenv from "dotenv";
 
 dotenv.config();
