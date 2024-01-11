@@ -12,7 +12,7 @@ import {AtGuard} from "./guards/at.guard";
 import {RtGuard} from "./guards/rt.guard";
 import {RtDto} from "./models/dto/rt.dto";
 import {AtDto} from "./models/dto/at.dto";
-import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
+import {MaintenanceGuard} from "../modules/misc/maintenance/guards/maintenance.guard";
 
 @Controller("auth")
 @ApiTags("Authentication")

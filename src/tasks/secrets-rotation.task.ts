@@ -1,7 +1,7 @@
 import {SecretsService} from "../secrets/secrets.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
-import {MaintenanceController} from "../maintenance/maintenance.controller";
+import {MaintenanceController} from "../modules/misc/maintenance/maintenance.controller";
 
 
 @Injectable()

@@ -1,6 +1,6 @@
 import {Body, Controller, Get, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
 import {TransactionsService} from "./transactions.service";
-import {MaintenanceGuard} from "../../../maintenance/guards/maintenance.guard";
+import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../../../auth/guards/at.guard";
 import {AccountIdDto} from "./models/dto/account-id.dto";

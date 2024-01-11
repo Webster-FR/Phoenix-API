@@ -1,5 +1,5 @@
 import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req, UseGuards} from "@nestjs/common";
-import {MaintenanceGuard} from "../../../maintenance/guards/maintenance.guard";
+import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../../../auth/guards/at.guard";
 import {BanksService} from "./banks.service";
