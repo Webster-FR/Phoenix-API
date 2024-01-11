@@ -1,10 +1,10 @@
 import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../common/services/prisma.service";
+import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "./models/entities/user.entity";
-import {EncryptionService} from "../common/services/encryption.service";
+import {EncryptionService} from "../../../common/services/encryption.service";
 import {ConfigService} from "@nestjs/config";
-import {VerificationCodesService} from "../verification-codes/verification-codes.service";
-import {UserCacheService} from "../modules/cache/user-cache.service";
+import {VerificationCodesService} from "../../../verification-codes/verification-codes.service";
+import {UserCacheService} from "../../cache/user-cache.service";
 
 @Injectable()
 export class UsersService{

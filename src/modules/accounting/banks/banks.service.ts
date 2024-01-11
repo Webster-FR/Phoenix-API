@@ -3,7 +3,7 @@ import {BankEntity} from "./models/entities/bank.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
 import {EncryptionService} from "../../../common/services/encryption.service";
-import {UsersService} from "../../../users/users.service";
+import {UsersService} from "../../security/users/users.service";
 
 @Injectable()
 export class BanksService{

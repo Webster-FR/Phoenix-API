@@ -3,7 +3,7 @@ import {PrismaService} from "../../../common/services/prisma.service";
 import {EncryptionService} from "../../../common/services/encryption.service";
 import {LedgersService} from "../ledgers/ledgers.service";
 import {ConfigService} from "@nestjs/config";
-import {UsersService} from "../../../users/users.service";
+import {UsersService} from "../../security/users/users.service";
 import {InternalTransactionEntity} from "./models/entities/internal-transaction.entity";
 import {EncryptedFutureTransactionEntity} from "./models/entities/encrypted-future-transaction.entity";
 import {ulid} from "ulid";

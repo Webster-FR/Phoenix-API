@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {TodosService} from "./todos.service";
 import {TodosController} from "./todos.controller";
 import {ServicesModule} from "../../common/services/services.module";
-import {UsersModule} from "../../users/users.module";
+import {UsersModule} from "../security/users/users.module";
 import {AuthModule} from "../../auth/auth.module";
 
 @Module({

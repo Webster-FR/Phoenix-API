@@ -7,7 +7,7 @@ import {AtPayloadModel} from "./models/models/at-payload.model";
 import {RtPayloadModel} from "./models/models/rt-payload.model";
 import {TokenEntity} from "./models/entities/token.entity";
 import {TokenCacheService} from "../modules/cache/token-cache.service";
-import {UserEntity} from "../users/models/entities/user.entity";
+import {UserEntity} from "../modules/security/users/models/entities/user.entity";
 
 @Injectable()
 export class TokensService{

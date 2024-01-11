@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException} from "@nestjs/common";
 import {JwtService} from "../../common/services/jwt.service";
 import {AuthController} from "../auth.controller";
-import {UsersService} from "../../users/users.service";
+import {UsersService} from "../../modules/security/users/users.service";
 import {AtPayloadModel} from "../models/models/at-payload.model";
 import {ConfigService} from "@nestjs/config";
 import {TokensService} from "../tokens.service";

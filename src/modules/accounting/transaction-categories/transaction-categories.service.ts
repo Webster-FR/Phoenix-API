@@ -2,7 +2,7 @@ import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {EncryptionService} from "../../../common/services/encryption.service";
 import {ConfigService} from "@nestjs/config";
-import {UsersService} from "../../../users/users.service";
+import {UsersService} from "../../security/users/users.service";
 import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
 
 @Injectable()
