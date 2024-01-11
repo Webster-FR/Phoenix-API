@@ -1,6 +1,6 @@
 import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, UseGuards} from "@nestjs/common";
 import {TransactionCategoriesService} from "./transaction-categories.service";
-import {AtGuard} from "../../../auth/guards/at.guard";
+import {AtGuard} from "../../security/auth/guards/at.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
 import {TransactionCategoryDto} from "./models/dto/transaction-category.dto";

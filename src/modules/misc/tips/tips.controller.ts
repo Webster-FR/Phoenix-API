@@ -1,6 +1,6 @@
 import {Controller, Get, HttpStatus, UseGuards} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
-import {AtGuard} from "../../../auth/guards/at.guard";
+import {AtGuard} from "../../security/auth/guards/at.guard";
 import {TipsService} from "./tips.service";
 import {TipEntity} from "./models/entities/tip.entity";
 import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";

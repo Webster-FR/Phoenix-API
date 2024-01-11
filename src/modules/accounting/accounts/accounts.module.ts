@@ -5,7 +5,7 @@ import {ServicesModule} from "../../../common/services/services.module";
 import {UsersModule} from "../../security/users/users.module";
 import {BanksModule} from "../banks/banks.module";
 import {TransactionsModule} from "../transactions/transactions.module";
-import {AuthModule} from "../../../auth/auth.module";
+import {AuthModule} from "../../security/auth/auth.module";
 
 @Module({
     controllers: [AccountsController],

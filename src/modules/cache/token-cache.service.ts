@@ -2,7 +2,7 @@ import {Inject, Injectable, InternalServerErrorException} from "@nestjs/common";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
 import {UserEntity} from "../security/users/models/entities/user.entity";
-import {TokenEntity} from "../../auth/models/entities/token.entity";
+import {TokenEntity} from "../security/auth/models/entities/token.entity";
 import {EncryptionService} from "../../common/services/encryption.service";
 
 @Injectable()

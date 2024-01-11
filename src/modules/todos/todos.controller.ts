@@ -6,7 +6,7 @@ import {CreateTodoDto} from "./models/dto/create-todo.dto";
 import {UpdateTodoDto} from "./models/dto/update-todo.dto";
 import {TodoEntity} from "./models/entities/todo.entity";
 import {IdDto} from "../../common/models/dto/id.dto";
-import {AtGuard} from "../../auth/guards/at.guard";
+import {AtGuard} from "../security/auth/guards/at.guard";
 import {TodosService} from "./todos.service";
 import {MaintenanceGuard} from "../misc/maintenance/guards/maintenance.guard";
 import {DeleteTodoParamDto} from "./models/dto/delete-todo-param.dto";

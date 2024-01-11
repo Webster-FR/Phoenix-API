@@ -6,7 +6,7 @@ import {UsersModule} from "../../security/users/users.module";
 import {LedgersModule} from "../ledgers/ledgers.module";
 import {AccountsModule} from "../accounts/accounts.module";
 import {TransactionCategoriesModule} from "../transaction-categories/transaction-categories.module";
-import {AuthModule} from "../../../auth/auth.module";
+import {AuthModule} from "../../security/auth/auth.module";
 
 @Module({
     controllers: [TransactionsController],

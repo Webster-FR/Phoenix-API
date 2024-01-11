@@ -2,7 +2,7 @@ import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req, UseG
 import {AccountsService} from "./accounts.service";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
-import {AtGuard} from "../../../auth/guards/at.guard";
+import {AtGuard} from "../../security/auth/guards/at.guard";
 import {AccountEntity} from "./models/entities/account.entity";
 import {CreateAccountDto} from "./models/dto/create-account.dto";
 import {RenameAccountDto} from "./models/dto/rename-account.dto";
