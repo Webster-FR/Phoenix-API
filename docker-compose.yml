@@ -13,20 +13,30 @@ services:
     restart: always
     networks:
       - phoenix-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   redis:
     image: redis:latest
     container_name: phoenix-redis
     restart: always
     networks:
       - phoenix-network
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
   phoenix-api:
     image: xen0xys/phoenix-api:latest
     container_name: phoenix-api
     ports:
       - "3000:3000"
     depends_on:
-        - postgres
-        - redis
+      - postgres
+      - redis
     environment:
       - NODE_ENV=production
       - DOTENV_KEY=${DOTENV_KEY}
