@@ -1,4 +1,4 @@
-import {UsersService} from "../modules/security/users/users.service";
+import {UsersService} from "../security/users/users.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 

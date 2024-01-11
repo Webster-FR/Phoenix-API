@@ -9,7 +9,7 @@ import {TipsModule} from "./modules/misc/tips/tips.module";
 import {MaintenanceModule} from "./modules/misc/maintenance/maintenance.module";
 import {BanksModule} from "./modules/accounting/banks/banks.module";
 import {ScheduleModule} from "@nestjs/schedule";
-import {TasksModule} from "./tasks/tasks.module";
+import {TasksModule} from "./modules/tasks/tasks.module";
 import {SecretsModule} from "./modules/security/secrets/secrets.module";
 import {AccountsModule} from "./modules/accounting/accounts/accounts.module";
 import {LedgersModule} from "./modules/accounting/ledgers/ledgers.module";

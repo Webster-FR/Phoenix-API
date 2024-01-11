@@ -1,6 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
-import {TipsService} from "../modules/misc/tips/tips.service";
+import {TipsService} from "../misc/tips/tips.service";
 
 
 @Injectable()
