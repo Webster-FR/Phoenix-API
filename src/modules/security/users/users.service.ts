@@ -59,10 +59,7 @@ export class UsersService{
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
-        let user: UserEntity = await this.userCacheService.getUserFromEmail(email);
-        if(user)
-            return user;
-        user = await this.prismaService.user.findUnique({where: {email: email}});
+        const user = await this.prismaService.user.findUnique({where: {email: email}});
         if(!user)
             if(exception)
                 throw new NotFoundException("User not found");
