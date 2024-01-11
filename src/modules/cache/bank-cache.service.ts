@@ -17,18 +17,15 @@ export class BankCacheService{
     async getBanks(user: UserEntity): Promise<BankEntity[]>{
         const banks: BankEntity[] = await this.cacheManager.get(`banks-${user.id}`);
         const defaultBanks: BankEntity[] = await this.cacheManager.get("banks-null");
-        if(!banks && !defaultBanks)
-            return [];
-        else if(!banks)
-            return defaultBanks;
-        else if(!defaultBanks)
-            return banks;
-        else
+        if(banks && defaultBanks)
             return banks.concat(defaultBanks);
+        return null;
     }
 
     async getBank(user: UserEntity, bankId: number): Promise<BankEntity>{
         const banks: BankEntity[] = await this.getBanks(user);
+        if(!banks)
+            return null;
         for(const bank of banks)
             if(bank.id === bankId)
                 return bank;
