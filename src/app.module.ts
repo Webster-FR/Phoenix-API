@@ -31,7 +31,6 @@ const redisPassword = process.env.REDIS_PASSWORD;
         AuthModule,
         TodosModule,
         TasksModule,
-        SecretsModule,
         InternalCacheModule,
         ServicesModule,
         MiscModule,
