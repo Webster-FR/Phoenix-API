@@ -5,7 +5,7 @@ import {LedgerEntity} from "./models/entities/ledger.entity";
 import {EncryptionService} from "../common/services/encryption.service";
 import {EncryptedLedgerEntity} from "./models/entities/encrypted-ledger.entity";
 import {ConfigService} from "@nestjs/config";
-import {AccountsService} from "../accounts/accounts.service";
+import {AccountsService} from "../modules/accounting/accounts/accounts.service";
 
 @Injectable()
 export class LedgersService{

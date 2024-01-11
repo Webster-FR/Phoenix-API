@@ -4,10 +4,10 @@ import {UserEntity} from "../users/models/entities/user.entity";
 import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../common/services/encryption.service";
 import {TodosService} from "../modules/todos/todos.service";
-import {AccountsService} from "../accounts/accounts.service";
+import {AccountsService} from "../modules/accounting/accounts/accounts.service";
 import {LedgersService} from "../ledgers/ledgers.service";
 import {LedgerEntity} from "../ledgers/models/entities/ledger.entity";
-import {EncryptedAccountEntity} from "../accounts/models/entities/encrypted-account.entity";
+import {EncryptedAccountEntity} from "../modules/accounting/accounts/models/entities/encrypted-account.entity";
 
 
 @Injectable()

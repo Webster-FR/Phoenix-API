@@ -3,7 +3,7 @@ import {SecretsService} from "./secrets.service";
 import {ServicesModule} from "../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {TodosModule} from "../modules/todos/todos.module";
-import {AccountsModule} from "../accounts/accounts.module";
+import {AccountsModule} from "../modules/accounting/accounts/accounts.module";
 import {LedgersModule} from "../ledgers/ledgers.module";
 
 @Module({
