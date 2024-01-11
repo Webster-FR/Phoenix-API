@@ -132,6 +132,7 @@ export class TodosService{
     }
 
     async deleteTodoChildren(user: UserEntity, todoId: number): Promise<void>{
+        console.log("Deleting children of todo " + todoId);
         await this.prismaService.todos.deleteMany({
             where: {
                 parent_id: todoId
