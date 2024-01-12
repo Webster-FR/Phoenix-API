@@ -45,6 +45,7 @@ export class AccountsController{
     @ApiResponse({status: HttpStatus.OK, description: "Update account name", type: AccountEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User or account not found"})
+    @ApiResponse({status: HttpStatus.CONFLICT, description: "Account already exists"})
     @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid or missing fields"})
     async updateAccountName(@Req() req: any, @Param() idDto: IdDto, @Body() renameAccountDto: RenameAccountDto): Promise<AccountEntity>{
         return await this.accountsService.updateAccountName(req.user, idDto.id, renameAccountDto.name);
