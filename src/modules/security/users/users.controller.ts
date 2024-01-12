@@ -6,6 +6,7 @@ import {UsersService} from "./users.service";
 import {UpdatePasswordDto} from "./models/dto/update-password.dto";
 import {UpdateUsernameDto} from "./models/dto/update-username.dto";
 import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
+import {UserCountResponse} from "../../accounting/accounts/models/responses/user-count.response";
 
 @Controller("users")
 @ApiTags("Users")
@@ -15,6 +16,12 @@ export class UsersController{
     constructor(
         private readonly usersService: UsersService
     ){}
+
+    @Get("/count")
+    @ApiResponse({status: HttpStatus.OK, description: "Returns the number of users", type: UserCountResponse})
+    async countUsers(): Promise<UserCountResponse>{
+        return await this.usersService.countUsers();
+    }
 
     @Get("/me")
     @UseGuards(AtGuard)

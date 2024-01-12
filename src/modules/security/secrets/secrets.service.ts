@@ -59,7 +59,7 @@ export class SecretsService{
     }
 
     async rotateAccounts(user: UserEntity, secret: string, newSecret: string){
-        const accounts = await this.accountsService.getAccounts(user.id);
+        const accounts = await this.accountsService.getAccounts(user);
         for(const account of accounts){
             const encryptedName = this.encryptionService.encryptSymmetric(account.name, newSecret, this.accountsEncryptionStrength);
             const encryptedAmount = this.encryptionService.encryptSymmetric(account.amount.toString(), newSecret, this.accountsEncryptionStrength);
