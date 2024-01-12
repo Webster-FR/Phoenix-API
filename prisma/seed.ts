@@ -85,7 +85,9 @@ async function seed(table: any, data: any[]){
     for(let i = 1; i <= data.length; i++){
         await table.upsert({
             where: {id: i},
-            update: {},
+            update: {
+                ...data[i - 1],
+            },
             create: {
                 ...data[i - 1],
             },
@@ -99,7 +101,9 @@ async function seedTransactions(table: any, data: any[], isInternal: boolean){
             if(data.find((d) => d.internal_ledger_id === i))
                 await table.upsert({
                     where: {internal_ledger_id: i},
-                    update: {},
+                    update: {
+                        ...data.find((d) => d.internal_ledger_id === i),
+                    },
                     create: {
                         ...data.find((d) => d.internal_ledger_id === i),
                     },
@@ -110,7 +114,9 @@ async function seedTransactions(table: any, data: any[], isInternal: boolean){
             if(data.find((d) => d.debit_internal_ledger_id === i))
                 await table.upsert({
                     where: {debit_internal_ledger_id: i},
-                    update: {},
+                    update: {
+                        ...data.find((d) => d.debit_internal_ledger_id === i),
+                    },
                     create: {
                         ...data.find((d) => d.debit_internal_ledger_id === i),
                     },
