@@ -33,11 +33,10 @@ export class AccountsService{
         });
     }
 
-    async getAccounts(userId: number): Promise<AccountEntity[]>{
-        const user = await this.usersService.findById(userId);
+    async getAccounts(user: UserEntity): Promise<AccountEntity[]>{
         const accounts: EncryptedAccountEntity[] = await this.prismaService.accounts.findMany({
             where: {
-                user_id: userId,
+                user_id: user.id,
             }
         });
         const decryptedAccounts: AccountEntity[] = [];
@@ -71,14 +70,11 @@ export class AccountsService{
         };
     }
 
-    async createAccount(userId: number, name: string, amount: number, bankId: number): Promise<AccountEntity>{
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
+    async createAccount(user: UserEntity, name: string, amount: number, bankId: number): Promise<AccountEntity>{
         const bank = await this.banksService.findOne(user, bankId);
         if(!bank)
             throw new NotFoundException("User or default bank not found");
-        const accounts = await this.getAccounts(userId);
+        const accounts = await this.getAccounts(user);
         for(const account of accounts)
             if(account.bank_id === bankId && account.name === name)
                 throw new ConflictException("Account already exists");
@@ -88,21 +84,24 @@ export class AccountsService{
                 name: this.encryptionService.encryptSymmetric(name, user.secret, this.accountsEncryptionStrength),
                 amount: encryptedAmount,
                 bank_id: bankId,
-                user_id: userId,
+                user_id: user.id,
             }
         });
         await this.transactionsService.createOtherTransaction("Init", user.secret, account.id, amount, 1);
-        return await this.findById(account.id);
+        return {
+            id: account.id,
+            name: name,
+            amount: amount,
+            bank_id: bankId,
+            user_id: user.id,
+        };
     }
 
-    async updateAccountName(userId: number, accountId: number, name: string): Promise<AccountEntity>{
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
+    async updateAccountName(user: UserEntity, accountId: number, name: string): Promise<AccountEntity>{
         const account = await this.findById(accountId);
         if(!account)
             throw new NotFoundException("Account not found");
-        const accounts = await this.getAccounts(userId);
+        const accounts = await this.getAccounts(user);
         for(const account of accounts)
             if(account.bank_id === account.bank_id && account.name === name)
                 throw new ConflictException("Account already exists");
@@ -114,27 +113,25 @@ export class AccountsService{
                 name: this.encryptionService.encryptSymmetric(name, user.secret, this.accountsEncryptionStrength),
             }
         });
-        return this.findById(accountId);
+        account.name = name;
+        return account;
     }
 
-    async deleteAccount(userId: number, accountId: number){
-        const user = await this.usersService.findById(userId);
-        if(!user)
-            throw new NotFoundException("User not found");
-        const account = await this.findById(accountId);
-        if(!account)
+    async deleteAccount(user: UserEntity, accountId: number){
+        if(!await this.isAccountExists(user.id, accountId))
             throw new NotFoundException("Account not found");
         await this.prismaService.accounts.delete({
             where: {
                 id: accountId,
             }
         });
-        return account;
     }
 
     async updateBalance(user: UserEntity, account: AccountEntity, amount: number){
         if(!user)
             throw new NotFoundException("User not found");
+        if(!account)
+            throw new NotFoundException("Account not found");
         const newAmount = Math.round((account.amount + amount) * 100) / 100;
         await this.prismaService.accounts.update({
             where: {

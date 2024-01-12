@@ -24,7 +24,7 @@ export class AccountsController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User not found"})
     async getAccounts(@Req() req: any): Promise<AccountEntity[]>{
-        return this.accountsService.getAccounts(req.user.id);
+        return await this.accountsService.getAccounts(req.user);
     }
 
     @Post()
@@ -36,7 +36,7 @@ export class AccountsController{
     @ApiResponse({status: HttpStatus.CONFLICT, description: "Account already exists"})
     @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid or missing fields"})
     async createAccount(@Req() req: any, @Body() createAccountDto: CreateAccountDto): Promise<AccountEntity>{
-        return this.accountsService.createAccount(req.user.id, createAccountDto.name, createAccountDto.amount, createAccountDto.bank_id);
+        return await this.accountsService.createAccount(req.user, createAccountDto.name, createAccountDto.amount, createAccountDto.bank_id);
     }
 
     @Patch(":id/name")
@@ -47,7 +47,7 @@ export class AccountsController{
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User or account not found"})
     @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid or missing fields"})
     async updateAccountName(@Req() req: any, @Param() idDto: IdDto, @Body() renameAccountDto: RenameAccountDto): Promise<AccountEntity>{
-        return this.accountsService.updateAccountName(req.user.id, idDto.id, renameAccountDto.name);
+        return await this.accountsService.updateAccountName(req.user, idDto.id, renameAccountDto.name);
     }
 
     @Delete(":id")
@@ -57,7 +57,7 @@ export class AccountsController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "User or account not found"})
     @ApiResponse({status: HttpStatus.BAD_REQUEST, description: "Invalid or missing id"})
-    async deleteAccount(@Req() req: any, @Param() idDto: IdDto): Promise<AccountEntity>{
-        return this.accountsService.deleteAccount(req.user.id, idDto.id);
+    async deleteAccount(@Req() req: any, @Param() idDto: IdDto): Promise<void>{
+        await this.accountsService.deleteAccount(req.user, idDto.id);
     }
 }
