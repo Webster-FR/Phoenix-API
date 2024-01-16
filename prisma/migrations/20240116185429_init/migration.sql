@@ -45,16 +45,25 @@ CREATE TABLE "tokens" (
 );
 
 -- CreateTable
-CREATE TABLE "todos" (
+CREATE TABLE "todo_lists" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
-    "completed" BOOLEAN NOT NULL DEFAULT false,
-    "deadline" TIMESTAMP(3),
-    "parent_id" INTEGER,
-    "frequency" TEXT,
     "icon" TEXT NOT NULL,
     "color" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "todo_lists_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "todos" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "completed" BOOLEAN NOT NULL DEFAULT false,
+    "deadline" TIMESTAMP(3),
+    "todo_list_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -242,10 +251,10 @@ ALTER TABLE "password_recovery_codes" ADD CONSTRAINT "password_recovery_codes_us
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "todos" ADD CONSTRAINT "todos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "todo_lists" ADD CONSTRAINT "todo_lists_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "todos" ADD CONSTRAINT "todos_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "todos"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "todos" ADD CONSTRAINT "todos_todo_list_id_fkey" FOREIGN KEY ("todo_list_id") REFERENCES "todo_lists"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "banks" ADD CONSTRAINT "banks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
