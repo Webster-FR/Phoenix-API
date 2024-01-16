@@ -3,7 +3,7 @@ import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../../../common/services/encryption.service";
-import {TodosService} from "../../todos/todos.service";
+import {TodosService} from "../../todos/todos/todos.service";
 import {AccountsService} from "../../accounting/accounts/accounts.service";
 import {LedgersService} from "../../accounting/ledgers/ledgers.service";
 import {LedgerEntity} from "../../accounting/ledgers/models/entities/ledger.entity";
@@ -37,26 +37,26 @@ export class SecretsService{
             this.logger.debug(`Rotating accounts for user ${user.id}`);
             await this.rotateAccounts(user, secret, newSecret);
             this.logger.debug(`Rotating todos for user ${user.id}`);
-            await this.rotateTodos(user, secret, newSecret);
+            // await this.rotateTodos(user, secret, newSecret);
             this.logger.debug(`Rotating user ${user.id}`);
             await this.usersService.setUserSecret(user, newSecret);
         }
     }
 
-    async rotateTodos(user: UserEntity, secret: string, newSecret: string){
-        const todos = await this.todosService.getTodos(user);
-        for(const todo of todos){
-            const encryptedName = this.encryptionService.encryptSymmetric(todo.name, newSecret, this.todosEncryptionStrength);
-            await this.prismaService.todos.update({
-                where: {
-                    id: todo.id
-                },
-                data: {
-                    name: encryptedName
-                },
-            });
-        }
-    }
+    // async rotateTodos(user: UserEntity, secret: string, newSecret: string){
+    //     const todos = await this.todosService.getTodos(user);
+    //     for(const todo of todos){
+    //         const encryptedName = this.encryptionService.encryptSymmetric(todo.name, newSecret, this.todosEncryptionStrength);
+    //         await this.prismaService.todos.update({
+    //             where: {
+    //                 id: todo.id
+    //             },
+    //             data: {
+    //                 name: encryptedName
+    //             },
+    //         });
+    //     }
+    // }
 
     async rotateAccounts(user: UserEntity, secret: string, newSecret: string){
         const accounts = await this.accountsService.getAccounts(user);
