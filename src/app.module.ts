@@ -1,7 +1,6 @@
 import {Module} from "@nestjs/common";
 import {AuthModule} from "./modules/security/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
-import {TodosModule} from "./modules/todos/todos.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TasksModule} from "./modules/tasks/tasks.module";
 import {CacheModule} from "@nestjs/cache-manager";
@@ -14,6 +13,8 @@ import {MiscModule} from "./modules/misc/misc.module";
 import {AccountingModule} from "./modules/accounting/accounting.module";
 import {SecurityModule} from "./modules/security/security.module";
 import {PasswordRecoveryModule} from "./modules/security/password-recovery/password-recovery.module";
+import {GlobalTodosModule} from "./modules/todos/global-todos.module";
+
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -34,7 +35,7 @@ dotenv.config();
             });
         })(),
         AuthModule,
-        TodosModule,
+        GlobalTodosModule,
         TasksModule,
         InternalCacheModule,
         ServicesModule,

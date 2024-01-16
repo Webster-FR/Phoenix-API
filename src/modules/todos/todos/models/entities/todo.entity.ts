@@ -5,21 +5,13 @@ export class TodoEntity implements Todos{
     @ApiProperty()
         id: number;
     @ApiProperty()
-        user_id: number;
+        todo_list_id: number;
     @ApiProperty()
         name: string;
     @ApiProperty()
         completed: boolean;
     @ApiProperty()
         deadline: Date;
-    @ApiProperty()
-        parent_id: number;
-    @ApiProperty()
-        frequency: string;
-    @ApiProperty()
-        icon: string;
-    @ApiProperty()
-        color: string;
     @ApiProperty()
         created_at: Date;
     @ApiProperty()
