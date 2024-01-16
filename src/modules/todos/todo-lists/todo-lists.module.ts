@@ -4,10 +4,12 @@ import {TodoListsController} from "./todo-lists.controller";
 import {ServicesModule} from "../../../common/services/services.module";
 import {UsersModule} from "../../security/users/users.module";
 import {AuthModule} from "../../security/auth/auth.module";
+import {CacheModule} from "../../cache/cache.module";
 
 @Module({
     controllers: [TodoListsController],
     providers: [TodoListsService],
-    imports: [ServicesModule, UsersModule, AuthModule],
+    imports: [ServicesModule, UsersModule, AuthModule, CacheModule],
+    exports: [TodoListsService]
 })
 export class TodoListsModule{}

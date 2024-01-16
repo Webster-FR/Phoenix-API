@@ -6,6 +6,7 @@ import {UserEntity} from "../../security/users/models/entities/user.entity";
 import {TodoListResponse} from "./models/responses/todolist.response";
 import {TodoEntity} from "../todos/models/entities/todo.entity";
 import {ConfigService} from "@nestjs/config";
+import {TodoListCacheService} from "../../cache/todo-list-cache.service";
 
 @Injectable()
 export class TodoListsService{
@@ -16,10 +17,11 @@ export class TodoListsService{
         private readonly prismaService: PrismaService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
+        private readonly todoListsCache: TodoListCacheService
     ){}
 
     async isTodoListExists(user: UserEntity, todolistId: number): Promise<boolean>{
-        return !!await this.prismaService.todoLists.findFirst({
+        return await this.todoListsCache.isTodoListExists(user, todolistId) || !!await this.prismaService.todoLists.findFirst({
             where: {
                 id: todolistId,
                 user_id: user.id
@@ -47,6 +49,9 @@ export class TodoListsService{
     }
 
     async getTodoLists(user: UserEntity): Promise<TodoListResponse[]>{
+        const cachedTodoLists = await this.todoListsCache.getTodoLists(user);
+        if(cachedTodoLists)
+            return cachedTodoLists;
         const todoLists = await this.prismaService.todoLists.findMany({
             where: {
                 user_id: user.id
@@ -57,6 +62,7 @@ export class TodoListsService{
         const todoListResponses: TodoListResponse[] = [];
         for(const todoList of todoLists)
             todoListResponses.push(await this.getTodoListInfo(user, todoList));
+        await this.todoListsCache.setTodoLists(user, todoListResponses);
         return todoListResponses;
     }
 
@@ -71,7 +77,9 @@ export class TodoListsService{
             }
         });
         todoList.name = name;
-        return await this.getTodoListInfo(user, todoList);
+        const todoListWithInfo = await this.getTodoListInfo(user, todoList);
+        await this.todoListsCache.addTodoList(user, todoListWithInfo);
+        return todoListWithInfo;
     }
 
     async updateTodoList(user: UserEntity, todolistId: number, name: string, color: string, icon: string): Promise<TodoListResponse>{
@@ -89,7 +97,9 @@ export class TodoListsService{
             }
         });
         todoList.name = name;
-        return await this.getTodoListInfo(user, todoList);
+        const todoListWithInfo = await this.getTodoListInfo(user, todoList);
+        await this.todoListsCache.updateTodoList(user, todoListWithInfo);
+        return todoListWithInfo;
     }
 
     async deleteTodoList(user: UserEntity, todolistId: number){
@@ -100,12 +110,14 @@ export class TodoListsService{
                 id: todolistId
             }
         });
+        await this.todoListsCache.deleteTodoList(user, todolistId);
     }
 
     async completeTodoList(user: UserEntity, todolistId: number){
+        // TODO: Use method in todo service
         if(!await this.isTodoListExists(user, todolistId))
             throw new NotFoundException("Todo list not found");
-        await this.prismaService.todos.updateMany({
+        const {count} = await this.prismaService.todos.updateMany({
             where: {
                 todo_list_id: todolistId
             },
@@ -113,6 +125,7 @@ export class TodoListsService{
                 completed: true
             }
         });
+        await this.todoListsCache.completeTodoList(user, todolistId, count);
     }
 
     async rotateEncryptionKey(user: UserEntity, oldSecret: string, newSecret: string){

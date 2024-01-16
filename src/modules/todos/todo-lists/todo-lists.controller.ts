@@ -54,7 +54,7 @@ export class TodoListsController{
         return await this.todoListsService.deleteTodoList(req.user, idDto.id);
     }
 
-    @Post("complete")
+    @Post("complete/:id")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo list completed"})
