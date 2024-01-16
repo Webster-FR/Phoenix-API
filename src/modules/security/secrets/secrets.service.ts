@@ -8,6 +8,7 @@ import {AccountsService} from "../../accounting/accounts/accounts.service";
 import {LedgersService} from "../../accounting/ledgers/ledgers.service";
 import {LedgerEntity} from "../../accounting/ledgers/models/entities/ledger.entity";
 import {EncryptedAccountEntity} from "../../accounting/accounts/models/entities/encrypted-account.entity";
+import {TodoListsService} from "../../todos/todo-lists/todo-lists.service";
 
 
 @Injectable()
@@ -25,6 +26,7 @@ export class SecretsService{
         private readonly todosService: TodosService,
         private readonly accountsService: AccountsService,
         private readonly ledgersService: LedgersService,
+        private readonly todolistsService: TodoListsService,
     ){}
 
     async runSecretsRotation(){
@@ -36,6 +38,8 @@ export class SecretsService{
             await this.rotateLedgers(user, secret, newSecret);
             this.logger.debug(`Rotating accounts for user ${user.id}`);
             await this.rotateAccounts(user, secret, newSecret);
+            this.logger.debug(`Rotating todo lists for user ${user.id}`);
+            await this.todolistsService.rotateEncryptionKey(user, secret, newSecret);
             this.logger.debug(`Rotating todos for user ${user.id}`);
             // await this.rotateTodos(user, secret, newSecret);
             this.logger.debug(`Rotating user ${user.id}`);
