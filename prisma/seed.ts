@@ -5,6 +5,7 @@ import {EncryptionService} from "../src/common/services/encryption.service";
 import * as dotenv from "dotenv";
 import tips from "./seeds/tips.seed";
 import usersFunction from "./seeds/users.seed";
+import todoListsFunction from "./seeds/todolists.seed";
 import todosFunction from "./seeds/todos.seed";
 import banks from "./seeds/banks.seed";
 import accountsFunction from "./seeds/accounts.seed";
@@ -29,6 +30,10 @@ async function main(){
     const users = await usersFunction(userSecret);
     await seed(prisma.user, users);
     console.log("✅  User seed done !");
+
+    const todoLists = todoListsFunction(userSecret);
+    await seed(prisma.todoLists, todoLists);
+    console.log("✅  Todo list seed done !");
 
     const todos = todosFunction(userSecret);
     await seed(prisma.todos, todos);
@@ -67,6 +72,7 @@ async function main(){
 
     console.log(
         users,
+        todoLists,
         todos,
         tips,
         banks,
