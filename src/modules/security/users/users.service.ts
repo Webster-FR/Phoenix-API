@@ -182,4 +182,11 @@ export class UsersService{
         await this.userCacheService.updateUser(user);
         return user;
     }
+
+    async countUsers(){
+        const count = await this.prismaService.user.count();
+        return {
+            count: count,
+        };
+    }
 }
