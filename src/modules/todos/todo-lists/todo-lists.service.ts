@@ -8,6 +8,7 @@ import {TodoEntity} from "../todos/models/entities/todo.entity";
 import {ConfigService} from "@nestjs/config";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
 import {TodoCacheService} from "../../cache/todo-cache.service";
+import {Prisma} from "@prisma/client/extension";
 
 @Injectable()
 export class TodoListsService{
@@ -130,8 +131,8 @@ export class TodoListsService{
         await this.todoCacheService.completeAll(user.id, todolistId);
     }
 
-    async rotateEncryptionKey(user: UserEntity, oldSecret: string, newSecret: string){
-        const todoLists: TodoListEntity[] = await this.prismaService.todoLists.findMany({
+    async rotateEncryptionKey(tx: Prisma.TransactionClient, user: UserEntity, oldSecret: string, newSecret: string){
+        const todoLists: TodoListEntity[] = await tx.todoLists.findMany({
             where: {
                 user_id: user.id
             }
@@ -139,7 +140,7 @@ export class TodoListsService{
         for(const todoList of todoLists){
             const decryptedName = this.encryptionService.decryptSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
             const encryptedName = this.encryptionService.encryptSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
-            await this.prismaService.todoLists.update({
+            await tx.todoLists.update({
                 where: {
                     id: todoList.id
                 },
