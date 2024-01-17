@@ -54,6 +54,9 @@ export class TodosService{
     }
 
     async getTodos(user: UserEntity, todoListId: number){
+        const cachedTodos = await this.todoCacheService.getTodos(user.id, todoListId);
+        if(cachedTodos)
+            return cachedTodos;
         if(!await this.todoListsService.isTodoListExists(user, todoListId))
             throw new NotFoundException("Todo list not found");
         const todos: TodoEntity[] = await this.prismaService.todos.findMany({
@@ -64,6 +67,7 @@ export class TodosService{
         const decryptedTodos: TodoEntity[] = [];
         for(const todo of todos)
             decryptedTodos.push(this.decryptTodo(user, todo));
+        await this.todoCacheService.setTodos(user.id, todoListId, decryptedTodos);
         return decryptedTodos;
     }
 
@@ -80,6 +84,7 @@ export class TodosService{
         });
         todo.name = name;
         await this.todoListCacheService.todoAdded(user, todoListId);
+        await this.todoCacheService.addTodo(user.id, todo);
         return todo;
     }
 
@@ -99,6 +104,7 @@ export class TodosService{
         });
         todo.name = name;
         await this.todoListCacheService.todoCompleted(user, todo.todo_list_id, completed);
+        await this.todoCacheService.updateTodo(user.id, todo);
         return todo;
     }
 
@@ -115,6 +121,7 @@ export class TodosService{
         });
         const todoList = await this.getTodoListFromTodo(user, id);
         await this.todoListCacheService.todoCompleted(user, todoList.id, completed);
+        await this.todoCacheService.completeTodo(user.id, id, completed);
     }
 
     async deleteTodo(user: UserEntity, id: number){
@@ -127,5 +134,6 @@ export class TodosService{
                 id: id,
             }
         });
+        await this.todoCacheService.removeTodo(user.id, id);
     }
 }

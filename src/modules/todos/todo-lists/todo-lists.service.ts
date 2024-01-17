@@ -7,6 +7,7 @@ import {TodoListResponse} from "./models/responses/todolist.response";
 import {TodoEntity} from "../todos/models/entities/todo.entity";
 import {ConfigService} from "@nestjs/config";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
+import {TodoCacheService} from "../../cache/todo-cache.service";
 
 @Injectable()
 export class TodoListsService{
@@ -17,7 +18,8 @@ export class TodoListsService{
         private readonly prismaService: PrismaService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
-        private readonly todoListsCache: TodoListCacheService
+        private readonly todoListsCache: TodoListCacheService,
+        private readonly todoCacheService: TodoCacheService,
     ){}
 
     async isTodoListExists(user: UserEntity, todolistId: number): Promise<boolean>{
@@ -114,7 +116,6 @@ export class TodoListsService{
     }
 
     async completeTodoList(user: UserEntity, todolistId: number){
-        // TODO: Use method in todo service
         if(!await this.isTodoListExists(user, todolistId))
             throw new NotFoundException("Todo list not found");
         const {count} = await this.prismaService.todos.updateMany({
@@ -126,6 +127,7 @@ export class TodoListsService{
             }
         });
         await this.todoListsCache.completeTodoList(user, todolistId, count);
+        await this.todoCacheService.completeAll(user.id, todolistId);
     }
 
     async rotateEncryptionKey(user: UserEntity, oldSecret: string, newSecret: string){
