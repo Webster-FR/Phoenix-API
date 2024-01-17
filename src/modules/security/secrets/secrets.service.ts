@@ -6,8 +6,6 @@ import {EncryptionService} from "../../../common/services/encryption.service";
 import {TodosService} from "../../todos/todos/todos.service";
 import {AccountsService} from "../../accounting/accounts/accounts.service";
 import {LedgersService} from "../../accounting/ledgers/ledgers.service";
-import {LedgerEntity} from "../../accounting/ledgers/models/entities/ledger.entity";
-import {EncryptedAccountEntity} from "../../accounting/accounts/models/entities/encrypted-account.entity";
 import {TodoListsService} from "../../todos/todo-lists/todo-lists.service";
 import {Prisma} from "@prisma/client/extension";
 
