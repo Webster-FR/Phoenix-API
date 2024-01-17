@@ -75,4 +75,43 @@ export class TodoListCacheService{
         todoList.completed_todo_count = count;
         await this.cacheManager.set(`todos-${user.id}`, todoLists, 0);
     }
+
+    async todoAdded(user: UserEntity, todolistId: number){
+        const todoLists: TodoListResponse[] = await this.getTodoLists(user);
+        if(!todoLists)
+            return;
+        const index = todoLists.findIndex(t => t.id === todolistId);
+        if(index === -1)
+            return;
+        const todoList = todoLists[index];
+        todoList.todo_count++;
+        await this.cacheManager.set(`todos-${user.id}`, todoLists, 0);
+    }
+
+    async todoRemoved(user: UserEntity, todolistId: number){
+        const todoLists: TodoListResponse[] = await this.getTodoLists(user);
+        if(!todoLists)
+            return;
+        const index = todoLists.findIndex(t => t.id === todolistId);
+        if(index === -1)
+            return;
+        const todoList = todoLists[index];
+        todoList.todo_count--;
+        await this.cacheManager.set(`todos-${user.id}`, todoLists, 0);
+    }
+
+    async todoCompleted(user: UserEntity, todolistId: number, completed: boolean){
+        const todoLists: TodoListResponse[] = await this.getTodoLists(user);
+        if(!todoLists)
+            return;
+        const index = todoLists.findIndex(t => t.id === todolistId);
+        if(index === -1)
+            return;
+        const todoList = todoLists[index];
+        if(completed)
+            todoList.completed_todo_count++;
+        else
+            todoList.completed_todo_count--;
+        await this.cacheManager.set(`todos-${user.id}`, todoLists, 0);
+    }
 }
