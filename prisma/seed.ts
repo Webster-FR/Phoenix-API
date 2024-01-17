@@ -70,20 +70,20 @@ async function main(){
     await seedTransactions(prisma.internalTransactions, internalTransactions, true);
     console.log("✅  Internal transaction seed done !");
 
-    console.log(
-        users,
-        todoLists,
-        todos,
-        tips,
-        banks,
-        accounts,
-        recurringTransactions,
-        transactionCategories,
-        ledgers,
-        incomeTransactions,
-        expenseTransactions,
-        internalTransactions
-    );
+    // console.log(
+    //     users,
+    //     todoLists,
+    //     todos,
+    //     tips,
+    //     banks,
+    //     accounts,
+    //     recurringTransactions,
+    //     transactionCategories,
+    //     ledgers,
+    //     incomeTransactions,
+    //     expenseTransactions,
+    //     internalTransactions
+    // );
     console.log("✅  Seeding done !");
 }
 
