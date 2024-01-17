@@ -113,7 +113,6 @@ export class TodosService{
                 completed: completed,
             }
         });
-
         const todoList = await this.getTodoListFromTodo(user, id);
         await this.todoListCacheService.todoCompleted(user, todoList.id, completed);
     }
