@@ -8,6 +8,7 @@ import {TodoEntity} from "./models/entities/todo.entity";
 import {TodoListsService} from "../todo-lists/todo-lists.service";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
 import {TodoListEntity} from "../todo-lists/models/entities/todolist.entity";
+import {Prisma} from "@prisma/client/extension";
 
 @Injectable()
 export class TodosService{
@@ -135,5 +136,27 @@ export class TodosService{
             }
         });
         await this.todoCacheService.removeTodo(user.id, id);
+    }
+
+    async rotateEncryptionKey(tx: Prisma.TransactionClient, user: UserEntity, oldKey: string, newKey: string){
+        const todos: TodoEntity[] = await tx.todos.findMany({
+            where: {
+                todo_list: {
+                    user_id: user.id,
+                }
+            }
+        });
+        for(const todo of todos){
+            todo.name = this.encryptionService.decryptSymmetric(todo.name, oldKey, this.todosEncryptionStrength);
+            todo.name = this.encryptionService.encryptSymmetric(todo.name, newKey, this.todosEncryptionStrength);
+            await tx.todos.update({
+                where: {
+                    id: todo.id,
+                },
+                data: {
+                    name: todo.name,
+                }
+            });
+        }
     }
 }

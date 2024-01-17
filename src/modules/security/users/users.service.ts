@@ -10,6 +10,7 @@ import {EncryptionService} from "../../../common/services/encryption.service";
 import {ConfigService} from "@nestjs/config";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {UserCacheService} from "../../cache/user-cache.service";
+import {Prisma} from "@prisma/client/extension";
 
 @Injectable()
 export class UsersService{
@@ -162,12 +163,12 @@ export class UsersService{
         return count;
     }
 
-    async setUserSecret(user: UserEntity, secret: string): Promise<UserEntity>{
+    async setUserSecret(tx: Prisma.TransactionClient, user: UserEntity, secret: string): Promise<UserEntity>{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
         const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
-        const dbUser = await this.prismaService.user.update({
+        const dbUser = await tx.user.update({
             where: {
                 id: user.id
             },

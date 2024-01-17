@@ -6,9 +6,8 @@ import {EncryptionService} from "../../../common/services/encryption.service";
 import {TodosService} from "../../todos/todos/todos.service";
 import {AccountsService} from "../../accounting/accounts/accounts.service";
 import {LedgersService} from "../../accounting/ledgers/ledgers.service";
-import {LedgerEntity} from "../../accounting/ledgers/models/entities/ledger.entity";
-import {EncryptedAccountEntity} from "../../accounting/accounts/models/entities/encrypted-account.entity";
 import {TodoListsService} from "../../todos/todo-lists/todo-lists.service";
+import {Prisma} from "@prisma/client/extension";
 
 
 @Injectable()
@@ -32,74 +31,59 @@ export class SecretsService{
     async runSecretsRotation(){
         const users: UserEntity[] = await this.usersService.findAll();
         for(const user of users){
+            const start = Date.now();
             const secret = user.secret;
             const newSecret = this.encryptionService.generateSecret();
-            this.logger.debug(`Rotating ledgers for user ${user.id}`);
-            await this.rotateLedgers(user, secret, newSecret);
-            this.logger.debug(`Rotating accounts for user ${user.id}`);
-            await this.rotateAccounts(user, secret, newSecret);
-            this.logger.debug(`Rotating todo lists for user ${user.id}`);
-            await this.todolistsService.rotateEncryptionKey(user, secret, newSecret);
-            this.logger.debug(`Rotating todos for user ${user.id}`);
-            // await this.rotateTodos(user, secret, newSecret);
-            this.logger.debug(`Rotating user ${user.id}`);
-            await this.usersService.setUserSecret(user, newSecret);
+            // await this.rotateLedgers(user, secret, newSecret);
+            // await this.rotateAccounts(user, secret, newSecret);
+            await this.prismaService.$transaction(async(tx: Prisma.TransactionClient) => {
+                await this.todolistsService.rotateEncryptionKey(tx, user, secret, newSecret);
+                await this.todosService.rotateEncryptionKey(tx, user, secret, newSecret);
+                await this.usersService.setUserSecret(tx, user, newSecret);
+            });
+            const stop = Date.now();
+            this.logger.log(`Rotated user ${user.id} in ${stop - start}ms`);
         }
     }
 
-    // async rotateTodos(user: UserEntity, secret: string, newSecret: string){
-    //     const todos = await this.todosService.getTodos(user);
-    //     for(const todo of todos){
-    //         const encryptedName = this.encryptionService.encryptSymmetric(todo.name, newSecret, this.todosEncryptionStrength);
-    //         await this.prismaService.todos.update({
+    // async rotateAccounts(user: UserEntity, secret: string, newSecret: string){
+    //     const accounts = await this.accountsService.getAccounts(user);
+    //     for(const account of accounts){
+    //         const encryptedName = this.encryptionService.encryptSymmetric(account.name, newSecret, this.accountsEncryptionStrength);
+    //         const encryptedAmount = this.encryptionService.encryptSymmetric(account.amount.toString(), newSecret, this.accountsEncryptionStrength);
+    //         await this.prismaService.accounts.update({
     //             where: {
-    //                 id: todo.id
+    //                 id: account.id
     //             },
     //             data: {
-    //                 name: encryptedName
+    //                 name: encryptedName,
+    //                 amount: encryptedAmount,
     //             },
     //         });
     //     }
     // }
-
-    async rotateAccounts(user: UserEntity, secret: string, newSecret: string){
-        const accounts = await this.accountsService.getAccounts(user);
-        for(const account of accounts){
-            const encryptedName = this.encryptionService.encryptSymmetric(account.name, newSecret, this.accountsEncryptionStrength);
-            const encryptedAmount = this.encryptionService.encryptSymmetric(account.amount.toString(), newSecret, this.accountsEncryptionStrength);
-            await this.prismaService.accounts.update({
-                where: {
-                    id: account.id
-                },
-                data: {
-                    name: encryptedName,
-                    amount: encryptedAmount,
-                },
-            });
-        }
-    }
-
-    async rotateLedgers(user: UserEntity, secret: string, newSecret: string){
-        const accounts: EncryptedAccountEntity[] = await this.prismaService.accounts.findMany({
-            where: {
-                user_id: user.id
-            }
-        });
-        for(const account of accounts){
-            const ledgers: LedgerEntity[] = await this.ledgersService.getLedgers(account.id);
-            for(const ledger of ledgers){
-                const encryptedCredit = ledger.credit ? this.encryptionService.encryptSymmetric(ledger.credit.toString(), newSecret, this.ledgersEncryptionStrength) : null;
-                const encryptedDebit = ledger.debit ? this.encryptionService.encryptSymmetric(ledger.debit.toString(), newSecret, this.ledgersEncryptionStrength) : null;
-                await this.prismaService.internalLedger.update({
-                    where: {
-                        id: ledger.id
-                    },
-                    data: {
-                        credit: encryptedCredit,
-                        debit: encryptedDebit,
-                    },
-                });
-            }
-        }
-    }
+    //
+    // async rotateLedgers(user: UserEntity, secret: string, newSecret: string){
+    //     const accounts: EncryptedAccountEntity[] = await this.prismaService.accounts.findMany({
+    //         where: {
+    //             user_id: user.id
+    //         }
+    //     });
+    //     for(const account of accounts){
+    //         const ledgers: LedgerEntity[] = await this.ledgersService.getLedgers(account.id);
+    //         for(const ledger of ledgers){
+    //             const encryptedCredit = ledger.credit ? this.encryptionService.encryptSymmetric(ledger.credit.toString(), newSecret, this.ledgersEncryptionStrength) : null;
+    //             const encryptedDebit = ledger.debit ? this.encryptionService.encryptSymmetric(ledger.debit.toString(), newSecret, this.ledgersEncryptionStrength) : null;
+    //             await this.prismaService.internalLedger.update({
+    //                 where: {
+    //                     id: ledger.id
+    //                 },
+    //                 data: {
+    //                     credit: encryptedCredit,
+    //                     debit: encryptedDebit,
+    //                 },
+    //             });
+    //         }
+    //     }
+    // }
 }

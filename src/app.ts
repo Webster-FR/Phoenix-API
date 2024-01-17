@@ -108,6 +108,8 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>, serv
             displayRequestDuration: true,
             persistAuthorization: true,
             docExpansion: "none",
+            tagsSorter: "alpha",
+            operationsSorter: "method",
         },
         customCss,
     });
