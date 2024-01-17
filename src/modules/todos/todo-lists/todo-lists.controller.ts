@@ -2,14 +2,12 @@ import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, UseGua
 import {TodoListsService} from "./todo-lists.service";
 import {AtGuard} from "../../security/auth/guards/at.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
-import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 import {IdDto} from "../../../common/models/dto/id.dto";
 import {TodolistDto} from "./models/dto/todolist.dto";
 import {TodoListResponse} from "./models/responses/todolist.response";
 
 @Controller("todolists")
 @ApiTags("Todo Lists")
-@UseGuards(MaintenanceGuard)
 export class TodoListsController{
 
     constructor(

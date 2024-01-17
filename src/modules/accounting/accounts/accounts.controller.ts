@@ -1,7 +1,6 @@
 import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req, UseGuards} from "@nestjs/common";
 import {AccountsService} from "./accounts.service";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
-import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 import {AtGuard} from "../../security/auth/guards/at.guard";
 import {AccountEntity} from "./models/entities/account.entity";
 import {CreateAccountDto} from "./models/dto/create-account.dto";
@@ -10,7 +9,6 @@ import {IdDto} from "../../../common/models/dto/id.dto";
 
 @Controller("accounts")
 @ApiTags("Accounts")
-@UseGuards(MaintenanceGuard)
 export class AccountsController{
 
     constructor(

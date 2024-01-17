@@ -1,5 +1,4 @@
 import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req, UseGuards} from "@nestjs/common";
-import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../../security/auth/guards/at.guard";
 import {BanksService} from "./banks.service";
@@ -9,7 +8,6 @@ import {IdDto} from "../../../common/models/dto/id.dto";
 
 @Controller("banks")
 @ApiTags("Banks")
-@UseGuards(MaintenanceGuard)
 export class BanksController{
     constructor(
         private readonly banksService: BanksService
