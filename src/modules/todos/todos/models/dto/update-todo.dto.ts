@@ -8,16 +8,6 @@ export class UpdateTodoDto{
     @ApiProperty()
         deadline: Date;
     @ApiProperty()
-        frequency: string;
-    @ApiProperty()
     @IsNotEmpty()
         completed: boolean;
-    @ApiProperty()
-    @IsNotEmpty()
-        icon: string;
-    @ApiProperty()
-    @IsNotEmpty()
-        color: string;
-    @ApiProperty()
-        parent_id: number;
 }

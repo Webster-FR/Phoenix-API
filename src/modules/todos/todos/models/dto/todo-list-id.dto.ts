@@ -1,8 +1,10 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {IsNotEmpty} from "class-validator";
+import {Type} from "class-transformer";
 
-export class UpdateParentDto{
+export class TodoListIdDto{
     @ApiProperty()
     @IsNotEmpty()
-        parent_id: number;
+    @Type(() => Number)
+        todo_list_id: number;
 }

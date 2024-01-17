@@ -5,11 +5,12 @@ import {ServicesModule} from "../../../common/services/services.module";
 import {UsersModule} from "../../security/users/users.module";
 import {AuthModule} from "../../security/auth/auth.module";
 import {CacheModule} from "../../cache/cache.module";
+import {TodoListsModule} from "../todo-lists/todo-lists.module";
 
 @Module({
     controllers: [TodosController],
     providers: [TodosService],
-    imports: [ServicesModule, UsersModule, AuthModule, CacheModule],
+    imports: [ServicesModule, UsersModule, AuthModule, CacheModule, TodoListsModule],
     exports: [TodosService],
 })
 export class TodosModule{}

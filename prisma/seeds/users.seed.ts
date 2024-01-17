@@ -12,7 +12,7 @@ export default async(userSecret: string) => [
     {
         username: encryptionService.encryptSymmetric("test", userSecret, usersEncryptionStrength),
         email: "test@exemple.org",
-        password: await encryptionService.hash("password"),
+        password: await encryptionService.hash("wtviE6AZ!Ypf52pMetSR"),
         secret: encryptionService.encryptSymmetric(userSecret, encryptionKey, userSecretsEncryptionStrength),
         created_at: new Date(),
         updated_at: new Date(),
