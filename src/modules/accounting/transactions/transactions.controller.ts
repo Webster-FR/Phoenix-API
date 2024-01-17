@@ -1,6 +1,5 @@
 import {Body, Controller, Get, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
 import {TransactionsService} from "./transactions.service";
-import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../../security/auth/guards/at.guard";
 import {AccountIdDto} from "./models/dto/account-id.dto";
@@ -8,7 +7,6 @@ import CreateTransactionDto from "./models/dto/create-transaction.dto";
 import {FutureTransactionEntity} from "./models/entities/future-transaction.entity";
 
 @Controller("transactions")
-@UseGuards(MaintenanceGuard)
 @ApiTags("Transactions")
 export class TransactionsController{
 

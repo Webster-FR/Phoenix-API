@@ -3,9 +3,11 @@ import {MaintenanceDto} from "./models/dto/maintenance.dto";
 import {ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ConfigService} from "@nestjs/config";
 import {FastifyReply} from "fastify";
+import {MaintenanceExclusion} from "./decorators/maintenance.decorator";
 
 @Controller("maintenance")
 @ApiTags("Maintenance")
+@MaintenanceExclusion()
 export class MaintenanceController{
 
     static isMaintenanceMode: boolean = false;

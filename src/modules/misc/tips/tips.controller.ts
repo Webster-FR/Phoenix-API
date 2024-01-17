@@ -3,11 +3,9 @@ import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {AtGuard} from "../../security/auth/guards/at.guard";
 import {TipsService} from "./tips.service";
 import {TipEntity} from "./models/entities/tip.entity";
-import {MaintenanceGuard} from "../maintenance/guards/maintenance.guard";
 
 @Controller("tips")
 @ApiTags("Tips")
-@UseGuards(MaintenanceGuard)
 export class TipsController{
     constructor(private readonly tipsService: TipsService){}
 

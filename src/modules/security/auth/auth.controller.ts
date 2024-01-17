@@ -12,11 +12,9 @@ import {AtGuard} from "./guards/at.guard";
 import {RtGuard} from "./guards/rt.guard";
 import {RtDto} from "./models/dto/rt.dto";
 import {AtDto} from "./models/dto/at.dto";
-import {MaintenanceGuard} from "../../misc/maintenance/guards/maintenance.guard";
 
 @Controller("auth")
 @ApiTags("Authentication")
-@UseGuards(MaintenanceGuard)
 export class AuthController{
     constructor(private readonly authService: AuthService){}
 

@@ -16,6 +16,9 @@ import {PasswordRecoveryModule} from "./modules/security/password-recovery/passw
 import {GlobalTodosModule} from "./modules/todos/global-todos.module";
 
 import * as dotenv from "dotenv";
+import {ThrottlerGuard, ThrottlerModule} from "@nestjs/throttler";
+import {APP_GUARD} from "@nestjs/core";
+import {MaintenanceGuard} from "./modules/misc/maintenance/guards/maintenance.guard";
 dotenv.config();
 
 @Module({
@@ -34,6 +37,10 @@ dotenv.config();
                 password: process.env.REDIS_PASSWORD === "" ? undefined : process.env.REDIS_PASSWORD,
             });
         })(),
+        ThrottlerModule.forRoot([{
+            ttl: 60000,
+            limit: 100,
+        }]),
         AuthModule,
         GlobalTodosModule,
         TasksModule,
@@ -44,6 +51,16 @@ dotenv.config();
         SecurityModule,
         PasswordRecoveryModule
     ],
-    providers: [TokenCacheService],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: MaintenanceGuard,
+        },
+        TokenCacheService
+    ],
 })
 export class AppModule{}
