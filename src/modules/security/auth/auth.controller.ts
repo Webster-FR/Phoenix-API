@@ -10,8 +10,6 @@ import {LoginDto} from "./models/dto/login.dto";
 import {AuthService} from "./auth.service";
 import {AtGuard} from "./guards/at.guard";
 import {RtGuard} from "./guards/rt.guard";
-import {RtDto} from "./models/dto/rt.dto";
-import {AtDto} from "./models/dto/at.dto";
 
 @Controller("auth")
 @ApiTags("Authentication")
