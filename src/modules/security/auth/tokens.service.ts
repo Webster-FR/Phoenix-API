@@ -27,7 +27,7 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const dbToken: AccessTokenEntity = await this.prismaService.accessToken.create({
+        const aToken: AccessTokenEntity = await this.prismaService.accessToken.create({
             data: {
                 user_id: user.id,
                 sum: sum,
@@ -36,9 +36,9 @@ export class TokensService{
                 refresh_token_id: refreshTokenId,
             }
         });
-        dbToken.token = token;
-        // await this.cacheService.addToken(dbToken);
-        return dbToken;
+        aToken.token = token;
+        await this.cacheService.addToken(aToken, false);
+        return aToken;
     }
 
     async generateRefreshToken(user: UserEntity): Promise<TokenPairModel>{
@@ -46,7 +46,7 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const dbToken: RefreshTokenEntity = await this.prismaService.refreshToken.create({
+        const rToken: RefreshTokenEntity = await this.prismaService.refreshToken.create({
             data: {
                 user_id: user.id,
                 sum,
@@ -54,15 +54,17 @@ export class TokensService{
                 expires: new Date(expires * 1000)
             }
         });
-        dbToken.token = token;
-        // await this.cacheService.addToken(dbToken);
-        return {accessToken: await this.generateAccessToken(user, dbToken.id), refreshToken: dbToken};
+        rToken.token = token;
+        const aToken = await this.generateAccessToken(user, rToken.id);
+        await this.cacheService.addToken(rToken, true);
+        await this.cacheService.addToken(aToken, false);
+        return {accessToken: aToken, refreshToken: rToken};
     }
 
     async getTokenEntity(token: string, isRefresh: boolean, exception: boolean = true): Promise<TokenEntity>{
-        // const cachedToken = await this.cacheService.getTokenFromString(token);
-        // if(cachedToken)
-        //     return cachedToken;
+        const cachedToken = await this.cacheService.getTokenFromString(token, isRefresh);
+        if(cachedToken)
+            return cachedToken;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
         let dbToken: TokenEntity;
         if(isRefresh){
@@ -86,7 +88,7 @@ export class TokensService{
         if(await this.encryptionService.compareHash(dbToken.token, token)){
             const tempToken = dbToken;
             tempToken.token = token;
-            // await this.cacheService.addToken(tempToken);
+            await this.cacheService.addToken(tempToken, isRefresh);
             return dbToken;
         }
         if(exception)
@@ -138,7 +140,7 @@ export class TokensService{
                 });
             }
         }
-        // await this.cacheService.blackListToken(token);
+        await this.cacheService.blackListToken(token, isRefresh);
         return true;
     }
 
@@ -159,7 +161,7 @@ export class TokensService{
                 blacklisted: true,
             },
         });
-        // await this.cacheService.blackListUserTokens(user);
+        await this.cacheService.blackListUserTokens(user);
     }
 
     async deleteExpiredTokens(){
@@ -178,7 +180,7 @@ export class TokensService{
                 refresh_token_id: null,
             },
         });
-        // await this.cacheService.deleteExpiredTokens();
+        await this.cacheService.deleteExpiredTokens();
         return rRes.count + aRes.count;
     }
 }
