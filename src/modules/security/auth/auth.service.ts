@@ -50,18 +50,16 @@ export class AuthService{
             }
             throw new PreconditionFailedException("Email not confirmed");
         }
-        const accessToken = await this.tokensService.generateAccessToken(user);
         if(keepLoggedIn === true){
-            const refreshToken = await this.tokensService.generateRefreshToken(user);
-            return new AtRtResponse(accessToken, refreshToken);
+            const tokenPair = await this.tokensService.generateRefreshToken(user);
+            return new AtRtResponse(tokenPair.accessToken.token, tokenPair.refreshToken.token);
         }
-        return new AtRtResponse(accessToken);
+        const accessToken = await this.tokensService.generateAccessToken(user);
+        return new AtRtResponse(accessToken.token);
     }
 
-    async logout(at: string, rt?: string){
+    async logout(at: string){
         await this.tokensService.blacklistToken(at, false);
-        if(rt)
-            await this.tokensService.blacklistToken(rt, true);
     }
 
     async logoutAll(user: UserEntity){
@@ -76,12 +74,10 @@ export class AuthService{
         await this.emailService.sendConfirmationEmail(newUser.email, code.code);
     }
 
-    async refresh(user: UserEntity, at: string, rt: string): Promise<AtRtResponse>{
-        await this.tokensService.blacklistToken(at, false, false);
+    async refresh(user: UserEntity, rt: string): Promise<AtRtResponse>{
         await this.tokensService.blacklistToken(rt, true);
-        const accessToken = await this.tokensService.generateAccessToken(user);
-        const refreshToken = await this.tokensService.generateRefreshToken(user);
-        return new AtRtResponse(accessToken, refreshToken);
+        const tokenPair = await this.tokensService.generateRefreshToken(user);
+        return new AtRtResponse(tokenPair.accessToken.token, tokenPair.refreshToken.token);
     }
 
     async confirmAccount(requestCode: string){

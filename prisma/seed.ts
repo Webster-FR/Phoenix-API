@@ -27,48 +27,62 @@ const encryptionService = new EncryptionService();
 async function main(){
     const userSecret = encryptionService.generateSecret();
 
+    const gStart = Date.now();
+
+    let start = Date.now();
     const users = await usersFunction(userSecret);
     await seed(prisma.user, users);
-    console.log("✅  User seed done !");
+    console.log("✅  User seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     const todoLists = todoListsFunction(userSecret);
     await seed(prisma.todoLists, todoLists);
-    console.log("✅  Todo list seed done !");
+    console.log("✅  Todo list seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     const todos = todosFunction(userSecret);
     await seed(prisma.todos, todos);
-    console.log("✅  Todo seed done !");
+    console.log("✅  Todo seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     await seed(prisma.tips, tips);
-    console.log("✅  Tip seed done !");
+    console.log("✅  Tip seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     await seed(prisma.banks, banks);
-    console.log("✅  Bank seed done !");
+    console.log("✅  Bank seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     const accounts = accountsFunction(userSecret);
     await seed(prisma.accounts, accounts);
-    console.log("✅  Account seed done !");
+    console.log("✅  Account seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     const recurringTransactions = recurringTransactionsFunction(userSecret);
     await seed(prisma.recurringTransaction, recurringTransactions);
-    console.log("✅  Recurring transaction seed done !");
+    console.log("✅  Recurring transaction seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     await seed(prisma.transactionCategories, transactionCategories);
-    console.log("✅  Transaction category seed done !");
+    console.log("✅  Transaction category seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     const ledgers = ledgersFunction(userSecret);
     await seed(prisma.internalLedger, ledgers);
-    console.log("✅  Ledger seed done !");
+    console.log("✅  Ledger seed done ! (" + (Date.now() - start) + "ms)");
 
+    start = Date.now();
     const incomeTransactions = incomeTransactionsFunction(userSecret);
     await seedTransactions(prisma.incomeTransactions, incomeTransactions, false);
-    console.log("✅  Income transaction seed done !");
+    console.log("✅  Income transaction seed done ! (" + (Date.now() - start) + "ms)");
+    start = Date.now();
     const expenseTransactions = expenseTransactionsFunction(userSecret);
     await seedTransactions(prisma.expenseTransactions, expenseTransactions, false);
-    console.log("✅  Expense transaction seed done !");
+    console.log("✅  Expense transaction seed done ! (" + (Date.now() - start) + "ms)");
+    start = Date.now();
     const internalTransactions = internalTransactionsFunction(userSecret);
     await seedTransactions(prisma.internalTransactions, internalTransactions, true);
-    console.log("✅  Internal transaction seed done !");
+    console.log("✅  Internal transaction seed done ! (" + (Date.now() - start) + "ms)");
 
     // console.log(
     //     users,
@@ -84,7 +98,9 @@ async function main(){
     //     expenseTransactions,
     //     internalTransactions
     // );
-    console.log("✅  Seeding done !");
+
+    const stop = Date.now();
+    console.log(`✅  Seeding completed ! (${stop - gStart}ms)`);
 }
 
 async function seed(table: any, data: any[]){

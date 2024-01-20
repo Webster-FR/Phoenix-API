@@ -5,9 +5,12 @@ import {ConfigService} from "@nestjs/config";
 import {EncryptionService} from "../../../common/services/encryption.service";
 import {AtPayloadModel} from "./models/models/at-payload.model";
 import {RtPayloadModel} from "./models/models/rt-payload.model";
-import {TokenEntity} from "./models/entities/token.entity";
 import {TokenCacheService} from "../../cache/token-cache.service";
 import {UserEntity} from "../users/models/entities/user.entity";
+import {AccessTokenEntity} from "./models/entities/access-token.entity";
+import {RefreshTokenEntity} from "./models/entities/refresh-token.entity";
+import {TokenPairModel} from "./models/models/token-pair.model";
+import {TokenEntity} from "./models/entities/token.entity";
 
 @Injectable()
 export class TokensService{
@@ -19,64 +22,75 @@ export class TokensService{
         private readonly cacheService: TokenCacheService
     ){}
 
-    async generateAccessToken(user: UserEntity): Promise<string>{
+    async generateAccessToken(user: UserEntity, refreshTokenId: number = null): Promise<AccessTokenEntity>{
         const payload = new AtPayloadModel(user.id, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const dbToken: TokenEntity = await this.prismaService.tokens.create({
+        const aToken: AccessTokenEntity = await this.prismaService.accessToken.create({
             data: {
                 user_id: user.id,
                 sum: sum,
-                token: await this.encryptionService.hash(token, 6),
-                is_refresh: false,
-                expires: new Date(expires * 1000)
+                token: await this.encryptionService.hash(token, 10),
+                expires: new Date(expires * 1000),
+                refresh_token_id: refreshTokenId,
             }
         });
-        dbToken.token = token;
-        await this.cacheService.addToken(dbToken);
-        return token;
+        aToken.token = token;
+        await this.cacheService.addToken(aToken, false);
+        return aToken;
     }
 
-    async generateRefreshToken(user: UserEntity): Promise<string>{
+    async generateRefreshToken(user: UserEntity): Promise<TokenPairModel>{
         const payload = new RtPayloadModel(user.id, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const dbToken: TokenEntity = await this.prismaService.tokens.create({
+        const rToken: RefreshTokenEntity = await this.prismaService.refreshToken.create({
             data: {
                 user_id: user.id,
                 sum,
-                token: await this.encryptionService.hash(token, 6),
-                is_refresh: true,
+                token: await this.encryptionService.hash(token, 10),
                 expires: new Date(expires * 1000)
             }
         });
-        dbToken.token = token;
-        await this.cacheService.addToken(dbToken);
-        return token;
+        rToken.token = token;
+        const aToken = await this.generateAccessToken(user, rToken.id);
+        await this.cacheService.addToken(rToken, true);
+        await this.cacheService.addToken(aToken, false);
+        return {accessToken: aToken, refreshToken: rToken};
     }
 
     async getTokenEntity(token: string, isRefresh: boolean, exception: boolean = true): Promise<TokenEntity>{
-        const cachedToken = await this.cacheService.getTokenFromString(token);
+        const cachedToken = await this.cacheService.getTokenFromString(token, isRefresh);
         if(cachedToken)
             return cachedToken;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const tokens: TokenEntity[] = await this.prismaService.tokens.findMany({
-            where: {
-                sum: sum,
-                is_refresh: isRefresh,
-            },
-        });
-        if(!tokens && exception)
-            throw new NotFoundException("Token not found");
-        for(const dbToken of tokens)
-            if(await this.encryptionService.compareHash(dbToken.token, token)){
-                const tempToken = dbToken;
-                tempToken.token = token;
-                await this.cacheService.addToken(tempToken);
-                return dbToken;
-            }
+        let dbToken: TokenEntity;
+        if(isRefresh){
+            dbToken = await this.prismaService.refreshToken.findFirst({
+                where: {
+                    sum: sum,
+                }
+            });
+        }else{
+            dbToken = await this.prismaService.accessToken.findFirst({
+                where: {
+                    sum: sum,
+                }
+            });
+        }
+        if(!dbToken)
+            if(exception)
+                throw new NotFoundException("Token not found");
+            else
+                return null;
+        if(await this.encryptionService.compareHash(dbToken.token, token)){
+            const tempToken = dbToken;
+            tempToken.token = token;
+            await this.cacheService.addToken(tempToken, isRefresh);
+            return dbToken;
+        }
         if(exception)
             throw new NotFoundException("Token not found");
         else
@@ -87,20 +101,59 @@ export class TokensService{
         const dbToken = await this.getTokenEntity(token, isRefresh, exception);
         if(!exception && !dbToken)
             return false;
-        await this.prismaService.tokens.update({
+        if(isRefresh){
+            const rt = dbToken as RefreshTokenEntity;
+            await this.prismaService.refreshToken.update({
+                where: {
+                    id: rt.id,
+                },
+                data: {
+                    blacklisted: true,
+                },
+            });
+            await this.prismaService.accessToken.update({
+                where: {
+                    refresh_token_id: rt.id,
+                },
+                data: {
+                    blacklisted: true,
+                },
+            });
+        }else{
+            const at = dbToken as AccessTokenEntity;
+            await this.prismaService.accessToken.update({
+                where: {
+                    id: dbToken.id,
+                },
+                data: {
+                    blacklisted: true,
+                },
+            });
+            if(at.refresh_token_id){
+                await this.prismaService.refreshToken.update({
+                    where: {
+                        id: at.refresh_token_id,
+                    },
+                    data: {
+                        blacklisted: true,
+                    },
+                });
+            }
+        }
+        await this.cacheService.blackListToken(token, isRefresh);
+        return true;
+    }
+
+    async blacklistUserTokens(user: UserEntity){
+        await this.prismaService.refreshToken.updateMany({
             where: {
-                id: dbToken.id,
+                user_id: user.id,
             },
             data: {
                 blacklisted: true,
             },
         });
-        await this.cacheService.blackListToken(token);
-        return true;
-    }
-
-    async blacklistUserTokens(user: UserEntity){
-        await this.prismaService.tokens.updateMany({
+        await this.prismaService.accessToken.updateMany({
             where: {
                 user_id: user.id,
             },
@@ -112,14 +165,22 @@ export class TokensService{
     }
 
     async deleteExpiredTokens(){
-        const {count} = await this.prismaService.tokens.deleteMany({
+        const rRes = await this.prismaService.refreshToken.deleteMany({
             where: {
                 expires: {
                     lt: new Date(),
                 },
             },
         });
+        const aRes = await this.prismaService.accessToken.deleteMany({
+            where: {
+                expires: {
+                    lt: new Date(),
+                },
+                refresh_token_id: null,
+            },
+        });
         await this.cacheService.deleteExpiredTokens();
-        return count;
+        return rRes.count + aRes.count;
     }
 }
