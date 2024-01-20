@@ -65,9 +65,7 @@ export class TodosService{
                 todo_list_id: todoListId,
             }
         });
-        const decryptedTodos: TodoEntity[] = [];
-        for(const todo of todos)
-            decryptedTodos.push(this.decryptTodo(user, todo));
+        const decryptedTodos = await Promise.all(todos.map(todo => this.decryptTodo(user, todo)));
         await this.todoCacheService.setTodos(user.id, todoListId, decryptedTodos);
         return decryptedTodos;
     }

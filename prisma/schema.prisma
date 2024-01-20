@@ -75,6 +75,7 @@ model TodoLists {
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   todos      Todos[]
 
+  @@index([user_id])
   @@map("todo_lists")
 }
 
@@ -88,6 +89,7 @@ model Todos {
   updated_at   DateTime  @updatedAt
   todo_list    TodoLists @relation(fields: [todo_list_id], references: [id], onDelete: Cascade)
 
+  @@index([todo_list_id])
   @@map("todos")
 }
 
