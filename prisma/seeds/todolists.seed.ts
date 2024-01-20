@@ -38,5 +38,13 @@ export default (userSecret: string) => [
         color: "sky",
         created_at: new Date(),
         updated_at: new Date(),
+    },
+    {
+        user_id: 1,
+        name: encryptionService.encryptSymmetric("Random", userSecret, todoListsEncryptionStrength),
+        icon: "cart",
+        color: "berry",
+        created_at: new Date(),
+        updated_at: new Date(),
     }
 ];
