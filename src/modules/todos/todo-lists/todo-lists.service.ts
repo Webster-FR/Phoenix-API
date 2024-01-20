@@ -60,11 +60,8 @@ export class TodoListsService{
                 user_id: user.id
             }
         });
-        for(const todoList of todoLists)
-            await this.decryptTodoList(user, todoList);
-        const todoListResponses: TodoListResponse[] = [];
-        for(const todoList of todoLists)
-            todoListResponses.push(await this.getTodoListInfo(user, todoList));
+        await Promise.all(todoLists.map(todoList => this.decryptTodoList(user, todoList)));
+        const todoListResponses = await Promise.all(todoLists.map(todoList => this.getTodoListInfo(user, todoList)));
         await this.todoListsCache.setTodoLists(user, todoListResponses);
         return todoListResponses;
     }
