@@ -61,8 +61,8 @@ export class AuthController{
     @ApiResponse({status: HttpStatus.ACCEPTED, description: "All tokens invalidated"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Access or refresh token not found in database"})
-    async logout(@Req() req: any, @Body() body: RtDto){
-        return await this.authService.logout(req.token.token, body.refresh_token);
+    async logout(@Req() req: any){
+        return await this.authService.logout(req.token.token);
     }
 
     @Post("logout/all")
@@ -80,9 +80,8 @@ export class AuthController{
     @ApiResponse({status: HttpStatus.CREATED, description: "Token refreshed successfully", type: AtRtResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid refresh token"})
     @ApiResponse({status: HttpStatus.CONFLICT, description: "Refresh token already used"})
-    async refresh(@Req() req: any, @Body() body: AtDto): Promise<AtRtResponse>{
-        const at = body.access_token;
+    async refresh(@Req() req: any): Promise<AtRtResponse>{
         const rt = req.token.token;
-        return this.authService.refresh(req.user, at, rt);
+        return this.authService.refresh(req.user, rt);
     }
 }
