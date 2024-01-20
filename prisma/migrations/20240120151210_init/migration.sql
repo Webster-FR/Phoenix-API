@@ -32,16 +32,26 @@ CREATE TABLE "password_recovery_codes" (
 );
 
 -- CreateTable
-CREATE TABLE "tokens" (
+CREATE TABLE "access_tokens" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "sum" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "is_refresh" BOOLEAN NOT NULL,
+    "refresh_token_id" INTEGER,
     "expires" TIMESTAMP(3) NOT NULL,
     "blacklisted" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "tokens_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "access_tokens_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "refresh_tokens" (
+    "id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "token" TEXT NOT NULL,
+    "expires" TIMESTAMP(3) NOT NULL,
+    "blacklisted" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -215,7 +225,19 @@ CREATE UNIQUE INDEX "password_recovery_codes_user_id_key" ON "password_recovery_
 CREATE UNIQUE INDEX "password_recovery_codes_code_key" ON "password_recovery_codes"("code");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tokens_sum_key" ON "tokens"("sum");
+CREATE UNIQUE INDEX "access_tokens_token_key" ON "access_tokens"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "access_tokens_refresh_token_id_key" ON "access_tokens"("refresh_token_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "refresh_tokens_token_key" ON "refresh_tokens"("token");
+
+-- CreateIndex
+CREATE INDEX "todo_lists_user_id_idx" ON "todo_lists"("user_id");
+
+-- CreateIndex
+CREATE INDEX "todos_todo_list_id_idx" ON "todos"("todo_list_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tips_tips_key" ON "tips"("tips");
@@ -248,7 +270,13 @@ ALTER TABLE "verification_codes" ADD CONSTRAINT "verification_codes_user_id_fkey
 ALTER TABLE "password_recovery_codes" ADD CONSTRAINT "password_recovery_codes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "access_tokens" ADD CONSTRAINT "access_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "access_tokens" ADD CONSTRAINT "access_tokens_refresh_token_id_fkey" FOREIGN KEY ("refresh_token_id") REFERENCES "refresh_tokens"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "todo_lists" ADD CONSTRAINT "todo_lists_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

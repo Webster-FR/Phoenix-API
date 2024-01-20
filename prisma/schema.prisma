@@ -21,12 +21,13 @@ model User {
   updated_at             DateTime                @updatedAt
   verification_codes     VerificationCodes?
   PasswordRecoveryCodes  PasswordRecoveryCodes?
-  tokens                 Tokens[]
   todo_lists             TodoLists[]
   banks                  Banks[]
   accounts               Accounts[]
   recurring_transactions RecurringTransaction[]
   transaction_categories TransactionCategories[]
+  AccessToken            AccessToken[]
+  RefreshToken           RefreshToken[]
 
   @@map("users")
 }
@@ -51,17 +52,29 @@ model PasswordRecoveryCodes {
   @@map("password_recovery_codes")
 }
 
-model Tokens {
-  id          Int      @id @default(autoincrement())
-  user_id     Int
-  sum         String   @unique
-  token       String
-  is_refresh  Boolean
-  expires     DateTime
-  blacklisted Boolean  @default(false)
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model AccessToken {
+  id               Int           @id @default(autoincrement())
+  user_id          Int
+  token            String        @unique
+  refresh_token_id Int?          @unique
+  expires          DateTime
+  blacklisted      Boolean       @default(false)
+  user             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  refresh_token    RefreshToken? @relation(fields: [refresh_token_id], references: [id], onDelete: Cascade)
 
-  @@map("tokens")
+  @@map("access_tokens")
+}
+
+model RefreshToken {
+  id          Int          @id @default(autoincrement())
+  user_id     Int
+  token       String       @unique
+  expires     DateTime
+  blacklisted Boolean      @default(false)
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  AccessToken AccessToken?
+
+  @@map("refresh_tokens")
 }
 
 model TodoLists {
