@@ -63,4 +63,15 @@ export class VerificationCodesService{
             },
         });
     }
+
+    async invalidateCode(code: string){
+        await this.prismaService.verificationCodes.update({
+            where: {
+                code: code,
+            },
+            data: {
+                iat: new Date(0),
+            },
+        });
+    }
 }
