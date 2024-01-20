@@ -55,6 +55,7 @@ model PasswordRecoveryCodes {
 model AccessToken {
   id               Int           @id @default(autoincrement())
   user_id          Int
+  sum              String        @unique
   token            String        @unique
   refresh_token_id Int?          @unique
   expires          DateTime
@@ -68,6 +69,7 @@ model AccessToken {
 model RefreshToken {
   id          Int          @id @default(autoincrement())
   user_id     Int
+  sum         String       @unique
   token       String       @unique
   expires     DateTime
   blacklisted Boolean      @default(false)

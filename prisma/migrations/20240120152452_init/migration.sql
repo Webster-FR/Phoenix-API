@@ -35,6 +35,7 @@ CREATE TABLE "password_recovery_codes" (
 CREATE TABLE "access_tokens" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
+    "sum" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "refresh_token_id" INTEGER,
     "expires" TIMESTAMP(3) NOT NULL,
@@ -47,6 +48,7 @@ CREATE TABLE "access_tokens" (
 CREATE TABLE "refresh_tokens" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
+    "sum" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "expires" TIMESTAMP(3) NOT NULL,
     "blacklisted" BOOLEAN NOT NULL DEFAULT false,
@@ -225,10 +227,16 @@ CREATE UNIQUE INDEX "password_recovery_codes_user_id_key" ON "password_recovery_
 CREATE UNIQUE INDEX "password_recovery_codes_code_key" ON "password_recovery_codes"("code");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "access_tokens_sum_key" ON "access_tokens"("sum");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "access_tokens_token_key" ON "access_tokens"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "access_tokens_refresh_token_id_key" ON "access_tokens"("refresh_token_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "refresh_tokens_sum_key" ON "refresh_tokens"("sum");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "refresh_tokens_token_key" ON "refresh_tokens"("token");
