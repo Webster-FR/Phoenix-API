@@ -11,7 +11,6 @@ import {AtResponse} from "./models/responses/at.response";
 import {EmailService} from "../../../common/services/email.service";
 import {UsersService} from "../users/users.service";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
-import {ConfigService} from "@nestjs/config";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {VerificationCodeEntity} from "../verification-codes/models/entities/verification-code.entity";
@@ -24,7 +23,6 @@ export class AuthService{
         private readonly emailService: EmailService,
         private readonly usersService: UsersService,
         private readonly verificationCodeService: VerificationCodesService,
-        private readonly configService: ConfigService,
         private readonly prismaService: PrismaService
     ){}
 
@@ -46,6 +44,9 @@ export class AuthService{
                 const newCode = this.encryptionService.generateSecret();
                 await this.verificationCodeService.setCode(user, user.verification_codes, newCode);
                 await this.emailService.sendConfirmationEmail(user.email, newCode);
+                this.emailService.sendConfirmationEmail(user.email, newCode).catch(async() => {
+                    await this.verificationCodeService.invalidateCode(newCode);
+                });
                 return null;
             }
             throw new PreconditionFailedException("Email not confirmed");
@@ -71,7 +72,9 @@ export class AuthService{
         const code: VerificationCodeEntity = await this.verificationCodeService.findByUserId(newUser.id);
         if(!code)
             throw new InternalServerErrorException("Verification code not found");
-        await this.emailService.sendConfirmationEmail(newUser.email, code.code);
+        this.emailService.sendConfirmationEmail(newUser.email, code.code).catch(async() => {
+            await this.verificationCodeService.invalidateCode(code.code);
+        });
     }
 
     async refresh(user: UserEntity, rt: string): Promise<AtRtResponse>{
