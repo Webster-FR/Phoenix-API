@@ -17,7 +17,7 @@ export class MaintenanceGuard implements CanActivate{
         if (isMaintenanceExcluded)
             return true;
         if(MaintenanceController.isMaintenanceMode)
-            throw new ServiceUnavailableException("Maintenance mode enabled");
+            throw new ServiceUnavailableException(MaintenanceController.maintenanceMessage);
         return true;
     }
 }

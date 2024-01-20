@@ -56,6 +56,7 @@ export class AuthController{
     @Post("logout")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
+    @HttpCode(HttpStatus.ACCEPTED)
     @ApiResponse({status: HttpStatus.ACCEPTED, description: "All tokens invalidated"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Access or refresh token not found in database"})
@@ -66,6 +67,7 @@ export class AuthController{
     @Post("logout/all")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
     @ApiResponse({status: HttpStatus.OK, description: "All tokens invalidated"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid access token"})
     async logoutAll(@Req() req: any){

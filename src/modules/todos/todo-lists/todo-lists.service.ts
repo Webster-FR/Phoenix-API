@@ -1,3 +1,5 @@
+// noinspection TypeScriptValidateJSTypes
+
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {EncryptionService} from "../../../common/services/encryption.service";
 import {TodoListEntity} from "./models/entities/todolist.entity";
@@ -58,6 +60,9 @@ export class TodoListsService{
         const todoLists = await this.prismaService.todoLists.findMany({
             where: {
                 user_id: user.id
+            },
+            orderBy: {
+                id: "asc"
             }
         });
         await Promise.all(todoLists.map(todoList => this.decryptTodoList(user, todoList)));

@@ -1,9 +1,7 @@
 import {ApiProperty} from "@nestjs/swagger";
 import {IsNotEmpty, IsString} from "class-validator";
 
-export class MaintenanceDto{
-    @ApiProperty()
-        message: string;
+export class DisableMaintenanceDto{
     @ApiProperty()
     @IsNotEmpty()
     @IsString()

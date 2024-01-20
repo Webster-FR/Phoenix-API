@@ -7,7 +7,7 @@ import {CreateTodoDto} from "./models/dto/create-todo.dto";
 import {IdDto} from "../../../common/models/dto/id.dto";
 import {UpdateCompletedDto} from "./models/dto/update-completed.dto";
 import {UpdateTodoDto} from "./models/dto/update-todo.dto";
-import {TodoListEntity} from "../todo-lists/models/entities/todolist.entity";
+import {TodoEntity} from "./models/entities/todo.entity";
 
 @Controller("todos")
 @ApiTags("Todos")
@@ -20,7 +20,7 @@ export class TodosController{
     @Get(":todo_list_id")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.OK, description: "Get todos", type: TodoListEntity, isArray: true})
+    @ApiResponse({status: HttpStatus.OK, description: "Get todos", type: TodoEntity, isArray: true})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo list not found"})
     async getTodos(@Req() req: any, @Param() todoListIdDto: TodoListIdDto){
@@ -30,7 +30,7 @@ export class TodosController{
     @Post()
     @UseGuards(AtGuard)
     @ApiBearerAuth()
-    @ApiResponse({status: HttpStatus.CREATED, description: "Todo created", type: TodoListEntity})
+    @ApiResponse({status: HttpStatus.CREATED, description: "Todo created", type: TodoEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
     @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Todo list not found"})
     async createTodo(@Req() req: any, @Body() createTodoDto: CreateTodoDto){
