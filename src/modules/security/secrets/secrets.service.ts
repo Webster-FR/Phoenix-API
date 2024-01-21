@@ -6,6 +6,7 @@ import {EncryptionService} from "../../../common/services/encryption.service";
 import {TodosService} from "../../todos/todos/todos.service";
 import {TodoListsService} from "../../todos/todo-lists/todo-lists.service";
 import {Prisma} from "@prisma/client/extension";
+import {AdminController} from "../../misc/admin/admin.controller";
 
 
 @Injectable()
@@ -22,11 +23,17 @@ export class SecretsService{
     ){}
 
     async runSecretsRotation(){
+        const maintenanceModeState = AdminController.isMaintenanceMode;
+        const maintenanceModeMessage = AdminController.maintenanceMessage;
+        AdminController.isMaintenanceMode = true;
+        AdminController.maintenanceMessage = "Rotating secrets...";
         const users: UserEntity[] = await this.usersService.findAll();
         const promises = [];
         for(const user of users)
             promises.push(this.rotateUserSecret(user));
         await Promise.all(promises);
+        AdminController.isMaintenanceMode = maintenanceModeState;
+        AdminController.maintenanceMessage = maintenanceModeMessage;
     }
 
     async rotateUserSecret(user: UserEntity){

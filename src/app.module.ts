@@ -18,7 +18,7 @@ import {GlobalTodosModule} from "./modules/todos/global-todos.module";
 import * as dotenv from "dotenv";
 import {ThrottlerGuard, ThrottlerModule} from "@nestjs/throttler";
 import {APP_GUARD} from "@nestjs/core";
-import {MaintenanceGuard} from "./modules/misc/maintenance/guards/maintenance.guard";
+import {MaintenanceGuard} from "./modules/misc/admin/guards/maintenance.guard";
 dotenv.config();
 
 @Module({

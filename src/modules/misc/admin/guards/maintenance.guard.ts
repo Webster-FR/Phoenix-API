@@ -1,5 +1,5 @@
 import {CanActivate, ExecutionContext, Injectable, ServiceUnavailableException} from "@nestjs/common";
-import {MaintenanceController} from "../maintenance.controller";
+import {AdminController} from "../admin.controller";
 import {Reflector} from "@nestjs/core";
 
 @Injectable()
@@ -16,8 +16,8 @@ export class MaintenanceGuard implements CanActivate{
         ]);
         if (isMaintenanceExcluded)
             return true;
-        if(MaintenanceController.isMaintenanceMode)
-            throw new ServiceUnavailableException(MaintenanceController.maintenanceMessage);
+        if(AdminController.isMaintenanceMode)
+            throw new ServiceUnavailableException(AdminController.maintenanceMessage);
         return true;
     }
 }
