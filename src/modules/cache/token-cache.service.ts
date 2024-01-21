@@ -5,11 +5,15 @@ import {UserEntity} from "../security/users/models/entities/user.entity";
 import {TokenEntity} from "../security/auth/models/entities/token.entity";
 import {RefreshTokenEntity} from "../security/auth/models/entities/refresh-token.entity";
 import {AccessTokenEntity} from "../security/auth/models/entities/access-token.entity";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class TokenCacheService{
 
+    private readonly tokenCacheTtl = parseInt(this.configService.get("TOKEN_CACHE_TTL"));
+
     constructor(
+        private readonly configService: ConfigService,
         @Inject(CACHE_MANAGER)
         private readonly cacheManager: Cache
     ){}
@@ -38,7 +42,7 @@ export class TokenCacheService{
 
     async setTokens(tokens: TokenEntity[], isRefresh: boolean){
         const key = isRefresh ? "refresh_tokens" : "access_tokens";
-        await this.cacheManager.set(key, tokens, 0);
+        await this.cacheManager.set(key, tokens, this.tokenCacheTtl);
     }
 
     async getTokenFromString(token: string, isRefresh: boolean): Promise<TokenEntity>{

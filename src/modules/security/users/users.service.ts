@@ -71,8 +71,10 @@ export class UsersService{
         for(const user of users){
             const decryptedUserSecret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
             const decryptedEmail = this.encryptionService.decryptSymmetric(user.email, decryptedUserSecret, this.usersEncryptionStrength);
-            if(decryptedEmail === email)
+            if(decryptedEmail === email){
+                await this.userCacheService.updateUser(user);
                 return this.decryptUserData(user);
+            }
         }
         if(exception)
             throw new NotFoundException("User not found");
