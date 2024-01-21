@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {ForbiddenException, Injectable, NotFoundException} from "@nestjs/common";
 import {JwtService} from "../../../common/services/jwt.service";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
@@ -22,7 +22,22 @@ export class TokensService{
         private readonly cacheService: TokenCacheService
     ){}
 
+    async maxSessionCheck(user: UserEntity){
+        const atCount = await this.prismaService.accessToken.count({
+            where: {
+                user_id: user.id,
+                blacklisted: false,
+                expires: {
+                    gt: new Date(),
+                },
+            },
+        });
+        if(atCount >= this.configService.get("MAX_SESSIONS"))
+            throw new ForbiddenException("Max sessions reached");
+    }
+
     async generateAccessToken(user: UserEntity, refreshTokenId: number = null): Promise<AccessTokenEntity>{
+        await this.maxSessionCheck(user);
         const payload = new AtPayloadModel(user.id, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
@@ -53,6 +68,7 @@ export class TokensService{
     }
 
     async generateRefreshToken(user: UserEntity): Promise<TokenPairModel>{
+        await this.maxSessionCheck(user);
         const payload = new RtPayloadModel(user.id, this.encryptionService.generateSecret());
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
