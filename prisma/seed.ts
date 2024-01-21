@@ -84,23 +84,7 @@ async function main(){
     await seedTransactions(prisma.internalTransactions, internalTransactions, true);
     console.log("✅  Internal transaction seed done ! (" + (Date.now() - start) + "ms)");
 
-    // console.log(
-    //     users,
-    //     todoLists,
-    //     todos,
-    //     tips,
-    //     banks,
-    //     accounts,
-    //     recurringTransactions,
-    //     transactionCategories,
-    //     ledgers,
-    //     incomeTransactions,
-    //     expenseTransactions,
-    //     internalTransactions
-    // );
-
-    const stop = Date.now();
-    console.log(`✅  Seeding completed ! (${stop - gStart}ms)`);
+    console.log(`\n✅  Seeding completed ! (${Date.now() - gStart}ms)`);
 }
 
 async function seed(table: any, data: any[]){

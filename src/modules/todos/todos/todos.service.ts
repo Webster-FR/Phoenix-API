@@ -93,8 +93,14 @@ export class TodosService{
     }
 
     async updateTodo(user: UserEntity, id: number, name: string, deadline: Date, completed: boolean){
-        if(!await this.isTodoExists(user, id))
+        const dbTodo = await this.prismaService.todos.findUnique({
+            where: {
+                id: id,
+            }
+        });
+        if(!dbTodo)
             throw new NotFoundException("Todo not found");
+        const changeNeeded = dbTodo.completed !== completed;
         const encryptedName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
         const todo: TodoEntity = await this.prismaService.todos.update({
             where: {
@@ -107,7 +113,8 @@ export class TodosService{
             }
         });
         todo.name = name;
-        await this.todoListCacheService.todoCompleted(user, todo.todo_list_id, completed);
+        if(changeNeeded)
+            await this.todoListCacheService.todoCompleted(user, todo.todo_list_id, completed);
         await this.todoCacheService.updateTodo(user.id, todo);
         return todo;
     }

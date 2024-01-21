@@ -9,6 +9,8 @@ export class UserEntity implements User{
     @ApiProperty()
         email: string;
     @ApiProperty()
+        email_sum: string;
+    @ApiProperty()
         password: string;
     @ApiProperty()
         secret: string;
