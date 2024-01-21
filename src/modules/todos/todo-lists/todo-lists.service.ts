@@ -129,15 +129,17 @@ export class TodoListsService{
     }
 
     async rotateEncryptionKey(tx: Prisma.TransactionClient, user: UserEntity, oldSecret: string, newSecret: string){
-        const todoLists: TodoListEntity[] = await tx.todoLists.findMany({
+        const todoLists: TodoListEntity[] = await this.prismaService.todoLists.findMany({
             where: {
                 user_id: user.id
             }
         });
+
+        const data = [];
         for(const todoList of todoLists){
             const decryptedName = this.encryptionService.decryptSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
             const encryptedName = this.encryptionService.encryptSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
-            await tx.todoLists.update({
+            data.push({
                 where: {
                     id: todoList.id
                 },
@@ -146,5 +148,22 @@ export class TodoListsService{
                 }
             });
         }
+        const promises = [];
+        for(const todoList of todoLists)
+            promises.push(this.rotateTodoList(tx, todoList, oldSecret, newSecret));
+        await Promise.all(promises);
+    }
+
+    private async rotateTodoList(tx: Prisma.TransactionClient, todoList: TodoListEntity, oldSecret: string, newSecret: string){
+        const decryptedName = this.encryptionService.decryptSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
+        const encryptedName = this.encryptionService.encryptSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
+        await tx.todoLists.update({
+            where: {
+                id: todoList.id
+            },
+            data: {
+                name: encryptedName
+            }
+        });
     }
 }
