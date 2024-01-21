@@ -72,8 +72,9 @@ export class UsersService{
             const decryptedUserSecret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
             const decryptedEmail = this.encryptionService.decryptSymmetric(user.email, decryptedUserSecret, this.usersEncryptionStrength);
             if(decryptedEmail === email){
-                await this.userCacheService.updateUser(user);
-                return this.decryptUserData(user);
+                const decryptedUser = this.decryptUserData(user);
+                await this.userCacheService.updateUser(decryptedUser);
+                return decryptedUser;
             }
         }
         if(exception)
