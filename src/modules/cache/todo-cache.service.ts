@@ -2,11 +2,15 @@ import {Inject, Injectable} from "@nestjs/common";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
 import {TodoEntity} from "../todos/todos/models/entities/todo.entity";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class TodoCacheService{
 
+    private readonly todoCacheTtl = parseInt(this.configService.get("TODO_CACHE_TTL"));
+
     constructor(
+        private readonly configService: ConfigService,
         @Inject(CACHE_MANAGER)
         private readonly cacheManager: Cache
     ){}
@@ -24,10 +28,10 @@ export class TodoCacheService{
     async setTodos(userId: number, todoListId: number, todos: TodoEntity[]){
         const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
-            await this.cacheManager.set(`todos_${userId}`, []);
+            await this.cacheManager.set(`todos_${userId}`, [], this.todoCacheTtl);
         const todoLists2: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         todoLists2[todoListId] = todos;
-        await this.cacheManager.set(`todos_${userId}`, todoLists2, 0);
+        await this.cacheManager.set(`todos_${userId}`, todoLists2, this.todoCacheTtl);
     }
 
     async addTodo(userId: number, todo: TodoEntity){
@@ -38,7 +42,7 @@ export class TodoCacheService{
         if(!todoList)
             return;
         todoList.push(todo);
-        await this.cacheManager.set(`todos_${userId}`, todoLists, 0);
+        await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
     }
 
     async removeTodo(userId: number, todoId: number){
@@ -51,7 +55,7 @@ export class TodoCacheService{
             for(const todo of todoList){
                 if(todo.id === todoId){
                     todoList.splice(todoList.indexOf(todo), 1);
-                    await this.cacheManager.set(`todos_${userId}`, todoLists, 0);
+                    await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
                     return;
                 }
             }
@@ -68,7 +72,7 @@ export class TodoCacheService{
             for(const todo of todoList){
                 if(todo.id === todoId){
                     todo.completed = completed;
-                    await this.cacheManager.set(`todos_${userId}`, todoLists);
+                    await this.cacheManager.set(`todos_${userId}`, this.todoCacheTtl);
                     return;
                 }
             }
@@ -86,7 +90,7 @@ export class TodoCacheService{
                 if(cachedTodo.id === todo.id){
                     cachedTodo.name = todo.name;
                     cachedTodo.deadline = todo.deadline;
-                    await this.cacheManager.set(`todos_${userId}`, todoLists, 0);
+                    await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
                     return;
                 }
             }
@@ -102,6 +106,6 @@ export class TodoCacheService{
             return;
         for(const todo of todoList)
             todo.completed = true;
-        await this.cacheManager.set(`todos_${userId}`, todoLists, 0);
+        await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
     }
 }
