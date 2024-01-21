@@ -29,6 +29,7 @@ export class UsersService{
     decryptUserData(user: UserEntity): UserEntity{
         user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         user.username = this.encryptionService.decryptSymmetric(user.username, user.secret, this.usersEncryptionStrength);
+        user.email = this.encryptionService.decryptSymmetric(user.email, user.secret, this.usersEncryptionStrength);
         return user;
     }
 
@@ -60,13 +61,23 @@ export class UsersService{
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
-        const user = await this.prismaService.user.findUnique({where: {email: email}});
-        if(!user)
+        const emailSum = this.encryptionService.getSum(email).substring(0, 10);
+        const users: UserEntity[] = await this.prismaService.user.findMany({where: {email_sum: emailSum}});
+        if(users.length === 0)
             if(exception)
                 throw new NotFoundException("User not found");
             else
                 return null;
-        return this.decryptUserData(user);
+        for(const user of users){
+            const decryptedUserSecret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+            const decryptedEmail = this.encryptionService.decryptSymmetric(user.email, decryptedUserSecret, this.usersEncryptionStrength);
+            if(decryptedEmail === email)
+                return this.decryptUserData(user);
+        }
+        if(exception)
+            throw new NotFoundException("User not found");
+        else
+            return null;
     }
 
     async createUser(username: string, email: string, password: string): Promise<UserEntity>{
@@ -77,10 +88,13 @@ export class UsersService{
         const userSecret = this.encryptionService.generateSecret();
         const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         const encryptedUsername = this.encryptionService.encryptSymmetric(username, userSecret, this.usersEncryptionStrength);
+        const encryptedEmail = this.encryptionService.encryptSymmetric(email, userSecret, this.usersEncryptionStrength);
+        const emailSum = this.encryptionService.getSum(email).substring(0, 10);
         const user: UserEntity = await this.prismaService.user.create({
             data: {
                 username: encryptedUsername,
-                email,
+                email: encryptedEmail,
+                email_sum: emailSum,
                 password: passwordHash,
                 secret: encryptedUserSecret,
             },

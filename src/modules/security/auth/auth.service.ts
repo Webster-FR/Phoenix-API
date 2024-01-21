@@ -27,16 +27,17 @@ export class AuthService{
     ){}
 
     async loginUser(email: string, password: string, keepLoggedIn: boolean): Promise<AtRtResponse | AtResponse>{
-        const user = await this.prismaService.user.findUnique({
-            include: {
-                verification_codes: true
-            },
-            where: {
-                email: email
-            }
-        });
+        let user: any = await this.usersService.findByEmail(email);
         if(!user)
             throw new NotFoundException("User not found");
+        user = await this.prismaService.user.findUnique({
+            where: {
+                id: user.id
+            },
+            include: {
+                verification_codes: true
+            }
+        });
         if(!await this.encryptionService.compareHash(user.password, password))
             throw new ForbiddenException("Invalid password");
         if(user.verification_codes){
