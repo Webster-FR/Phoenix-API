@@ -2,8 +2,9 @@
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "email_sum" TEXT NOT NULL,
     "secret" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -210,9 +211,6 @@ CREATE TABLE "income_transactions" (
 
     CONSTRAINT "income_transactions_pkey" PRIMARY KEY ("ulid")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "verification_codes_user_id_key" ON "verification_codes"("user_id");
