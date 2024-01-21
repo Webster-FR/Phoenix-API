@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
 import {TodoListsService} from "./todo-lists.service";
 import {AtGuard} from "../../security/auth/guards/at.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
@@ -52,7 +52,7 @@ export class TodoListsController{
         return await this.todoListsService.deleteTodoList(req.user, idDto.id);
     }
 
-    @Post("complete/:id")
+    @Patch("complete/:id")
     @UseGuards(AtGuard)
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo list completed"})
