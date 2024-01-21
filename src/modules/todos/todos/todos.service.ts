@@ -142,24 +142,29 @@ export class TodosService{
     }
 
     async rotateEncryptionKey(tx: Prisma.TransactionClient, user: UserEntity, oldKey: string, newKey: string){
-        const todos: TodoEntity[] = await tx.todos.findMany({
+        const todos: TodoEntity[] = await this.prismaService.todos.findMany({
             where: {
                 todo_list: {
                     user_id: user.id,
                 }
             }
         });
-        for(const todo of todos){
-            todo.name = this.encryptionService.decryptSymmetric(todo.name, oldKey, this.todosEncryptionStrength);
-            todo.name = this.encryptionService.encryptSymmetric(todo.name, newKey, this.todosEncryptionStrength);
-            await tx.todos.update({
-                where: {
-                    id: todo.id,
-                },
-                data: {
-                    name: todo.name,
-                }
-            });
-        }
+        const promises = [];
+        for(const todo of todos)
+            promises.push(this.rotateTodo(tx, todo, oldKey, newKey));
+        await Promise.all(promises);
+    }
+
+    private async rotateTodo(tx: Prisma.TransactionClient, todo: TodoEntity, oldKey: string, newKey: string){
+        todo.name = this.encryptionService.decryptSymmetric(todo.name, oldKey, this.todosEncryptionStrength);
+        todo.name = this.encryptionService.encryptSymmetric(todo.name, newKey, this.todosEncryptionStrength);
+        await tx.todos.update({
+            where: {
+                id: todo.id,
+            },
+            data: {
+                name: todo.name,
+            }
+        });
     }
 }
