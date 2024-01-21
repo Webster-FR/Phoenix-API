@@ -14,7 +14,9 @@ export class LoggerMiddleware implements NestMiddleware{
             const path = req.url;
             const statusCode = res.statusCode;
             const duration = Date.now() - startTime;
-            const resSize = res.getHeader("Content-Length") || "N/A";
+            // const resSize = res.getHeader("Content-Length") || "N/A";
+            const nRes = res as any;
+            const resSize = nRes._contentLength || "N/A";
             LoggerMiddleware.logger.log(`${httpOrHttps} ${method} ${path} ${statusCode} ${duration}ms ${resSize}`);
             LoggerMiddleware.requestTimeLogger(path, method, duration);
         });
