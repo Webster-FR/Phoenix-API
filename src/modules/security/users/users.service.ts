@@ -182,13 +182,15 @@ export class UsersService{
             throw new NotFoundException("User not found");
         const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
+        const encryptedEmail = this.encryptionService.encryptSymmetric(user.email, secret, this.usersEncryptionStrength);
         const dbUser = await tx.user.update({
             where: {
                 id: user.id
             },
             data: {
                 username: encryptedUsername,
-                secret: encryptedSecret
+                secret: encryptedSecret,
+                email: encryptedEmail,
             }
         });
         if(!dbUser)
