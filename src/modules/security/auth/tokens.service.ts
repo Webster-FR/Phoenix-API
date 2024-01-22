@@ -51,6 +51,7 @@ export class TokensService{
                 refresh_token_id: refreshTokenId,
             }
         });
+        aToken.token = token;
         await this.cacheService.addToken(aToken, false);
         return aToken;
     }
