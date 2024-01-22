@@ -148,10 +148,9 @@ export class TokensService{
             });
         }else{
             const at = dbToken as AccessTokenEntity;
-            const atSum = this.encryptionService.getSum(at.token).substring(0, 10);
             await this.prismaService.accessToken.update({
                 where: {
-                    sum: atSum,
+                    id: dbToken.id,
                 },
                 data: {
                     blacklisted: true,
