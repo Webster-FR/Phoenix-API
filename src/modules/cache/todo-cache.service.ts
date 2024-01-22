@@ -26,12 +26,11 @@ export class TodoCacheService{
     }
 
     async setTodos(userId: number, todoListId: number, todos: TodoEntity[]){
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+        let todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
-            await this.cacheManager.set(`todos_${userId}`, [], this.todoCacheTtl);
-        const todoLists2: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
-        todoLists2[todoListId] = todos;
-        await this.cacheManager.set(`todos_${userId}`, todoLists2, this.todoCacheTtl);
+            todoLists = [];
+        todoLists[todoListId] = todos;
+        await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
     }
 
     async addTodo(userId: number, todo: TodoEntity){
