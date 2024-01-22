@@ -65,13 +65,14 @@ export class TodoCacheService{
         const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return;
+        console.log(todoLists);
         for(const todoList of todoLists){
             if(!todoList)
                 continue;
             for(const todo of todoList){
                 if(todo.id === todoId){
                     todo.completed = completed;
-                    await this.cacheManager.set(`todos_${userId}`, this.todoCacheTtl);
+                    await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
                     return;
                 }
             }
