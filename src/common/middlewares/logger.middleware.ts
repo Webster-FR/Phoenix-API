@@ -11,6 +11,8 @@ export class LoggerMiddleware implements NestMiddleware{
         res.on("finish", () => {
             const httpOrHttps = req.connection.localPort.toString() === process.env.HTTPS_PORT ? "HTTPS" : "HTTP";
             const method = req.method;
+            if(method === "OPTIONS")
+                return;
             const path = req.url;
             const statusCode = res.statusCode;
             const duration = Date.now() - startTime;
