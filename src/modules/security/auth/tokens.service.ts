@@ -42,29 +42,17 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const aTokenValues: AccessTokenEntity = {
-            id: -1,
-            user_id: user.id,
-            sum: sum,
-            token: token,
-            blacklisted: false,
-            expires: new Date(expires * 1000),
-            refresh_token_id: refreshTokenId,
-        };
-        new Promise<void>(async(resolve) => {
-            await this.prismaService.accessToken.create({
-                data: {
-                    user_id: user.id,
-                    sum: sum,
-                    token: await this.encryptionService.hash(token, 10),
-                    expires: new Date(expires * 1000),
-                    refresh_token_id: refreshTokenId,
-                }
-            });
-            resolve();
+        const aToken: AccessTokenEntity = await this.prismaService.accessToken.create({
+            data: {
+                user_id: user.id,
+                sum: sum,
+                token: await this.encryptionService.hash(token, 10),
+                expires: new Date(expires * 1000),
+                refresh_token_id: refreshTokenId,
+            }
         });
-        await this.cacheService.addToken(aTokenValues, false);
-        return aTokenValues;
+        await this.cacheService.addToken(aToken, false);
+        return aToken;
     }
 
     async generateRefreshToken(user: UserEntity): Promise<TokenPairModel>{
