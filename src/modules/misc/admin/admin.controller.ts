@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller,
+    Controller, Get,
     HttpCode,
     HttpStatus,
     Post,
@@ -51,5 +51,13 @@ export class AdminController{
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid admin secret"})
     async runSecretRotation(): Promise<void>{
         await this.adminService.runSecretRotation();
+    }
+
+    @Get("/statistics")
+    @ApiBearerAuth()
+    @ApiResponse({status: HttpStatus.OK, description: "Statistics were fetched"})
+    @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid admin secret"})
+    async getStatistics(): Promise<string>{
+        return await this.adminService.getStatistics();
     }
 }
