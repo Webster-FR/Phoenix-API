@@ -8,9 +8,11 @@ import {SecretsModule} from "../security/secrets/secrets.module";
 import {TipsModule} from "../misc/tips/tips.module";
 import {TipsRandomizingTask} from "./tips-randomizing.task";
 import {AuthModule} from "../security/auth/auth.module";
+import {StatisticsTask} from "./statistics.task";
+import {StatisticsModule} from "../misc/statistics/statistics.module";
 
 @Module({
-    providers: [TokenCleanupTask, UserCleanupTask, SecretsRotationTask, TipsRandomizingTask],
-    imports: [ServicesModule, UsersModule, SecretsModule, TipsModule, AuthModule],
+    providers: [TokenCleanupTask, UserCleanupTask, SecretsRotationTask, TipsRandomizingTask, StatisticsTask],
+    imports: [ServicesModule, UsersModule, SecretsModule, TipsModule, AuthModule, StatisticsModule],
 })
 export class TasksModule{}
