@@ -1,5 +1,6 @@
 import {Injectable, Logger, NestMiddleware} from "@nestjs/common";
 import {FastifyReply, FastifyRequest} from "fastify";
+import {StatisticsService} from "../../modules/misc/statistics/statistics.service";
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware{
@@ -18,9 +19,11 @@ export class LoggerMiddleware implements NestMiddleware{
             const duration = Date.now() - startTime;
             // const resSize = res.getHeader("Content-Length") || "N/A";
             const nRes = res as any;
-            const resSize = nRes._contentLength || "N/A";
-            LoggerMiddleware.logger.log(`${httpOrHttps} ${method} ${path} ${statusCode} ${duration}ms ${resSize}`);
+            const resSize = nRes._contentLength || "-1";
+            const intResSize = parseInt(resSize);
+            LoggerMiddleware.logger.log(`${httpOrHttps} ${method} ${path} ${statusCode} ${duration}ms ${intResSize}`);
             LoggerMiddleware.requestTimeLogger(path, method, duration);
+            StatisticsService.onRequestSent(method, duration, intResSize);
         });
         next();
     }
