@@ -11,6 +11,63 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Statistics{
+  id Int @id @default(autoincrement())
+
+  global_request_count Int
+  get_global_request_count Int
+  post_global_request_count Int
+  put_global_request_count Int
+  patch_global_request_count Int
+  delete_global_request_count Int
+
+  global_response_time_average Float
+  get_global_response_time_average Float
+  post_global_response_time_average Float
+  put_global_response_time_average Float
+  patch_global_response_time_average Float
+  delete_global_response_time_average Float
+
+  global_response_time_max Float
+  get_global_response_time_max Float
+  post_global_response_time_max Float
+  put_global_response_time_max Float
+  patch_global_response_time_max Float
+  delete_global_response_time_max Float
+
+  global_response_time_min Float
+  get_global_response_time_min Float
+  post_global_response_time_min Float
+  put_global_response_time_min Float
+  patch_global_response_time_min Float
+  delete_global_response_time_min Float
+
+  global_content_length_average Float
+  get_global_content_length_average Float
+  post_global_content_length_average Float
+  put_global_content_length_average Float
+  patch_global_content_length_average Float
+  delete_global_content_length_average Float
+
+  global_content_length_max Float
+  get_global_content_length_max Float
+  post_global_content_length_max Float
+  put_global_content_length_max Float
+  patch_global_content_length_max Float
+  delete_global_content_length_max Float
+
+  global_content_length_min Float
+  get_global_content_length_min Float
+  post_global_content_length_min Float
+  put_global_content_length_min Float
+  patch_global_content_length_min Float
+  delete_global_content_length_min Float
+
+  created_at DateTime @default(now())
+
+  @@map("statistics")
+}
+
 model User {
   id                     Int                     @id @default(autoincrement())
   username               String
