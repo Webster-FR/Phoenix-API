@@ -27,11 +27,13 @@ export class SecretsService{
         const maintenanceModeMessage = AdminController.maintenanceMessage;
         AdminController.isMaintenanceMode = true;
         AdminController.maintenanceMessage = "Rotating secrets...";
+        const start = Date.now();
         const users: UserEntity[] = await this.usersService.findAll();
         const promises = [];
         for(const user of users)
             promises.push(this.rotateUserSecret(user));
         await Promise.all(promises);
+        this.logger.log(`Rotated ${users.length} users in ${Date.now() - start}ms`);
         AdminController.isMaintenanceMode = maintenanceModeState;
         AdminController.maintenanceMessage = maintenanceModeMessage;
     }
