@@ -39,5 +39,9 @@ export class ResponseTimeMinModel{
                     this.deleteResponseTimeMin = Math.min(this.deleteResponseTimeMin, responseTime);
                 break;
         }
+        if(this.globalResponseTimeMin === -1)
+            this.globalResponseTimeMin = responseTime;
+        else
+            this.globalResponseTimeMin = Math.min(this.globalResponseTimeMin, responseTime);
     }
 }
