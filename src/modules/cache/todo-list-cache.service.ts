@@ -92,7 +92,7 @@ export class TodoListCacheService{
         await this.cacheManager.set(`todos-${user.id}`, todoLists, this.todoListCacheTtl);
     }
 
-    async todoRemoved(user: UserEntity, todolistId: number){
+    async todoRemoved(user: UserEntity, todolistId: number, isCompleted: boolean){
         const todoLists: TodoListResponse[] = await this.getTodoLists(user);
         if(!todoLists)
             return;
@@ -101,6 +101,8 @@ export class TodoListCacheService{
             return;
         const todoList = todoLists[index];
         todoList.todo_count--;
+        if(isCompleted)
+            todoList.completed_todo_count--;
         await this.cacheManager.set(`todos-${user.id}`, todoLists, this.todoListCacheTtl);
     }
 

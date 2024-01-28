@@ -139,7 +139,12 @@ export class TodosService{
         if(!await this.isTodoExists(user, id))
             throw new NotFoundException("Todo not found");
         const todoList = await this.getTodoListFromTodo(user, id);
-        await this.todoListCacheService.todoRemoved(user, todoList.id);
+        const todo = await this.prismaService.todos.findUnique({
+            where: {
+                id: id
+            }
+        });
+        await this.todoListCacheService.todoRemoved(user, todoList.id, todo.completed);
         await this.prismaService.todos.delete({
             where: {
                 id: id,
