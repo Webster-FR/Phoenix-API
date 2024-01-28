@@ -21,6 +21,8 @@ export class LoggerMiddleware implements NestMiddleware{
             const nRes = res as any;
             const resSize = nRes._contentLength || "-1";
             const intResSize = parseInt(resSize);
+            if(path.includes("/api") || path.includes("/favicon.ico"))
+                return;
             LoggerMiddleware.logger.log(`${httpOrHttps} ${method} ${path} ${statusCode} ${duration}ms ${intResSize}`);
             LoggerMiddleware.requestTimeLogger(path, method, duration);
             StatisticsService.onRequestSent(method, duration, intResSize);
