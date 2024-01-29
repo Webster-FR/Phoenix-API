@@ -6,7 +6,7 @@ import {TodoListEntity} from "./models/entities/todolist.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
 import {TodoListResponse} from "./models/responses/todolist.response";
-import {TodoEntity} from "../todos/models/entities/todo.entity";
+import {TaskEntity} from "../todos/models/entities/task.entity";
 import {ConfigService} from "@nestjs/config";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
 import {TodoCacheService} from "../../cache/todo-cache.service";
@@ -39,7 +39,7 @@ export class TodoListsService{
     }
 
     async getTodoListInfo(user: UserEntity, todolist: TodoListEntity): Promise<TodoListResponse>{
-        const todos: TodoEntity[] = await this.prismaService.todos.findMany({
+        const todos: TaskEntity[] = await this.prismaService.tasks.findMany({
             where: {
                 todo_list_id: todolist.id
             }
@@ -121,7 +121,7 @@ export class TodoListsService{
     async completeTodoList(user: UserEntity, todolistId: number){
         if(!await this.isTodoListExists(user, todolistId))
             throw new NotFoundException("Todo list not found");
-        const {count} = await this.prismaService.todos.updateMany({
+        const {count} = await this.prismaService.tasks.updateMany({
             where: {
                 todo_list_id: todolistId
             },

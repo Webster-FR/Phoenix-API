@@ -26,7 +26,7 @@ export class UsersService{
         private readonly userCacheService: UserCacheService,
     ){}
 
-    decryptUserData(user: UserEntity): UserEntity{
+    decipherUserData(user: UserEntity): UserEntity{
         user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         user.username = this.encryptionService.decryptSymmetric(user.username, user.secret, this.usersEncryptionStrength);
         user.email = this.encryptionService.decryptSymmetric(user.email, user.secret, this.usersEncryptionStrength);
@@ -37,14 +37,14 @@ export class UsersService{
         let user: UserEntity = await this.userCacheService.getUserFromId(userId);
         if(user)
             return true;
-        user = await this.prismaService.user.findUnique({where: {id: userId}});
+        user = await this.prismaService.users.findUnique({where: {id: userId}});
         return !!user;
     }
 
     async findAll(): Promise<UserEntity[]>{
-        const users: UserEntity[] = await this.prismaService.user.findMany();
+        const users: UserEntity[] = await this.prismaService.users.findMany();
         for(const user of users)
-            this.decryptUserData(user);
+            this.decipherUserData(user);
         return users;
     }
 
@@ -52,29 +52,29 @@ export class UsersService{
         let user = await this.userCacheService.getUserFromId(userId);
         if(user)
             return user;
-        user = await this.prismaService.user.findUnique({where: {id: userId}});
+        user = await this.prismaService.users.findUnique({where: {id: userId}});
         if(!user && exception)
             throw new NotFoundException("User not found");
-        user = this.decryptUserData(user);
+        user = this.decipherUserData(user);
         await this.userCacheService.updateUser(user);
         return user;
     }
 
     async findByEmail(email: string, exception: boolean = true): Promise<UserEntity>{
         const emailSum = this.encryptionService.getSum(email).substring(0, 10);
-        const users: UserEntity[] = await this.prismaService.user.findMany({where: {email_sum: emailSum}});
+        const users: UserEntity[] = await this.prismaService.users.findMany({where: {email_sum: emailSum}});
         if(users.length === 0)
             if(exception)
                 throw new NotFoundException("User not found");
             else
                 return null;
         for(const user of users){
-            const decryptedUserSecret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-            const decryptedEmail = this.encryptionService.decryptSymmetric(user.email, decryptedUserSecret, this.usersEncryptionStrength);
-            if(decryptedEmail === email){
-                const decryptedUser = this.decryptUserData(user);
-                await this.userCacheService.updateUser(decryptedUser);
-                return decryptedUser;
+            const decipheredUserSecret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+            const decipheredEmail = this.encryptionService.decryptSymmetric(user.email, decipheredUserSecret, this.usersEncryptionStrength);
+            if(decipheredEmail === email){
+                const decipheredUser = this.decipherUserData(user);
+                await this.userCacheService.updateUser(decipheredUser);
+                return decipheredUser;
             }
         }
         if(exception)
@@ -89,33 +89,33 @@ export class UsersService{
             throw new ConflictException("Email already used");
         const passwordHash = await this.encryptionService.hash(password);
         const userSecret = this.encryptionService.generateSecret();
-        const encryptedUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-        const encryptedUsername = this.encryptionService.encryptSymmetric(username, userSecret, this.usersEncryptionStrength);
-        const encryptedEmail = this.encryptionService.encryptSymmetric(email, userSecret, this.usersEncryptionStrength);
+        const cipheredUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        const cipheredUsername = this.encryptionService.encryptSymmetric(username, userSecret, this.usersEncryptionStrength);
+        const cipheredEmail = this.encryptionService.encryptSymmetric(email, userSecret, this.usersEncryptionStrength);
         const emailSum = this.encryptionService.getSum(email).substring(0, 10);
-        const user: UserEntity = await this.prismaService.user.create({
+        const user: UserEntity = await this.prismaService.users.create({
             data: {
-                username: encryptedUsername,
-                email: encryptedEmail,
+                username: cipheredUsername,
+                email: cipheredEmail,
                 email_sum: emailSum,
                 password: passwordHash,
-                secret: encryptedUserSecret,
+                secret: cipheredUserSecret,
             },
         });
         await this.verificationCodeService.createCode(user, this.encryptionService.generateSecret());
-        return this.decryptUserData(user);
+        return this.decipherUserData(user);
     }
 
     async updateUsername(user: UserEntity, newUsername: string): Promise<UserEntity>{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
-        const encryptedUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret, this.usersEncryptionStrength);
-        const dbUser: UserEntity = await this.prismaService.user.update({
+        const cipheredUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret, this.usersEncryptionStrength);
+        const dbUser: UserEntity = await this.prismaService.users.update({
             where: {
                 id: user.id
             },
             data: {
-                username: encryptedUsername
+                username: cipheredUsername
             }
         });
         if(!dbUser)
@@ -135,7 +135,7 @@ export class UsersService{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
         const passwordHash = await this.encryptionService.hash(newPassword);
-        const dbUser: UserEntity = await this.prismaService.user.update({
+        const dbUser: UserEntity = await this.prismaService.users.update({
             where: {
                 id: user.id
             },
@@ -153,7 +153,7 @@ export class UsersService{
     async deleteUser(user: UserEntity): Promise<UserEntity>{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
-        const dbUser: UserEntity = await this.prismaService.user.delete({where: {id: user.id}});
+        const dbUser: UserEntity = await this.prismaService.users.delete({where: {id: user.id}});
         if(!dbUser)
             throw new NotFoundException("User not found");
         await this.userCacheService.deleteUser(user);
@@ -161,7 +161,7 @@ export class UsersService{
     }
 
     async deleteUnverifiedUsers(): Promise<number>{
-        const users = await this.prismaService.user.findMany({
+        const users = await this.prismaService.users.findMany({
             include: {
                 verification_codes: true,
             },
@@ -175,7 +175,7 @@ export class UsersService{
         for(const user of users)
             if(user.verification_codes)
                 usersToDelete.push(user);
-        const {count} = await this.prismaService.user.deleteMany({where: {id: {in: usersToDelete.map(user => user.id)}}});
+        const {count} = await this.prismaService.users.deleteMany({where: {id: {in: usersToDelete.map(user => user.id)}}});
         await this.userCacheService.deleteManyUsers(usersToDelete);
         return count;
     }
@@ -183,17 +183,17 @@ export class UsersService{
     async setUserSecret(tx: Prisma.TransactionClient, user: UserEntity, secret: string): Promise<UserEntity>{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
-        const encryptedSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-        const encryptedUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
-        const encryptedEmail = this.encryptionService.encryptSymmetric(user.email, secret, this.usersEncryptionStrength);
+        const cipheredSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        const cipheredUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
+        const cipheredEmail = this.encryptionService.encryptSymmetric(user.email, secret, this.usersEncryptionStrength);
         const dbUser = await tx.user.update({
             where: {
                 id: user.id
             },
             data: {
-                username: encryptedUsername,
-                secret: encryptedSecret,
-                email: encryptedEmail,
+                username: cipheredUsername,
+                secret: cipheredSecret,
+                email: cipheredEmail,
             }
         });
         if(!dbUser)
@@ -204,7 +204,7 @@ export class UsersService{
     }
 
     async countUsers(){
-        const count = await this.prismaService.user.count();
+        const count = await this.prismaService.users.count();
         return {
             count: count,
         };

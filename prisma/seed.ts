@@ -31,7 +31,7 @@ async function main(){
 
     let start = Date.now();
     const users = await usersFunction(userSecret);
-    await seed(prisma.user, users);
+    await seed(prisma.users, users);
     console.log("✅  User seed done ! (" + (Date.now() - start) + "ms)");
 
     start = Date.now();
@@ -41,7 +41,7 @@ async function main(){
 
     start = Date.now();
     const todos = todosFunction(userSecret);
-    await seed(prisma.todos, todos);
+    await seed(prisma.tasks, todos);
     console.log("✅  Todo seed done ! (" + (Date.now() - start) + "ms)");
 
     start = Date.now();

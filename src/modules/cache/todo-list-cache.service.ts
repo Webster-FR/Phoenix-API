@@ -80,7 +80,7 @@ export class TodoListCacheService{
         await this.cacheManager.set(`todos-${user.id}`, todoLists, this.todoListCacheTtl);
     }
 
-    async todoAdded(user: UserEntity, todolistId: number){
+    async taskAdded(user: UserEntity, todolistId: number){
         const todoLists: TodoListResponse[] = await this.getTodoLists(user);
         if(!todoLists)
             return;
@@ -92,7 +92,7 @@ export class TodoListCacheService{
         await this.cacheManager.set(`todos-${user.id}`, todoLists, this.todoListCacheTtl);
     }
 
-    async todoRemoved(user: UserEntity, todolistId: number, isCompleted: boolean){
+    async taskRemoved(user: UserEntity, todolistId: number, isCompleted: boolean){
         const todoLists: TodoListResponse[] = await this.getTodoLists(user);
         if(!todoLists)
             return;
@@ -106,7 +106,7 @@ export class TodoListCacheService{
         await this.cacheManager.set(`todos-${user.id}`, todoLists, this.todoListCacheTtl);
     }
 
-    async todoCompleted(user: UserEntity, todolistId: number, completed: boolean){
+    async taskCompleted(user: UserEntity, todolistId: number, completed: boolean){
         const todoLists: TodoListResponse[] = await this.getTodoLists(user);
         if(!todoLists)
             return;

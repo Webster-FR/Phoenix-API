@@ -1,6 +1,6 @@
-import {RefreshToken} from "@prisma/client";
+import {RefreshTokens} from "@prisma/client";
 
-export class RefreshTokenEntity implements RefreshToken{
+export class RefreshTokenEntity implements RefreshTokens{
     id: number;
     user_id: number;
     sum: string;

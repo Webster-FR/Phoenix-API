@@ -6,7 +6,7 @@ import {EncryptionService} from "../../../common/services/encryption.service";
 import {ConfigService} from "@nestjs/config";
 import {TodoCacheService} from "../../cache/todo-cache.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
-import {TodoEntity} from "./models/entities/todo.entity";
+import {TaskEntity} from "./models/entities/task.entity";
 import {TodoListsService} from "../todo-lists/todo-lists.service";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
 import {TodoListEntity} from "../todo-lists/models/entities/todolist.entity";
@@ -15,7 +15,7 @@ import {Prisma} from "@prisma/client/extension";
 @Injectable()
 export class TodosService{
 
-    private readonly todosEncryptionStrength = parseInt(this.configService.get("TODOS_ENCRYPTION_STRENGTH"));
+    private readonly tasksEncryptionStrength = parseInt(this.configService.get("TASKS_ENCRYPTION_STRENGTH"));
 
     constructor(
         private readonly prismaService: PrismaService,
@@ -26,13 +26,13 @@ export class TodosService{
         private readonly todoListCacheService: TodoListCacheService,
     ){}
 
-    decryptTodo(user: UserEntity, todo: TodoEntity){
-        todo.name = this.encryptionService.decryptSymmetric(todo.name, user.secret, this.todosEncryptionStrength);
-        return todo;
+    decipherTask(user: UserEntity, task: TaskEntity){
+        task.name = this.encryptionService.decryptSymmetric(task.name, user.secret, this.tasksEncryptionStrength);
+        return task;
     }
 
-    async getTodoListFromTodo(user: UserEntity, todoId: number): Promise<TodoListEntity>{
-        const todo = await this.prismaService.todos.findUnique({
+    async getTodoListFromTask(user: UserEntity, todoId: number): Promise<TodoListEntity>{
+        const task = await this.prismaService.tasks.findUnique({
             where: {
                 id: todoId,
             },
@@ -40,13 +40,15 @@ export class TodosService{
                 todo_list: true,
             }
         });
-        if(!todo)
+        if(!task)
             throw new NotFoundException("Todo not found");
-        return todo.todo_list;
+        if(task.todo_list.id !== user.id)
+            throw new NotFoundException("Todo list not found");
+        return task.todo_list;
     }
 
-    async isTodoExists(user: UserEntity, id: number){
-        return !!await this.prismaService.todos.findUnique({
+    async isTaskExists(user: UserEntity, id: number){
+        return !!await this.prismaService.tasks.findUnique({
             where: {
                 id: id,
                 todo_list: {
@@ -56,13 +58,13 @@ export class TodosService{
         });
     }
 
-    async getTodos(user: UserEntity, todoListId: number){
-        const cachedTodos = await this.todoCacheService.getTodos(user.id, todoListId);
-        if(cachedTodos)
-            return cachedTodos;
+    async getTasks(user: UserEntity, todoListId: number){
+        const cachedTasks = await this.todoCacheService.getTasks(user.id, todoListId);
+        if(cachedTasks)
+            return cachedTasks;
         if(!await this.todoListsService.isTodoListExists(user, todoListId))
             throw new NotFoundException("Todo list not found");
-        const todos: TodoEntity[] = await this.prismaService.todos.findMany({
+        const tasks: TaskEntity[] = await this.prismaService.tasks.findMany({
             where: {
                 todo_list_id: todoListId,
             },
@@ -70,59 +72,59 @@ export class TodosService{
                 id: "asc",
             }
         });
-        const decryptedTodos = await Promise.all(todos.map(todo => this.decryptTodo(user, todo)));
-        await this.todoCacheService.setTodos(user.id, todoListId, decryptedTodos);
-        return decryptedTodos;
+        const decipheredTasks = await Promise.all(tasks.map(task => this.decipherTask(user, task)));
+        await this.todoCacheService.setTasks(user.id, todoListId, decipheredTasks);
+        return decipheredTasks;
     }
 
-    async createTodo(user: UserEntity, name: string, todoListId: number, deadline: Date){
+    async createTask(user: UserEntity, name: string, todoListId: number, deadline: Date){
         if(!await this.todoListsService.isTodoListExists(user, todoListId))
             throw new NotFoundException("Todo list not found");
-        const encryptedName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
-        const todo: TodoEntity = await this.prismaService.todos.create({
+        const cipheredName = this.encryptionService.encryptSymmetric(name, user.secret, this.tasksEncryptionStrength);
+        const task: TaskEntity = await this.prismaService.tasks.create({
             data: {
-                name: encryptedName,
+                name: cipheredName,
                 todo_list_id: todoListId,
                 deadline: deadline,
             }
         });
-        todo.name = name;
-        await this.todoListCacheService.todoAdded(user, todoListId);
-        await this.todoCacheService.addTodo(user.id, todo);
-        return todo;
+        task.name = name;
+        await this.todoListCacheService.taskAdded(user, todoListId);
+        await this.todoCacheService.addTask(user.id, task);
+        return task;
     }
 
-    async updateTodo(user: UserEntity, id: number, name: string, deadline: Date, completed: boolean){
-        const dbTodo = await this.prismaService.todos.findUnique({
+    async updateTask(user: UserEntity, id: number, name: string, deadline: Date, completed: boolean){
+        const dbTask = await this.prismaService.tasks.findUnique({
             where: {
                 id: id,
             }
         });
-        if(!dbTodo)
-            throw new NotFoundException("Todo not found");
-        const changeNeeded = dbTodo.completed !== completed;
-        const encryptedName = this.encryptionService.encryptSymmetric(name, user.secret, this.todosEncryptionStrength);
-        const todo: TodoEntity = await this.prismaService.todos.update({
+        if(!dbTask)
+            throw new NotFoundException("Task not found");
+        const changeNeeded = dbTask.completed !== completed;
+        const cipheredName = this.encryptionService.encryptSymmetric(name, user.secret, this.tasksEncryptionStrength);
+        const task: TaskEntity = await this.prismaService.tasks.update({
             where: {
                 id: id,
             },
             data: {
-                name: encryptedName,
+                name: cipheredName,
                 deadline: deadline,
                 completed: completed,
             }
         });
-        todo.name = name;
+        task.name = name;
         if(changeNeeded)
-            await this.todoListCacheService.todoCompleted(user, todo.todo_list_id, completed);
-        await this.todoCacheService.updateTodo(user.id, todo);
-        return todo;
+            await this.todoListCacheService.taskCompleted(user, task.todo_list_id, completed);
+        await this.todoCacheService.updateTask(user.id, task);
+        return task;
     }
 
-    async completeTodo(user: UserEntity, id: number, completed: boolean): Promise<void>{
-        if(!await this.isTodoExists(user, id))
-            throw new NotFoundException("Todo not found");
-        await this.prismaService.todos.update({
+    async completeTask(user: UserEntity, id: number, completed: boolean): Promise<void>{
+        if(!await this.isTaskExists(user, id))
+            throw new NotFoundException("Task not found");
+        await this.prismaService.tasks.update({
             where: {
                 id: id,
             },
@@ -130,31 +132,31 @@ export class TodosService{
                 completed: completed,
             }
         });
-        const todoList = await this.getTodoListFromTodo(user, id);
-        await this.todoListCacheService.todoCompleted(user, todoList.id, completed);
-        await this.todoCacheService.completeTodo(user.id, id, completed);
+        const todoList = await this.getTodoListFromTask(user, id);
+        await this.todoListCacheService.taskCompleted(user, todoList.id, completed);
+        await this.todoCacheService.completeTask(user.id, id, completed);
     }
 
-    async deleteTodo(user: UserEntity, id: number){
-        if(!await this.isTodoExists(user, id))
-            throw new NotFoundException("Todo not found");
-        const todoList = await this.getTodoListFromTodo(user, id);
-        const todo = await this.prismaService.todos.findUnique({
+    async deleteTask(user: UserEntity, id: number){
+        if(!await this.isTaskExists(user, id))
+            throw new NotFoundException("Task not found");
+        const todoList = await this.getTodoListFromTask(user, id);
+        const task = await this.prismaService.tasks.findUnique({
             where: {
                 id: id
             }
         });
-        await this.todoListCacheService.todoRemoved(user, todoList.id, todo.completed);
-        await this.prismaService.todos.delete({
+        await this.todoListCacheService.taskRemoved(user, todoList.id, task.completed);
+        await this.prismaService.tasks.delete({
             where: {
                 id: id,
             }
         });
-        await this.todoCacheService.removeTodo(user.id, id);
+        await this.todoCacheService.removeTask(user.id, id);
     }
 
-    async rotateEncryptionKey(tx: Prisma.TransactionClient, user: UserEntity, oldKey: string, newKey: string){
-        const todos: TodoEntity[] = await this.prismaService.todos.findMany({
+    async rotateTasksCipher(tx: Prisma.TransactionClient, user: UserEntity, oldKey: string, newKey: string){
+        const tasks: TaskEntity[] = await this.prismaService.tasks.findMany({
             where: {
                 todo_list: {
                     user_id: user.id,
@@ -162,20 +164,20 @@ export class TodosService{
             }
         });
         const promises = [];
-        for(const todo of todos)
-            promises.push(this.rotateTodo(tx, todo, oldKey, newKey));
+        for(const task of tasks)
+            promises.push(this.rotateTaskCipher(tx, task, oldKey, newKey));
         await Promise.all(promises);
     }
 
-    private async rotateTodo(tx: Prisma.TransactionClient, todo: TodoEntity, oldKey: string, newKey: string){
-        todo.name = this.encryptionService.decryptSymmetric(todo.name, oldKey, this.todosEncryptionStrength);
-        todo.name = this.encryptionService.encryptSymmetric(todo.name, newKey, this.todosEncryptionStrength);
-        await tx.todos.update({
+    private async rotateTaskCipher(tx: Prisma.TransactionClient, task: TaskEntity, oldKey: string, newKey: string){
+        task.name = this.encryptionService.decryptSymmetric(task.name, oldKey, this.tasksEncryptionStrength);
+        task.name = this.encryptionService.encryptSymmetric(task.name, newKey, this.tasksEncryptionStrength);
+        await tx.tasks.update({
             where: {
-                id: todo.id,
+                id: task.id,
             },
             data: {
-                name: todo.name,
+                name: task.name,
             }
         });
     }

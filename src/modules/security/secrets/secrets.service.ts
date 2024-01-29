@@ -45,7 +45,7 @@ export class SecretsService{
         await this.prismaService.$transaction(async(tx: Prisma.TransactionClient) => {
             const promises = [];
             promises.push(this.todolistsService.rotateEncryptionKey(tx, user, secret, newSecret));
-            promises.push(this.todosService.rotateEncryptionKey(tx, user, secret, newSecret));
+            promises.push(this.todosService.rotateTasksCipher(tx, user, secret, newSecret));
             await Promise.all(promises);
             await this.usersService.setUserSecret(tx, user, newSecret);
         });

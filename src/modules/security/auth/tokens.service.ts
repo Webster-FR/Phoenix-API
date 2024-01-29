@@ -23,7 +23,7 @@ export class TokensService{
     ){}
 
     async maxSessionCheck(user: UserEntity){
-        const atCount = await this.prismaService.accessToken.count({
+        const atCount = await this.prismaService.accessTokens.count({
             where: {
                 user_id: user.id,
                 blacklisted: false,
@@ -42,7 +42,7 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("AT_DURATION"), this.configService.get("AT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const aToken: AccessTokenEntity = await this.prismaService.accessToken.create({
+        const aToken: AccessTokenEntity = await this.prismaService.accessTokens.create({
             data: {
                 user_id: user.id,
                 sum: sum,
@@ -62,7 +62,7 @@ export class TokensService{
         const token = this.jwtService.generateJWT({...payload}, this.configService.get("RT_DURATION"), this.configService.get("RT_KEY"));
         const expires = (<any>this.jwtService.decodeJwt(token)).exp;
         const sum = this.encryptionService.getSum(token).substring(0, 10);
-        const rToken: RefreshTokenEntity = await this.prismaService.refreshToken.create({
+        const rToken: RefreshTokenEntity = await this.prismaService.refreshTokens.create({
             data: {
                 user_id: user.id,
                 sum,
@@ -84,13 +84,13 @@ export class TokensService{
         const sum = this.encryptionService.getSum(token).substring(0, 10);
         let dbToken: TokenEntity;
         if(isRefresh){
-            dbToken = await this.prismaService.refreshToken.findFirst({
+            dbToken = await this.prismaService.refreshTokens.findFirst({
                 where: {
                     sum: sum,
                 }
             });
         }else{
-            dbToken = await this.prismaService.accessToken.findFirst({
+            dbToken = await this.prismaService.accessTokens.findFirst({
                 where: {
                     sum: sum,
                 }
@@ -119,7 +119,7 @@ export class TokensService{
             return false;
         if(isRefresh){
             const rt = dbToken as RefreshTokenEntity;
-            await this.prismaService.refreshToken.update({
+            await this.prismaService.refreshTokens.update({
                 where: {
                     id: rt.id,
                 },
@@ -127,7 +127,7 @@ export class TokensService{
                     blacklisted: true,
                 },
             });
-            await this.prismaService.accessToken.update({
+            await this.prismaService.accessTokens.update({
                 where: {
                     refresh_token_id: rt.id,
                 },
@@ -137,7 +137,7 @@ export class TokensService{
             });
         }else{
             const at = dbToken as AccessTokenEntity;
-            await this.prismaService.accessToken.update({
+            await this.prismaService.accessTokens.update({
                 where: {
                     id: dbToken.id,
                 },
@@ -146,7 +146,7 @@ export class TokensService{
                 },
             });
             if(at.refresh_token_id){
-                await this.prismaService.refreshToken.update({
+                await this.prismaService.refreshTokens.update({
                     where: {
                         id: at.refresh_token_id,
                     },
@@ -161,7 +161,7 @@ export class TokensService{
     }
 
     async blacklistUserTokens(user: UserEntity){
-        await this.prismaService.refreshToken.updateMany({
+        await this.prismaService.refreshTokens.updateMany({
             where: {
                 user_id: user.id,
             },
@@ -169,7 +169,7 @@ export class TokensService{
                 blacklisted: true,
             },
         });
-        await this.prismaService.accessToken.updateMany({
+        await this.prismaService.accessTokens.updateMany({
             where: {
                 user_id: user.id,
             },
@@ -181,14 +181,14 @@ export class TokensService{
     }
 
     async deleteExpiredTokens(){
-        const rRes = await this.prismaService.refreshToken.deleteMany({
+        const rRes = await this.prismaService.refreshTokens.deleteMany({
             where: {
                 expires: {
                     lt: new Date(),
                 },
             },
         });
-        const aRes = await this.prismaService.accessToken.deleteMany({
+        const aRes = await this.prismaService.accessTokens.deleteMany({
             where: {
                 expires: {
                     lt: new Date(),

@@ -1,7 +1,7 @@
-import {Todos} from "@prisma/client";
+import {Tasks} from "@prisma/client";
 import {ApiProperty} from "@nestjs/swagger";
 
-export class TodoEntity implements Todos{
+export class TaskEntity implements Tasks{
     @ApiProperty()
         id: number;
     @ApiProperty()

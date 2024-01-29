@@ -30,7 +30,7 @@ export class AuthService{
         let user: any = await this.usersService.findByEmail(email);
         if(!user)
             throw new NotFoundException("User not found");
-        user = await this.prismaService.user.findUnique({
+        user = await this.prismaService.users.findUnique({
             where: {
                 id: user.id
             },
