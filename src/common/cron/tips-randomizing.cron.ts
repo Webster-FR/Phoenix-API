@@ -4,9 +4,9 @@ import {TipsService} from "../../modules/misc/tips/tips.service";
 
 
 @Injectable()
-export class TipsRandomizingTask{
+export class TipsRandomizingCron{
 
-    private readonly logger = new Logger(TipsRandomizingTask.name);
+    private readonly logger = new Logger(TipsRandomizingCron.name);
 
     constructor(
         private readonly tipsService: TipsService,

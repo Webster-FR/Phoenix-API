@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {AuthModule} from "./modules/security/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
 import {ScheduleModule} from "@nestjs/schedule";
-import {TasksModule} from "./common/tasks/tasks.module";
+import {CronModule} from "./common/cron/cron.module";
 import {CacheModule} from "@nestjs/cache-manager";
 import {TokenCacheService} from "./modules/cache/token-cache.service";
 import {CacheModule as InternalCacheModule} from "./modules/cache/cache.module";
@@ -43,7 +43,7 @@ dotenv.config();
         }]),
         AuthModule,
         GlobalTasksModule,
-        TasksModule,
+        CronModule,
         InternalCacheModule,
         ServicesModule,
         MiscModule,

@@ -4,9 +4,9 @@ import {Cron} from "@nestjs/schedule";
 
 
 @Injectable()
-export class SecretsRotationTask{
+export class SecretsRotationCron{
 
-    private readonly logger = new Logger(SecretsRotationTask.name);
+    private readonly logger = new Logger(SecretsRotationCron.name);
 
     constructor(
         private readonly secretsService: SecretsService,

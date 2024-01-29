@@ -4,9 +4,9 @@ import {StatisticsService} from "../../modules/misc/statistics/statistics.servic
 
 
 @Injectable()
-export class StatisticsTask{
+export class StatisticsCron{
 
-    private readonly logger = new Logger(StatisticsTask.name);
+    private readonly logger = new Logger(StatisticsCron.name);
 
     constructor(
         private readonly statisticsService: StatisticsService,
