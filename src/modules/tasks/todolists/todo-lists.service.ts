@@ -1,7 +1,7 @@
 // noinspection TypeScriptValidateJSTypes
 
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {TodoListEntity} from "./models/entities/todolist.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
@@ -19,7 +19,7 @@ export class TodoListsService{
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly configService: ConfigService,
         private readonly todoListsCache: TodoListCacheService,
         private readonly todoCacheService: TodoCacheService,
@@ -35,7 +35,7 @@ export class TodoListsService{
     }
 
     async decryptTodoList(user: UserEntity, todoList: TodoListEntity){
-        todoList.name = this.encryptionService.decryptSymmetric(todoList.name, user.secret, this.todoListsEncryptionStrength);
+        todoList.name = this.encryptionService.decipherSymmetric(todoList.name, user.secret, this.todoListsEncryptionStrength);
     }
 
     async getTodoListInfo(user: UserEntity, todolist: TodoListEntity): Promise<TodoListResponse>{
@@ -72,7 +72,7 @@ export class TodoListsService{
     }
 
     async createTodoList(user: UserEntity, name: string, color: string, icon: string): Promise<TodoListResponse>{
-        const encryptedName = this.encryptionService.encryptSymmetric(name, user.secret, this.todoListsEncryptionStrength);
+        const encryptedName = this.encryptionService.cipherSymmetric(name, user.secret, this.todoListsEncryptionStrength);
         const todoList: TodoListEntity = await this.prismaService.todoLists.create({
             data: {
                 user_id: user.id,
@@ -90,7 +90,7 @@ export class TodoListsService{
     async updateTodoList(user: UserEntity, todolistId: number, name: string, color: string, icon: string): Promise<TodoListResponse>{
         if(!await this.isTodoListExists(user, todolistId))
             throw new NotFoundException("Todo list not found");
-        const encryptedName = this.encryptionService.encryptSymmetric(name, user.secret, this.todoListsEncryptionStrength);
+        const encryptedName = this.encryptionService.cipherSymmetric(name, user.secret, this.todoListsEncryptionStrength);
         const todoList: TodoListEntity = await this.prismaService.todoLists.update({
             where: {
                 id: todolistId
@@ -142,8 +142,8 @@ export class TodoListsService{
 
         const data = [];
         for(const todoList of todoLists){
-            const decryptedName = this.encryptionService.decryptSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
-            const encryptedName = this.encryptionService.encryptSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
+            const decryptedName = this.encryptionService.decipherSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
+            const encryptedName = this.encryptionService.cipherSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
             data.push({
                 where: {
                     id: todoList.id
@@ -160,8 +160,8 @@ export class TodoListsService{
     }
 
     private async rotateTodoList(tx: Prisma.TransactionClient, todoList: TodoListEntity, oldSecret: string, newSecret: string){
-        const decryptedName = this.encryptionService.decryptSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
-        const encryptedName = this.encryptionService.encryptSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
+        const decryptedName = this.encryptionService.decipherSymmetric(todoList.name, oldSecret, this.todoListsEncryptionStrength);
+        const encryptedName = this.encryptionService.cipherSymmetric(decryptedName, newSecret, this.todoListsEncryptionStrength);
         await tx.todoLists.update({
             where: {
                 id: todoList.id

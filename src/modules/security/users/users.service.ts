@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "./models/entities/user.entity";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {ConfigService} from "@nestjs/config";
 import {VerificationCodesService} from "../verification-codes/verification-codes.service";
 import {UserCacheService} from "../../cache/user-cache.service";
@@ -20,16 +20,16 @@ export class UsersService{
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly configService: ConfigService,
         private readonly verificationCodeService: VerificationCodesService,
         private readonly userCacheService: UserCacheService,
     ){}
 
     decipherUserData(user: UserEntity): UserEntity{
-        user.secret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-        user.username = this.encryptionService.decryptSymmetric(user.username, user.secret, this.usersEncryptionStrength);
-        user.email = this.encryptionService.decryptSymmetric(user.email, user.secret, this.usersEncryptionStrength);
+        user.secret = this.encryptionService.decipherSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        user.username = this.encryptionService.decipherSymmetric(user.username, user.secret, this.usersEncryptionStrength);
+        user.email = this.encryptionService.decipherSymmetric(user.email, user.secret, this.usersEncryptionStrength);
         return user;
     }
 
@@ -69,8 +69,8 @@ export class UsersService{
             else
                 return null;
         for(const user of users){
-            const decipheredUserSecret = this.encryptionService.decryptSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-            const decipheredEmail = this.encryptionService.decryptSymmetric(user.email, decipheredUserSecret, this.usersEncryptionStrength);
+            const decipheredUserSecret = this.encryptionService.decipherSymmetric(user.secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+            const decipheredEmail = this.encryptionService.decipherSymmetric(user.email, decipheredUserSecret, this.usersEncryptionStrength);
             if(decipheredEmail === email){
                 const decipheredUser = this.decipherUserData(user);
                 await this.userCacheService.updateUser(decipheredUser);
@@ -89,9 +89,9 @@ export class UsersService{
             throw new ConflictException("Email already used");
         const passwordHash = await this.encryptionService.hash(password);
         const userSecret = this.encryptionService.generateSecret();
-        const cipheredUserSecret = this.encryptionService.encryptSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-        const cipheredUsername = this.encryptionService.encryptSymmetric(username, userSecret, this.usersEncryptionStrength);
-        const cipheredEmail = this.encryptionService.encryptSymmetric(email, userSecret, this.usersEncryptionStrength);
+        const cipheredUserSecret = this.encryptionService.cipherSymmetric(userSecret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        const cipheredUsername = this.encryptionService.cipherSymmetric(username, userSecret, this.usersEncryptionStrength);
+        const cipheredEmail = this.encryptionService.cipherSymmetric(email, userSecret, this.usersEncryptionStrength);
         const emailSum = this.encryptionService.getSum(email).substring(0, 10);
         const user: UserEntity = await this.prismaService.users.create({
             data: {
@@ -109,7 +109,7 @@ export class UsersService{
     async updateUsername(user: UserEntity, newUsername: string): Promise<UserEntity>{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
-        const cipheredUsername = this.encryptionService.encryptSymmetric(newUsername, user.secret, this.usersEncryptionStrength);
+        const cipheredUsername = this.encryptionService.cipherSymmetric(newUsername, user.secret, this.usersEncryptionStrength);
         const dbUser: UserEntity = await this.prismaService.users.update({
             where: {
                 id: user.id
@@ -183,9 +183,9 @@ export class UsersService{
     async setUserSecret(tx: Prisma.TransactionClient, user: UserEntity, secret: string): Promise<UserEntity>{
         if(!await this.isUserExists(user.id))
             throw new NotFoundException("User not found");
-        const cipheredSecret = this.encryptionService.encryptSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
-        const cipheredUsername = this.encryptionService.encryptSymmetric(user.username, secret, this.usersEncryptionStrength);
-        const cipheredEmail = this.encryptionService.encryptSymmetric(user.email, secret, this.usersEncryptionStrength);
+        const cipheredSecret = this.encryptionService.cipherSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
+        const cipheredUsername = this.encryptionService.cipherSymmetric(user.username, secret, this.usersEncryptionStrength);
+        const cipheredEmail = this.encryptionService.cipherSymmetric(user.email, secret, this.usersEncryptionStrength);
         const dbUser = await tx.user.update({
             where: {
                 id: user.id

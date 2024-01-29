@@ -5,7 +5,7 @@ import {AuthService} from "../auth/auth.service";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {RecoveryCodeEntity} from "./models/entities/recovery-code.entity";
 
 @Injectable()
@@ -17,7 +17,7 @@ export class PasswordRecoveryService{
         private readonly authService: AuthService,
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
     ){}
 
     checkCode(verificationCode: RecoveryCodeEntity, code: string): boolean{

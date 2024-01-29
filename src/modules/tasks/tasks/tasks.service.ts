@@ -2,7 +2,7 @@
 
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {ConfigService} from "@nestjs/config";
 import {TodoCacheService} from "../../cache/todo-cache.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
@@ -19,7 +19,7 @@ export class TasksService{
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly configService: ConfigService,
         private readonly todoCacheService: TodoCacheService,
         private readonly todoListsService: TodoListsService,
@@ -27,7 +27,7 @@ export class TasksService{
     ){}
 
     decipherTask(user: UserEntity, task: TaskEntity){
-        task.name = this.encryptionService.decryptSymmetric(task.name, user.secret, this.tasksEncryptionStrength);
+        task.name = this.encryptionService.decipherSymmetric(task.name, user.secret, this.tasksEncryptionStrength);
         return task;
     }
 
@@ -80,7 +80,7 @@ export class TasksService{
     async createTask(user: UserEntity, name: string, todoListId: number, deadline: Date){
         if(!await this.todoListsService.isTodoListExists(user, todoListId))
             throw new NotFoundException("Todo list not found");
-        const cipheredName = this.encryptionService.encryptSymmetric(name, user.secret, this.tasksEncryptionStrength);
+        const cipheredName = this.encryptionService.cipherSymmetric(name, user.secret, this.tasksEncryptionStrength);
         const task: TaskEntity = await this.prismaService.tasks.create({
             data: {
                 name: cipheredName,
@@ -103,7 +103,7 @@ export class TasksService{
         if(!dbTask)
             throw new NotFoundException("Task not found");
         const changeNeeded = dbTask.completed !== completed;
-        const cipheredName = this.encryptionService.encryptSymmetric(name, user.secret, this.tasksEncryptionStrength);
+        const cipheredName = this.encryptionService.cipherSymmetric(name, user.secret, this.tasksEncryptionStrength);
         const task: TaskEntity = await this.prismaService.tasks.update({
             where: {
                 id: id,
@@ -170,8 +170,8 @@ export class TasksService{
     }
 
     private async rotateTaskCipher(tx: Prisma.TransactionClient, task: TaskEntity, oldKey: string, newKey: string){
-        task.name = this.encryptionService.decryptSymmetric(task.name, oldKey, this.tasksEncryptionStrength);
-        task.name = this.encryptionService.encryptSymmetric(task.name, newKey, this.tasksEncryptionStrength);
+        task.name = this.encryptionService.decipherSymmetric(task.name, oldKey, this.tasksEncryptionStrength);
+        task.name = this.encryptionService.cipherSymmetric(task.name, newKey, this.tasksEncryptionStrength);
         await tx.tasks.update({
             where: {
                 id: task.id,

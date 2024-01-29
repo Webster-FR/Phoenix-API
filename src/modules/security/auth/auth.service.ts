@@ -4,7 +4,7 @@ import {
     Injectable, InternalServerErrorException,
     NotFoundException, PreconditionFailedException
 } from "@nestjs/common";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {AtRtResponse} from "./models/responses/atrt.response";
 import {TokensService} from "./tokens.service";
 import {AtResponse} from "./models/responses/at.response";
@@ -18,7 +18,7 @@ import {VerificationCodeEntity} from "../verification-codes/models/entities/veri
 @Injectable()
 export class AuthService{
     constructor(
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly tokensService: TokensService,
         private readonly emailService: EmailService,
         private readonly usersService: UsersService,

@@ -1,5 +1,5 @@
 import {Test, TestingModule} from "@nestjs/testing";
-import {EncryptionService} from "./encryption.service";
+import {CipherService} from "./cipher.service";
 import * as dotenv from "dotenv";
 import {AssertionError} from "node:assert";
 import * as crypto from "crypto";
@@ -7,14 +7,14 @@ import * as crypto from "crypto";
 dotenv.config({path: ".env.ci"});
 
 describe("EncryptionService", () => {
-    let service: EncryptionService;
+    let service: CipherService;
 
     beforeEach(async() => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [EncryptionService],
+            providers: [CipherService],
         }).compile();
 
-        service = module.get<EncryptionService>(EncryptionService);
+        service = module.get<CipherService>(CipherService);
     });
 
     it("should be defined", () => {
@@ -80,47 +80,47 @@ describe("EncryptionService", () => {
     const encryptCost = 10000;
     describe("Symmetric encryption tests", () => {
         it("Encrypt content", () => {
-            const encrypted = service.encryptSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const encrypted = service.cipherSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const decrypted = service.decipherSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(content.length);
             expect(decrypted).toBe(content);
         });
         it("Decrypt symmetric with wrong key", () => {
-            const encrypted = service.encryptSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
-            expect(() => service.decryptSymmetric(encrypted, "wrong_key", encryptCost)).toThrow(Error);
+            const encrypted = service.cipherSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            expect(() => service.decipherSymmetric(encrypted, "wrong_key", encryptCost)).toThrow(Error);
         });
         it("Encrypt symmetric with negative time cost", () => {
-            expect(() => service.encryptSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, -1)).toThrow("The value of \"iterations\" is out of range. It must be >= 1 && <= 2147483647. Received -1");
+            expect(() => service.cipherSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, -1)).toThrow("The value of \"iterations\" is out of range. It must be >= 1 && <= 2147483647. Received -1");
         });
         it("Decrypt symmetric with negative time cost", () => {
-            const encrypted = service.encryptSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
-            expect(() => service.decryptSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, -1)).toThrow("The value of \"iterations\" is out of range. It must be >= 1 && <= 2147483647. Received -1");
+            const encrypted = service.cipherSymmetric(content, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            expect(() => service.decipherSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, -1)).toThrow("The value of \"iterations\" is out of range. It must be >= 1 && <= 2147483647. Received -1");
         });
         it("Encrypt content with empty content", () => {
-            const encrypted = service.encryptSymmetric("", process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const encrypted = service.cipherSymmetric("", process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof encrypted).toBe("string");
             expect(encrypted.length).toBe(195);
-            const decrypted = service.decryptSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const decrypted = service.decipherSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(0);
             expect(decrypted).toBe("");
         });
         it("Encrypt content with null content", () => {
-            const encrypted = service.encryptSymmetric(null, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const encrypted = service.cipherSymmetric(null, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof encrypted).toBe("string");
             expect(encrypted.length).toBe(195);
-            const decrypted = service.decryptSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const decrypted = service.decipherSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(0);
             expect(decrypted).toBe("");
         });
         it("Encrypt content with undefined content", () => {
-            const encrypted = service.encryptSymmetric(undefined, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const encrypted = service.cipherSymmetric(undefined, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof encrypted).toBe("string");
             expect(encrypted.length).toBe(195);
-            const decrypted = service.decryptSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
+            const decrypted = service.decipherSymmetric(encrypted, process.env.SYMMETRIC_ENCRYPTION_KEY, encryptCost);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(0);
             expect(decrypted).toBe("");
@@ -165,107 +165,107 @@ describe("EncryptionService", () => {
             expect(() => service.generateKeyPair(-1, process.env.ASYMMETRIC_ENCRYPTION_KEY)).toThrow("The value of \"options.modulusLength\" is out of range. It must be >= 0 && <= 4294967295. Received -1");
         });
         it("Encrypt content", async() => {
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(content.length);
             expect(decrypted).toBe(content);
         });
         it("Decrypt asymmetric with wrong key", async() => {
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
-            expect(() => service.decryptAsymmetric(encrypted, "wrong_key")).toThrow("error:1E08010C:DECODER routines::unsupported");
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
+            expect(() => service.decipherAsymmetric(encrypted, "wrong_key")).toThrow("error:1E08010C:DECODER routines::unsupported");
         });
         it("Encrypt content with empty content", async() => {
-            const encrypted = service.encryptAsymmetric("", keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric("", keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(0);
             expect(decrypted).toBe("");
         });
         it("Encrypt content with null content", async() => {
-            const encrypted = service.encryptAsymmetric(null, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(null, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(0);
             expect(decrypted).toBe("");
         });
         it("Encrypt content with undefined content", async() => {
-            const encrypted = service.encryptAsymmetric(undefined, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(undefined, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(0);
             expect(decrypted).toBe("");
         });
         it("Encrypt content with private encryption key", async() => {
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey, process.env.ASYMMETRIC_ENCRYPTION_KEY);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey, process.env.ASYMMETRIC_ENCRYPTION_KEY);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(content.length);
             expect(decrypted).toBe(content);
         });
         it("Encrypt content with null encryption key", async() => {
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey, null);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey, null);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(content.length);
             expect(decrypted).toBe(content);
         });
         it("Encrypt content with undefined encryption key", async() => {
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey, undefined);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey, undefined);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(content.length);
             expect(decrypted).toBe(content);
         });
         it("Encrypt content with encryption key and encrypted private key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            const decrypted = service.decryptAsymmetric(encrypted, keyPair.privateKey, process.env.ASYMMETRIC_ENCRYPTION_KEY);
+            const decrypted = service.decipherAsymmetric(encrypted, keyPair.privateKey, process.env.ASYMMETRIC_ENCRYPTION_KEY);
             expect(typeof decrypted).toBe("string");
             expect(decrypted.length).toBe(content.length);
             expect(decrypted).toBe(content);
         });
         it("Decrypt asymmetric with wrong encrypted private key and correct private encryption key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
-            expect(() => service.decryptAsymmetric(encrypted, "wrong_key", process.env.ASYMMETRIC_ENCRYPTION_KEY)).toThrow("error:1E08010C:DECODER routines::unsupported");
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
+            expect(() => service.decipherAsymmetric(encrypted, "wrong_key", process.env.ASYMMETRIC_ENCRYPTION_KEY)).toThrow("error:1E08010C:DECODER routines::unsupported");
         });
         it("Encrypt content with no private encryption key and encrypted private key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            expect(() => service.decryptAsymmetric(encrypted, keyPair.privateKey)).toThrow("error:07880109:common libcrypto routines::interrupted or cancelled");
+            expect(() => service.decipherAsymmetric(encrypted, keyPair.privateKey)).toThrow("error:07880109:common libcrypto routines::interrupted or cancelled");
         });
         it("Encrypt content with null private encryption key and encrypted private key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            expect(() => service.decryptAsymmetric(encrypted, keyPair.privateKey, null)).toThrow("error:07880109:common libcrypto routines::interrupted or cancelled");
+            expect(() => service.decipherAsymmetric(encrypted, keyPair.privateKey, null)).toThrow("error:07880109:common libcrypto routines::interrupted or cancelled");
         });
         it("Encrypt content with undefined private encryption key and encrypted private key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            expect(() => service.decryptAsymmetric(encrypted, keyPair.privateKey, undefined)).toThrow("error:07880109:common libcrypto routines::interrupted or cancelled");
+            expect(() => service.decipherAsymmetric(encrypted, keyPair.privateKey, undefined)).toThrow("error:07880109:common libcrypto routines::interrupted or cancelled");
         });
         it("Encrypt content with wrong private encryption key and encrypted private key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
             expect(typeof encrypted).toBe("string");
-            expect(() => service.decryptAsymmetric(encrypted, keyPair.privateKey, "invalid_key")).toThrow("error:1C800064:Provider routines::bad decrypt");
+            expect(() => service.decipherAsymmetric(encrypted, keyPair.privateKey, "invalid_key")).toThrow("error:1C800064:Provider routines::bad decrypt");
         });
         it("Decrypt asymmetric with wrong encrypted private key", async() => {
             keyPair = service.generateKeyPair(1024, process.env.ASYMMETRIC_ENCRYPTION_KEY);
-            const encrypted = service.encryptAsymmetric(content, keyPair.publicKey);
-            expect(() => service.decryptAsymmetric(encrypted, keyPair.privateKey, "wrong_key")).toThrow("error:1C800064:Provider routines::bad decrypt");
+            const encrypted = service.cipherAsymmetric(content, keyPair.publicKey);
+            expect(() => service.decipherAsymmetric(encrypted, keyPair.privateKey, "wrong_key")).toThrow("error:1C800064:Provider routines::bad decrypt");
         });
     });
 });

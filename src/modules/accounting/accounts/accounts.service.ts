@@ -2,7 +2,7 @@ import {ConflictException, forwardRef, Inject, Injectable, NotFoundException} fr
 import {PrismaService} from "../../../common/services/prisma.service";
 import {AccountEntity} from "./models/entities/account.entity";
 import {UsersService} from "../../security/users/users.service";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {EncryptedAccountEntity} from "./models/entities/encrypted-account.entity";
 import {BanksService} from "../banks/banks.service";
 import {ConfigService} from "@nestjs/config";
@@ -17,7 +17,7 @@ export class AccountsService{
     constructor(
         private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly banksService: BanksService,
         private readonly configService: ConfigService,
         @Inject(forwardRef(() => TransactionsService))
@@ -43,8 +43,8 @@ export class AccountsService{
         for(const account of accounts){
             decryptedAccounts.push({
                 id: account.id,
-                name: this.encryptionService.decryptSymmetric(account.name, user.secret, this.accountsEncryptionStrength),
-                amount: parseFloat(this.encryptionService.decryptSymmetric(account.amount, user.secret, this.accountsEncryptionStrength)),
+                name: this.encryptionService.decipherSymmetric(account.name, user.secret, this.accountsEncryptionStrength),
+                amount: parseFloat(this.encryptionService.decipherSymmetric(account.amount, user.secret, this.accountsEncryptionStrength)),
                 bank_id: account.bank_id,
                 user_id: account.user_id,
             });
@@ -63,8 +63,8 @@ export class AccountsService{
         const user = await this.usersService.findById(account.user_id);
         return {
             id: account.id,
-            name: this.encryptionService.decryptSymmetric(account.name, user.secret, this.accountsEncryptionStrength),
-            amount: parseFloat(this.encryptionService.decryptSymmetric(account.amount, user.secret, this.accountsEncryptionStrength)),
+            name: this.encryptionService.decipherSymmetric(account.name, user.secret, this.accountsEncryptionStrength),
+            amount: parseFloat(this.encryptionService.decipherSymmetric(account.amount, user.secret, this.accountsEncryptionStrength)),
             bank_id: account.bank_id,
             user_id: account.user_id,
         };
@@ -78,10 +78,10 @@ export class AccountsService{
         for(const account of accounts)
             if(account.bank_id === bankId && account.name === name)
                 throw new ConflictException("Account already exists");
-        const encryptedAmount = this.encryptionService.encryptSymmetric("0", user.secret, this.accountsEncryptionStrength);
+        const encryptedAmount = this.encryptionService.cipherSymmetric("0", user.secret, this.accountsEncryptionStrength);
         const account: EncryptedAccountEntity = await this.prismaService.accounts.create({
             data: {
-                name: this.encryptionService.encryptSymmetric(name, user.secret, this.accountsEncryptionStrength),
+                name: this.encryptionService.cipherSymmetric(name, user.secret, this.accountsEncryptionStrength),
                 amount: encryptedAmount,
                 bank_id: bankId,
                 user_id: user.id,
@@ -110,7 +110,7 @@ export class AccountsService{
                 id: accountId,
             },
             data: {
-                name: this.encryptionService.encryptSymmetric(name, user.secret, this.accountsEncryptionStrength),
+                name: this.encryptionService.cipherSymmetric(name, user.secret, this.accountsEncryptionStrength),
             }
         });
         account.name = name;
@@ -138,7 +138,7 @@ export class AccountsService{
                 id: account.id,
             },
             data: {
-                amount: this.encryptionService.encryptSymmetric(newAmount.toString(), user.secret, this.accountsEncryptionStrength),
+                amount: this.encryptionService.cipherSymmetric(newAmount.toString(), user.secret, this.accountsEncryptionStrength),
             }
         });
     }

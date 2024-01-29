@@ -1,6 +1,6 @@
 import {BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {LedgersService} from "../ledgers/ledgers.service";
 import {ConfigService} from "@nestjs/config";
 import {UsersService} from "../../security/users/users.service";
@@ -19,7 +19,7 @@ export class TransactionsService{
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly ledgersService: LedgersService,
         private readonly configService: ConfigService,
         private readonly usersService: UsersService,
@@ -29,13 +29,13 @@ export class TransactionsService{
     ){}
 
     decryptTransaction(transaction: Transaction, userSecret: string): Transaction{
-        transaction.wording = this.encryptionService.decryptSymmetric(transaction.wording, userSecret, this.transactionsEncryptionStrength);
+        transaction.wording = this.encryptionService.decipherSymmetric(transaction.wording, userSecret, this.transactionsEncryptionStrength);
         return transaction;
     }
 
     decryptFutureTransaction(transaction: EncryptedFutureTransactionEntity, userSecret: string): FutureTransactionEntity{
-        transaction.wording = this.encryptionService.decryptSymmetric(transaction.wording, userSecret, this.transactionsEncryptionStrength);
-        const amount = parseFloat(this.encryptionService.decryptSymmetric(transaction.amount, userSecret, this.transactionsEncryptionStrength));
+        transaction.wording = this.encryptionService.decipherSymmetric(transaction.wording, userSecret, this.transactionsEncryptionStrength);
+        const amount = parseFloat(this.encryptionService.decipherSymmetric(transaction.amount, userSecret, this.transactionsEncryptionStrength));
         return new FutureTransactionEntity(transaction, amount);
     }
 
@@ -197,7 +197,7 @@ export class TransactionsService{
             throw new BadRequestException("Can't create internal transaction for amount <= 0");
         const fromLedger = await this.ledgersService.createLedger(fromAccountId, -amount);
         const toLedger = await this.ledgersService.createLedger(toAccountId, amount);
-        const encryptedWording = this.encryptionService.encryptSymmetric(wording, userSecret, this.transactionsEncryptionStrength);
+        const encryptedWording = this.encryptionService.cipherSymmetric(wording, userSecret, this.transactionsEncryptionStrength);
         const transaction: InternalTransactionEntity = await this.prismaService.internalTransactions.create({
             data: {
                 ulid: ulid(),
@@ -222,7 +222,7 @@ export class TransactionsService{
     async createOtherTransaction(wording: string, userSecret: string, accountId: number, amount: number, categoryId: number, createdAt?: Date){
         const ledger = await this.ledgersService.createLedger(accountId, amount);
         const table: any = amount < 0 ? this.prismaService.expenseTransactions : this.prismaService.incomeTransactions;
-        const encryptedWording = this.encryptionService.encryptSymmetric(wording, userSecret, this.transactionsEncryptionStrength);
+        const encryptedWording = this.encryptionService.cipherSymmetric(wording, userSecret, this.transactionsEncryptionStrength);
         const transaction: ExpenseTransactionEntity = await table.create({
             data: {
                 ulid: ulid(),
@@ -270,8 +270,8 @@ export class TransactionsService{
                 transactionType = "income";
             else
                 throw new BadRequestException("Can't create transaction without from or to account");
-            const encryptedWording = this.encryptionService.encryptSymmetric(wording, user.secret, this.transactionsEncryptionStrength);
-            const encryptedAmount = this.encryptionService.encryptSymmetric(amount.toString(), user.secret, this.transactionsEncryptionStrength);
+            const encryptedWording = this.encryptionService.cipherSymmetric(wording, user.secret, this.transactionsEncryptionStrength);
+            const encryptedAmount = this.encryptionService.cipherSymmetric(amount.toString(), user.secret, this.transactionsEncryptionStrength);
             const futureTransaction: EncryptedFutureTransactionEntity = await this.prismaService.futureTransactions.create({
                 data: {
                     wording: encryptedWording,

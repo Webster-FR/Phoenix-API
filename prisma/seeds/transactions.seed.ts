@@ -1,10 +1,10 @@
-import {EncryptionService} from "../../src/common/services/encryption.service";
+import {CipherService} from "../../src/common/services/cipher.service";
 import {ulid} from "ulid";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const encryptionService = new EncryptionService();
+const encryptionService = new CipherService();
 const transactionsEncryptionStrength = parseInt(process.env.TRANSACTIONS_ENCRYPTION_STRENGTH);
 
 const ulids = [
@@ -23,7 +23,7 @@ export function incomeTransactionsFunction(userSecret: string){
     return [
         {
             ulid: ulids[0],
-            wording: encryptionService.encryptSymmetric("Income 1", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Income 1", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             internal_ledger_id: 1,
             rectification_ulid: null,
@@ -31,7 +31,7 @@ export function incomeTransactionsFunction(userSecret: string){
         },
         {
             ulid: ulids[1],
-            wording: encryptionService.encryptSymmetric("Income 2", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Income 2", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             internal_ledger_id: 2,
             rectification_ulid: null,
@@ -47,7 +47,7 @@ export function incomeTransactionsFunction(userSecret: string){
         },
         {
             ulid: ulids[2],
-            wording: encryptionService.encryptSymmetric("Income 3", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Income 3", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             internal_ledger_id: 4,
             rectification_ulid: null,
@@ -76,7 +76,7 @@ export function expenseTransactionsFunction(userSecret: string){
     return [
         {
             ulid: ulids[3],
-            wording: encryptionService.encryptSymmetric("Expense 1", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Expense 1", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             internal_ledger_id: 7,
             rectification_ulid: null,
@@ -84,7 +84,7 @@ export function expenseTransactionsFunction(userSecret: string){
         },
         {
             ulid: ulids[4],
-            wording: encryptionService.encryptSymmetric("Expense 2", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Expense 2", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             internal_ledger_id: 8,
             rectification_ulid: null,
@@ -100,7 +100,7 @@ export function expenseTransactionsFunction(userSecret: string){
         },
         {
             ulid: ulids[5],
-            wording: encryptionService.encryptSymmetric("Expense 3", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Expense 3", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             internal_ledger_id: 10,
             rectification_ulid: null,
@@ -129,7 +129,7 @@ export function internalTransactionsFunction(userSecret: string){
     return [
         {
             ulid: ulids[6],
-            wording: encryptionService.encryptSymmetric("Internal 1", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Internal 1", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             debit_internal_ledger_id: 13,
             credit_internal_ledger_id: 14,
@@ -138,7 +138,7 @@ export function internalTransactionsFunction(userSecret: string){
         },
         {
             ulid: ulids[7],
-            wording: encryptionService.encryptSymmetric("Internal 2", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Internal 2", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             debit_internal_ledger_id: 15,
             credit_internal_ledger_id: 16,
@@ -156,7 +156,7 @@ export function internalTransactionsFunction(userSecret: string){
         },
         {
             ulid: ulids[8],
-            wording: encryptionService.encryptSymmetric("Internal 3", userSecret, transactionsEncryptionStrength),
+            wording: encryptionService.cipherSymmetric("Internal 3", userSecret, transactionsEncryptionStrength),
             category_id: 1,
             debit_internal_ledger_id: 19,
             credit_internal_ledger_id: 20,

@@ -2,7 +2,7 @@ import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {BankEntity} from "./models/entities/bank.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
 import {BankCacheService} from "../../cache/bank-cache.service";
 
@@ -14,7 +14,7 @@ export class BanksService{
     constructor(
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly bankCacheService: BankCacheService
     ){}
 
@@ -31,7 +31,7 @@ export class BanksService{
             }
         });
         for(const bank of banks)
-            bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
+            bank.name = this.encryptionService.decipherSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
         await this.bankCacheService.setBanks(user, banks);
         return banks;
     }
@@ -51,7 +51,7 @@ export class BanksService{
         });
         if(!bank)
             throw new NotFoundException("User bank not found");
-        bank.name = this.encryptionService.decryptSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
+        bank.name = this.encryptionService.decipherSymmetric(bank.name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength);
         return bank;
     }
 
@@ -65,7 +65,7 @@ export class BanksService{
         const bank: BankEntity = await this.prismaService.banks.create({
             data: {
                 user_id: user.id,
-                name: this.encryptionService.encryptSymmetric(bankName, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
+                name: this.encryptionService.cipherSymmetric(bankName, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
             }
         });
         bank.name = bankName;
@@ -96,7 +96,7 @@ export class BanksService{
                 user_id: user.id,
             },
             data: {
-                name: this.encryptionService.encryptSymmetric(name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
+                name: this.encryptionService.cipherSymmetric(name, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.banksEncryptionStrength),
             }
         });
         bank.name = name;

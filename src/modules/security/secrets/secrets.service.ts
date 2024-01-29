@@ -2,7 +2,7 @@ import {Injectable, Logger} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {UsersService} from "../users/users.service";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {TasksService} from "../../tasks/tasks/tasks.service";
 import {TodoListsService} from "../../tasks/todolists/todo-lists.service";
 import {Prisma} from "@prisma/client/extension";
@@ -17,7 +17,7 @@ export class SecretsService{
     constructor(
         private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly todosService: TasksService,
         private readonly todolistsService: TodoListsService,
     ){}

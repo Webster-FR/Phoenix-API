@@ -1,7 +1,7 @@
 // noinspection TypeScriptValidateJSTypes
 
 import {PrismaClient} from "@prisma/client";
-import {EncryptionService} from "../src/common/services/encryption.service";
+import {CipherService} from "../src/common/services/cipher.service";
 import * as dotenv from "dotenv";
 import tips from "./seeds/tips.seed";
 import usersFunction from "./seeds/users.seed";
@@ -22,7 +22,7 @@ dotenv.config();
 
 // initialize Prisma Client
 const prisma = new PrismaClient();
-const encryptionService = new EncryptionService();
+const encryptionService = new CipherService();
 
 async function main(){
     const userSecret = encryptionService.generateSecret();

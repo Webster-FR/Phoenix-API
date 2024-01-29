@@ -1,21 +1,21 @@
 import {Test, TestingModule} from "@nestjs/testing";
 import {JwtService} from "./jwt.service";
-import {EncryptionService} from "./encryption.service";
+import {CipherService} from "./cipher.service";
 import * as dotenv from "dotenv";
 
 dotenv.config({path: ".env.ci"});
 
 describe("ServicesService", () => {
     let service: JwtService;
-    let encryptionService: EncryptionService;
+    let encryptionService: CipherService;
 
     beforeEach(async() => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [JwtService, EncryptionService],
+            providers: [JwtService, CipherService],
         }).compile();
 
         service = module.get<JwtService>(JwtService);
-        encryptionService = module.get<EncryptionService>(EncryptionService);
+        encryptionService = module.get<CipherService>(CipherService);
     });
 
     it("should be defined", () => {

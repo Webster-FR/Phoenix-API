@@ -2,7 +2,7 @@ import {ForbiddenException, Injectable, NotFoundException} from "@nestjs/common"
 import {JwtService} from "../../../common/services/jwt.service";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {ConfigService} from "@nestjs/config";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {AtPayloadModel} from "./models/models/at-payload.model";
 import {RtPayloadModel} from "./models/models/rt-payload.model";
 import {TokenCacheService} from "../../cache/token-cache.service";
@@ -18,7 +18,7 @@ export class TokensService{
         private readonly prismaService: PrismaService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly cacheService: TokenCacheService
     ){}
 
