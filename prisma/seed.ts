@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 import tips from "./seeds/tips.seed";
 import usersFunction from "./seeds/users.seed";
 import todoListsFunction from "./seeds/todolists.seed";
-import todosFunction from "./seeds/todos.seed";
+import todosFunction from "./seeds/tasks.seed";
 import banks from "./seeds/banks.seed";
 import accountsFunction from "./seeds/accounts.seed";
 import recurringTransactionsFunction from "./seeds/recurring-transactions.seed";
