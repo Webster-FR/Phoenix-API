@@ -1,7 +1,7 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
-import {TodoEntity} from "../todos/todos/models/entities/todo.entity";
+import {TaskEntity} from "../tasks/tasks/models/entities/task.entity";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
@@ -15,8 +15,8 @@ export class TodoCacheService{
         private readonly cacheManager: Cache
     ){}
 
-    async getTodos(userId: number, todoListId: number): Promise<TodoEntity[]>{
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+    async getTasks(userId: number, todoListId: number): Promise<TaskEntity[]>{
+        const todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return null;
         const todoList = todoLists[todoListId];
@@ -25,16 +25,16 @@ export class TodoCacheService{
         return todoList;
     }
 
-    async setTodos(userId: number, todoListId: number, todos: TodoEntity[]){
-        let todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+    async setTasks(userId: number, todoListId: number, todos: TaskEntity[]){
+        let todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             todoLists = [];
         todoLists[todoListId] = todos;
         await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
     }
 
-    async addTodo(userId: number, todo: TodoEntity){
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+    async addTask(userId: number, todo: TaskEntity){
+        const todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return;
         const todoList = todoLists[todo.todo_list_id];
@@ -44,8 +44,8 @@ export class TodoCacheService{
         await this.cacheManager.set(`todos_${userId}`, todoLists, this.todoCacheTtl);
     }
 
-    async removeTodo(userId: number, todoId: number){
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+    async removeTask(userId: number, todoId: number){
+        const todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return;
         for(const todoList of todoLists){
@@ -61,8 +61,8 @@ export class TodoCacheService{
         }
     }
 
-    async completeTodo(userId: number, todoId: number, completed: boolean){
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+    async completeTask(userId: number, todoId: number, completed: boolean){
+        const todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return;
         for(const todoList of todoLists){
@@ -78,8 +78,8 @@ export class TodoCacheService{
         }
     }
 
-    async updateTodo(userId: number, todo: TodoEntity){
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+    async updateTask(userId: number, todo: TaskEntity){
+        const todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return;
         for(const todoList of todoLists){
@@ -97,7 +97,7 @@ export class TodoCacheService{
     }
 
     async completeAll(userId: number, todoListId: number){
-        const todoLists: TodoEntity[][] = await this.cacheManager.get(`todos_${userId}`);
+        const todoLists: TaskEntity[][] = await this.cacheManager.get(`todos_${userId}`);
         if(!todoLists)
             return;
         const todoList = todoLists[todoListId];

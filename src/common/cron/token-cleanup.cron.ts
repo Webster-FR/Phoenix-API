@@ -1,12 +1,12 @@
-import {TokensService} from "../security/auth/tokens.service";
+import {TokensService} from "../../modules/security/auth/tokens.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 
 
 @Injectable()
-export class TokenCleanupTask{
+export class TokenCleanupCron{
 
-    private readonly logger = new Logger(TokenCleanupTask.name);
+    private readonly logger = new Logger(TokenCleanupCron.name);
 
     constructor(
         private readonly tokensService: TokensService,

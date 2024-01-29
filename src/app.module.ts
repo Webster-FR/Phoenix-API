@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {AuthModule} from "./modules/security/auth/auth.module";
 import {ConfigModule} from "@nestjs/config";
 import {ScheduleModule} from "@nestjs/schedule";
-import {TasksModule} from "./modules/tasks/tasks.module";
+import {CronModule} from "./common/cron/cron.module";
 import {CacheModule} from "@nestjs/cache-manager";
 import {TokenCacheService} from "./modules/cache/token-cache.service";
 import {CacheModule as InternalCacheModule} from "./modules/cache/cache.module";
@@ -13,7 +13,7 @@ import {MiscModule} from "./modules/misc/misc.module";
 import {AccountingModule} from "./modules/accounting/accounting.module";
 import {SecurityModule} from "./modules/security/security.module";
 import {PasswordRecoveryModule} from "./modules/security/password-recovery/password-recovery.module";
-import {GlobalTodosModule} from "./modules/todos/global-todos.module";
+import {GlobalTasksModule} from "./modules/tasks/global-tasks.module";
 
 import * as dotenv from "dotenv";
 import {ThrottlerGuard, ThrottlerModule} from "@nestjs/throttler";
@@ -42,8 +42,8 @@ dotenv.config();
             limit: 100,
         }]),
         AuthModule,
-        GlobalTodosModule,
-        TasksModule,
+        GlobalTasksModule,
+        CronModule,
         InternalCacheModule,
         ServicesModule,
         MiscModule,

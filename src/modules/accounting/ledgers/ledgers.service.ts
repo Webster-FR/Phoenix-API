@@ -2,7 +2,7 @@ import {BadRequestException, forwardRef, Inject, Injectable} from "@nestjs/commo
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UsersService} from "../../security/users/users.service";
 import {LedgerEntity} from "./models/entities/ledger.entity";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {EncryptedLedgerEntity} from "./models/entities/encrypted-ledger.entity";
 import {ConfigService} from "@nestjs/config";
 import {AccountsService} from "../accounts/accounts.service";
@@ -16,7 +16,7 @@ export class LedgersService{
     constructor(
         private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly configService: ConfigService,
         @Inject(forwardRef(() => AccountsService))
         private readonly accountsService: AccountsService,
@@ -37,9 +37,9 @@ export class LedgersService{
         let encryptedCredit = null;
         let encryptedDebit = null;
         if(credit)
-            encryptedCredit = this.encryptionService.encryptSymmetric(credit.toString(), user.secret, this.ledgersEncryptionStrength);
+            encryptedCredit = this.encryptionService.cipherSymmetric(credit.toString(), user.secret, this.ledgersEncryptionStrength);
         if(debit)
-            encryptedDebit = this.encryptionService.encryptSymmetric(Math.abs(debit).toString(), user.secret, this.ledgersEncryptionStrength);
+            encryptedDebit = this.encryptionService.cipherSymmetric(Math.abs(debit).toString(), user.secret, this.ledgersEncryptionStrength);
         const ledger: EncryptedLedgerEntity = await this.prismaService.internalLedger.create({
             data: {
                 credit: encryptedCredit,
@@ -70,8 +70,8 @@ export class LedgersService{
             const ledgerEntity = new LedgerEntity();
             ledgerEntity.id = ledger.id;
             ledgerEntity.account_id = ledger.account_id;
-            ledgerEntity.credit = ledger.credit ? parseFloat(this.encryptionService.decryptSymmetric(ledger.credit, user.secret, this.ledgersEncryptionStrength)) : null;
-            ledgerEntity.debit = ledger.debit ? parseFloat(this.encryptionService.decryptSymmetric(ledger.debit, user.secret, this.ledgersEncryptionStrength)) : null;
+            ledgerEntity.credit = ledger.credit ? parseFloat(this.encryptionService.decipherSymmetric(ledger.credit, user.secret, this.ledgersEncryptionStrength)) : null;
+            ledgerEntity.debit = ledger.debit ? parseFloat(this.encryptionService.decipherSymmetric(ledger.debit, user.secret, this.ledgersEncryptionStrength)) : null;
             ledgerEntity.created_at = ledger.created_at;
             ledgerEntities.push(ledgerEntity);
         }
@@ -89,8 +89,8 @@ export class LedgersService{
         const ledgerEntity = new LedgerEntity();
         ledgerEntity.id = ledger.id;
         ledgerEntity.account_id = ledger.account_id;
-        ledgerEntity.credit = ledger.credit ? parseFloat(this.encryptionService.decryptSymmetric(ledger.credit, user.secret, this.ledgersEncryptionStrength)) : null;
-        ledgerEntity.debit = ledger.debit ? parseFloat(this.encryptionService.decryptSymmetric(ledger.debit, user.secret, this.ledgersEncryptionStrength)) : null;
+        ledgerEntity.credit = ledger.credit ? parseFloat(this.encryptionService.decipherSymmetric(ledger.credit, user.secret, this.ledgersEncryptionStrength)) : null;
+        ledgerEntity.debit = ledger.debit ? parseFloat(this.encryptionService.decipherSymmetric(ledger.debit, user.secret, this.ledgersEncryptionStrength)) : null;
         ledgerEntity.created_at = ledger.created_at;
         return ledgerEntity;
     }

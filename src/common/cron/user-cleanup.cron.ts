@@ -1,12 +1,12 @@
-import {UsersService} from "../security/users/users.service";
+import {UsersService} from "../../modules/security/users/users.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 
 
 @Injectable()
-export class UserCleanupTask{
+export class UserCleanupCron{
 
-    private readonly logger = new Logger(UserCleanupTask.name);
+    private readonly logger = new Logger(UserCleanupCron.name);
 
     constructor(
         private readonly usersService: UsersService,

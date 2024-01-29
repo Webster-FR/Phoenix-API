@@ -4,7 +4,7 @@ import * as argon2 from "argon2";
 
 
 @Injectable()
-export class EncryptionService{
+export class CipherService{
     // Hash functions
     getSum(content: string | Buffer): string{
         if(!content) content = "";
@@ -26,7 +26,7 @@ export class EncryptionService{
     }
 
     // Symmetric functions
-    encryptSymmetric(content: string, encryptionKey: string | Buffer, timeCost = 200000){
+    cipherSymmetric(content: string, encryptionKey: string | Buffer, timeCost = 200000){
         if(!content) content = "";
         const salt = crypto.randomBytes(32);
         const key = crypto.pbkdf2Sync(encryptionKey, salt, timeCost, 64, "sha512");
@@ -40,7 +40,7 @@ export class EncryptionService{
         return `${salt.toString("hex")}:${iv.toString("hex")}:${encrypted}:${digest}`;
     }
 
-    decryptSymmetric(encryptedContent: string, encryptionKey: string | Buffer, timeCost = 200000){
+    decipherSymmetric(encryptedContent: string, encryptionKey: string | Buffer, timeCost = 200000){
         const [saltString, ivString, encryptedString, digest] = encryptedContent.split(":");
         const salt = Buffer.from(saltString, "hex");
         const key = crypto.pbkdf2Sync(encryptionKey, salt, timeCost, 64, "sha512");
@@ -81,7 +81,7 @@ export class EncryptionService{
         });
     }
 
-    encryptAsymmetric(content: string, publicKey: string | Buffer){
+    cipherAsymmetric(content: string, publicKey: string | Buffer){
         if(!content) content = "";
         const buffer = Buffer.from(content, "utf-8");
         const encrypted = crypto.publicEncrypt({
@@ -91,7 +91,7 @@ export class EncryptionService{
         return encrypted.toString("base64");
     }
 
-    decryptAsymmetric(encryptedContent: string, privateKey: string | Buffer, privateEncryptionKey = undefined){
+    decipherAsymmetric(encryptedContent: string, privateKey: string | Buffer, privateEncryptionKey = undefined){
         const buffer = Buffer.from(encryptedContent, "base64");
         if(!privateEncryptionKey)
             return crypto.privateDecrypt({

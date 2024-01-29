@@ -68,7 +68,7 @@ model Statistics{
   @@map("statistics")
 }
 
-model User {
+model Users {
   id                     Int                     @id @default(autoincrement())
   username               String
   password               String
@@ -84,8 +84,8 @@ model User {
   accounts               Accounts[]
   recurring_transactions RecurringTransaction[]
   transaction_categories TransactionCategories[]
-  AccessToken            AccessToken[]
-  RefreshToken           RefreshToken[]
+  AccessToken            AccessTokens[]
+  RefreshToken           RefreshTokens[]
 
   @@map("users")
 }
@@ -95,7 +95,7 @@ model VerificationCodes {
   user_id Int      @unique
   code    String   @unique
   iat     DateTime
-  user    User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Users?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("verification_codes")
 }
@@ -105,12 +105,12 @@ model PasswordRecoveryCodes {
   user_id Int      @unique
   code    String   @unique
   iat     DateTime
-  user    User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Users?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("password_recovery_codes")
 }
 
-model AccessToken {
+model AccessTokens {
   id               Int           @id @default(autoincrement())
   user_id          Int
   sum              String        @unique
@@ -118,21 +118,21 @@ model AccessToken {
   refresh_token_id Int?          @unique
   expires          DateTime
   blacklisted      Boolean       @default(false)
-  user             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  refresh_token    RefreshToken? @relation(fields: [refresh_token_id], references: [id], onDelete: Cascade)
+  user             Users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  refresh_token    RefreshTokens? @relation(fields: [refresh_token_id], references: [id], onDelete: Cascade)
 
   @@map("access_tokens")
 }
 
-model RefreshToken {
+model RefreshTokens {
   id          Int          @id @default(autoincrement())
   user_id     Int
   sum         String       @unique
   token       String       @unique
   expires     DateTime
   blacklisted Boolean      @default(false)
-  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  AccessToken AccessToken?
+  user        Users         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  AccessToken AccessTokens?
 
   @@map("refresh_tokens")
 }
@@ -145,14 +145,14 @@ model TodoLists {
   color      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  todos      Todos[]
+  user       Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  todos      Tasks[]
 
   @@index([user_id])
   @@map("todo_lists")
 }
 
-model Todos {
+model Tasks {
   id           Int       @id @default(autoincrement())
   name         String
   completed    Boolean   @default(false)
@@ -163,7 +163,7 @@ model Todos {
   todo_list    TodoLists @relation(fields: [todo_list_id], references: [id], onDelete: Cascade)
 
   @@index([todo_list_id])
-  @@map("todos")
+  @@map("tasks")
 }
 
 model Tips {
@@ -179,7 +179,7 @@ model Banks {
   id      Int        @id @default(autoincrement())
   name    String
   user_id Int?
-  user    User?      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Users?      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   account Accounts[]
 
   @@unique([name, user_id])
@@ -193,7 +193,7 @@ model Accounts {
   bank_id                     Int
   user_id                     Int
   bank                        Banks                  @relation(fields: [bank_id], references: [id], onDelete: Restrict)
-  user                        User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                        Users                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   from_recurring_transactions RecurringTransaction[] @relation("from_account")
   to_recurring_transactions   RecurringTransaction[] @relation("to_account")
   internal_ledger             InternalLedger[]
@@ -215,7 +215,7 @@ model RecurringTransaction {
   to_account_id   Int?
   created_at      DateTime               @default(now())
   updated_at      DateTime               @updatedAt
-  user            User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user            Users                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   category        TransactionCategories? @relation(fields: [category_id], references: [id], onDelete: SetNull)
   from_account    Accounts?              @relation("from_account", fields: [from_account_id], references: [id], onDelete: Cascade)
   to_account      Accounts?              @relation("to_account", fields: [to_account_id], references: [id], onDelete: Cascade)
@@ -229,7 +229,7 @@ model TransactionCategories {
   name                   String
   icon                   String
   color                  String
-  user                   User?                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                   Users?                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   recurring_transactions RecurringTransaction[]
   internal_transactions  InternalTransactions[]
   expense_transactions   ExpenseTransactions[]

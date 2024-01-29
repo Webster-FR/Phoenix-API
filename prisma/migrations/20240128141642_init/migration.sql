@@ -121,7 +121,7 @@ CREATE TABLE "todo_lists" (
 );
 
 -- CreateTable
-CREATE TABLE "todos" (
+CREATE TABLE "tasks" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
@@ -130,7 +130,7 @@ CREATE TABLE "todos" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "todos_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tasks_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -293,7 +293,7 @@ CREATE UNIQUE INDEX "refresh_tokens_token_key" ON "refresh_tokens"("token");
 CREATE INDEX "todo_lists_user_id_idx" ON "todo_lists"("user_id");
 
 -- CreateIndex
-CREATE INDEX "todos_todo_list_id_idx" ON "todos"("todo_list_id");
+CREATE INDEX "tasks_todo_list_id_idx" ON "tasks"("todo_list_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tips_tips_key" ON "tips"("tips");
@@ -338,7 +338,7 @@ ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIG
 ALTER TABLE "todo_lists" ADD CONSTRAINT "todo_lists_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "todos" ADD CONSTRAINT "todos_todo_list_id_fkey" FOREIGN KEY ("todo_list_id") REFERENCES "todo_lists"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "tasks" ADD CONSTRAINT "tasks_todo_list_id_fkey" FOREIGN KEY ("todo_list_id") REFERENCES "todo_lists"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "banks" ADD CONSTRAINT "banks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

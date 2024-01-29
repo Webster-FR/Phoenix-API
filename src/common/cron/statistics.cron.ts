@@ -1,12 +1,12 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
-import {StatisticsService} from "../misc/statistics/statistics.service";
+import {StatisticsService} from "../../modules/misc/statistics/statistics.service";
 
 
 @Injectable()
-export class StatisticsTask{
+export class StatisticsCron{
 
-    private readonly logger = new Logger(StatisticsTask.name);
+    private readonly logger = new Logger(StatisticsCron.name);
 
     constructor(
         private readonly statisticsService: StatisticsService,

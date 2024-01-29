@@ -1,15 +1,15 @@
-import {EncryptionService} from "../../src/common/services/encryption.service";
+import {CipherService} from "../../src/common/services/cipher.service";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const encryptionService = new EncryptionService();
+const encryptionService = new CipherService();
 const todosEncryptionStrength = parseInt(process.env.TODOS_ENCRYPTION_STRENGTH);
 
 export default (userSecret: string) => [
     {
         todo_list_id: 1,
-        name: encryptionService.encryptSymmetric("Rework UI components", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Rework UI components", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -17,7 +17,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 1,
-        name: encryptionService.encryptSymmetric("Rework todos components", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Rework todos components", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -25,7 +25,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 1,
-        name: encryptionService.encryptSymmetric("Rework todos UI", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Rework todos UI", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -33,7 +33,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 2,
-        name: encryptionService.encryptSymmetric("Implement todo lists", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Implement todo lists", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -41,7 +41,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 2,
-        name: encryptionService.encryptSymmetric("Rework todos", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Rework todos", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -49,7 +49,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 3,
-        name: encryptionService.encryptSymmetric("Listen to Kool-Aid from Bring Me The Horizon", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Listen to Kool-Aid from Bring Me The Horizon", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -57,7 +57,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 4,
-        name: encryptionService.encryptSymmetric("Do the dishes", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Do the dishes", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -65,7 +65,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 4,
-        name: encryptionService.encryptSymmetric("Make some cleaning", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Make some cleaning", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -73,7 +73,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 4,
-        name: encryptionService.encryptSymmetric("Feed the dog", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Feed the dog", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -81,7 +81,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -89,7 +89,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -97,7 +97,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -105,7 +105,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -113,7 +113,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -121,7 +121,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -129,7 +129,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -137,7 +137,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -145,7 +145,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -153,7 +153,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -161,7 +161,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -169,7 +169,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -177,7 +177,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -185,7 +185,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -193,7 +193,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -201,7 +201,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -209,7 +209,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: true,
         deadline: new Date(),
         created_at: new Date(),
@@ -217,7 +217,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -225,7 +225,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),
@@ -233,7 +233,7 @@ export default (userSecret: string) => [
     },
     {
         todo_list_id: 5,
-        name: encryptionService.encryptSymmetric("Test", userSecret, todosEncryptionStrength),
+        name: encryptionService.cipherSymmetric("Test", userSecret, todosEncryptionStrength),
         completed: false,
         deadline: new Date(),
         created_at: new Date(),

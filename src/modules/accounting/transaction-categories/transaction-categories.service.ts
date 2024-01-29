@@ -1,6 +1,6 @@
 import {ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
-import {EncryptionService} from "../../../common/services/encryption.service";
+import {CipherService} from "../../../common/services/cipher.service";
 import {ConfigService} from "@nestjs/config";
 import {UsersService} from "../../security/users/users.service";
 import {TransactionCategoryEntity} from "./models/entities/transaction-category.entity";
@@ -12,7 +12,7 @@ export class TransactionCategoriesService{
 
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly encryptionService: EncryptionService,
+        private readonly encryptionService: CipherService,
         private readonly configService: ConfigService,
         private readonly usersService: UsersService,
     ){}
@@ -39,7 +39,7 @@ export class TransactionCategoriesService{
             }
         });
         for(const transactionCategory of transactionCategories)
-            transactionCategory.name = this.encryptionService.decryptSymmetric(transactionCategory.name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength);
+            transactionCategory.name = this.encryptionService.decipherSymmetric(transactionCategory.name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength);
         return transactionCategories;
     }
 
@@ -53,7 +53,7 @@ export class TransactionCategoriesService{
         const transactionCategory: TransactionCategoryEntity = await this.prismaService.transactionCategories.create({
             data: {
                 user_id: userId,
-                name: this.encryptionService.encryptSymmetric(name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength),
+                name: this.encryptionService.cipherSymmetric(name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength),
                 icon,
                 color,
             },
@@ -82,7 +82,7 @@ export class TransactionCategoriesService{
                 id: transactionCategoryId,
             },
             data: {
-                name: this.encryptionService.encryptSymmetric(name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength),
+                name: this.encryptionService.cipherSymmetric(name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength),
                 icon,
                 color,
             },
@@ -107,7 +107,7 @@ export class TransactionCategoriesService{
                 id: transactionCategoryId,
             },
         });
-        transactionCategory.name = this.encryptionService.decryptSymmetric(transactionCategory.name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength);
+        transactionCategory.name = this.encryptionService.decipherSymmetric(transactionCategory.name, this.configService.get<string>("SYMMETRIC_ENCRYPTION_KEY"), this.transactionCategoriesEncryptionStrength);
         return transactionCategory;
     }
 }

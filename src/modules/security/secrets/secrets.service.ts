@@ -2,9 +2,9 @@ import {Injectable, Logger} from "@nestjs/common";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {UsersService} from "../users/users.service";
-import {EncryptionService} from "../../../common/services/encryption.service";
-import {TodosService} from "../../todos/todos/todos.service";
-import {TodoListsService} from "../../todos/todo-lists/todo-lists.service";
+import {CipherService} from "../../../common/services/cipher.service";
+import {TasksService} from "../../tasks/tasks/tasks.service";
+import {TodoListsService} from "../../tasks/todolists/todo-lists.service";
 import {Prisma} from "@prisma/client/extension";
 import {AdminController} from "../../misc/admin/admin.controller";
 
@@ -17,8 +17,8 @@ export class SecretsService{
     constructor(
         private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
-        private readonly encryptionService: EncryptionService,
-        private readonly todosService: TodosService,
+        private readonly encryptionService: CipherService,
+        private readonly todosService: TasksService,
         private readonly todolistsService: TodoListsService,
     ){}
 
@@ -45,7 +45,7 @@ export class SecretsService{
         await this.prismaService.$transaction(async(tx: Prisma.TransactionClient) => {
             const promises = [];
             promises.push(this.todolistsService.rotateEncryptionKey(tx, user, secret, newSecret));
-            promises.push(this.todosService.rotateEncryptionKey(tx, user, secret, newSecret));
+            promises.push(this.todosService.rotateTasksCipher(tx, user, secret, newSecret));
             await Promise.all(promises);
             await this.usersService.setUserSecret(tx, user, newSecret);
         });

@@ -1,6 +1,6 @@
-import {AccessToken} from "@prisma/client";
+import {AccessTokens} from "@prisma/client";
 
-export class AccessTokenEntity implements AccessToken{
+export class AccessTokenEntity implements AccessTokens{
     id: number;
     user_id: number;
     sum: string;

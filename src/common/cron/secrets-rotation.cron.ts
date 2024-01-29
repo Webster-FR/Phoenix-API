@@ -1,12 +1,12 @@
-import {SecretsService} from "../security/secrets/secrets.service";
+import {SecretsService} from "../../modules/security/secrets/secrets.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 
 
 @Injectable()
-export class SecretsRotationTask{
+export class SecretsRotationCron{
 
-    private readonly logger = new Logger(SecretsRotationTask.name);
+    private readonly logger = new Logger(SecretsRotationCron.name);
 
     constructor(
         private readonly secretsService: SecretsService,

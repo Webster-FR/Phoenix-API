@@ -1,9 +1,9 @@
-import {EncryptionService} from "../../src/common/services/encryption.service";
+import {CipherService} from "../../src/common/services/cipher.service";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const encryptionService = new EncryptionService();
+const encryptionService = new CipherService();
 const ledgersEncryptionStrength = parseInt(process.env.LEDGERS_ENCRYPTION_STRENGTH);
 
 function makeTransaction(userSecret: string, accountId: number, amount: number){
@@ -11,13 +11,13 @@ function makeTransaction(userSecret: string, accountId: number, amount: number){
         return {
             account_id: accountId,
             credit: null,
-            debit: encryptionService.encryptSymmetric(Math.abs(amount).toString(), userSecret, ledgersEncryptionStrength),
+            debit: encryptionService.cipherSymmetric(Math.abs(amount).toString(), userSecret, ledgersEncryptionStrength),
             created_at: new Date(),
         };
     }else if(amount > 0){
         return {
             account_id: accountId,
-            credit: encryptionService.encryptSymmetric(amount.toString(), userSecret, ledgersEncryptionStrength),
+            credit: encryptionService.cipherSymmetric(amount.toString(), userSecret, ledgersEncryptionStrength),
             debit: null,
             created_at: new Date(),
         };
