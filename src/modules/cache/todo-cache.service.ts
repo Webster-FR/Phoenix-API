@@ -1,7 +1,7 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Cache} from "cache-manager";
-import {TaskEntity} from "../todos/todos/models/entities/task.entity";
+import {TaskEntity} from "../tasks/tasks/models/entities/task.entity";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()

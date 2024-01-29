@@ -1,7 +1,7 @@
 import {Inject, Injectable, InternalServerErrorException} from "@nestjs/common";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {UserEntity} from "../security/users/models/entities/user.entity";
-import {TodoListResponse} from "../todos/todo-lists/models/responses/todolist.response";
+import {TodoListResponse} from "../tasks/todolists/models/responses/todolist.response";
 import {Cache} from "cache-manager";
 import {ConfigService} from "@nestjs/config";
 

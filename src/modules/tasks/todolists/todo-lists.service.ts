@@ -6,7 +6,7 @@ import {TodoListEntity} from "./models/entities/todolist.entity";
 import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
 import {TodoListResponse} from "./models/responses/todolist.response";
-import {TaskEntity} from "../todos/models/entities/task.entity";
+import {TaskEntity} from "../tasks/models/entities/task.entity";
 import {ConfigService} from "@nestjs/config";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
 import {TodoCacheService} from "../../cache/todo-cache.service";

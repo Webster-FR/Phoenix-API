@@ -3,8 +3,8 @@ import {PrismaService} from "../../../common/services/prisma.service";
 import {UserEntity} from "../users/models/entities/user.entity";
 import {UsersService} from "../users/users.service";
 import {EncryptionService} from "../../../common/services/encryption.service";
-import {TodosService} from "../../todos/todos/todos.service";
-import {TodoListsService} from "../../todos/todo-lists/todo-lists.service";
+import {TasksService} from "../../tasks/tasks/tasks.service";
+import {TodoListsService} from "../../tasks/todolists/todo-lists.service";
 import {Prisma} from "@prisma/client/extension";
 import {AdminController} from "../../misc/admin/admin.controller";
 
@@ -18,7 +18,7 @@ export class SecretsService{
         private readonly prismaService: PrismaService,
         private readonly usersService: UsersService,
         private readonly encryptionService: EncryptionService,
-        private readonly todosService: TodosService,
+        private readonly todosService: TasksService,
         private readonly todolistsService: TodoListsService,
     ){}
 

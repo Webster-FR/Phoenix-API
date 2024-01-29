@@ -1,4 +1,4 @@
-import {TokensService} from "../security/auth/tokens.service";
+import {TokensService} from "../../modules/security/auth/tokens.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 

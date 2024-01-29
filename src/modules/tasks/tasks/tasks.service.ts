@@ -7,13 +7,13 @@ import {ConfigService} from "@nestjs/config";
 import {TodoCacheService} from "../../cache/todo-cache.service";
 import {UserEntity} from "../../security/users/models/entities/user.entity";
 import {TaskEntity} from "./models/entities/task.entity";
-import {TodoListsService} from "../todo-lists/todo-lists.service";
+import {TodoListsService} from "../todolists/todo-lists.service";
 import {TodoListCacheService} from "../../cache/todo-list-cache.service";
-import {TodoListEntity} from "../todo-lists/models/entities/todolist.entity";
+import {TodoListEntity} from "../todolists/models/entities/todolist.entity";
 import {Prisma} from "@prisma/client/extension";
 
 @Injectable()
-export class TodosService{
+export class TasksService{
 
     private readonly tasksEncryptionStrength = parseInt(this.configService.get("TASKS_ENCRYPTION_STRENGTH"));
 

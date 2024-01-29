@@ -1,4 +1,4 @@
-import {SecretsService} from "../security/secrets/secrets.service";
+import {SecretsService} from "../../modules/security/secrets/secrets.service";
 import {Injectable, Logger} from "@nestjs/common";
 import {Cron} from "@nestjs/schedule";
 
