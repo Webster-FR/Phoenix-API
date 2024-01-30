@@ -31,10 +31,10 @@ export class TasksService{
         return task;
     }
 
-    async getTodoListFromTask(user: UserEntity, todoId: number): Promise<TodoListEntity>{
+    async getTodoListFromTask(user: UserEntity, taskId: number): Promise<TodoListEntity>{
         const task = await this.prismaService.tasks.findUnique({
             where: {
-                id: todoId,
+                id: taskId,
             },
             include: {
                 todo_list: true,
@@ -42,7 +42,7 @@ export class TasksService{
         });
         if(!task)
             throw new NotFoundException("Todo not found");
-        if(task.todo_list.id !== user.id)
+        if(task.todo_list.user_id !== user.id)
             throw new NotFoundException("Todo list not found");
         return task.todo_list;
     }
@@ -121,20 +121,20 @@ export class TasksService{
         return task;
     }
 
-    async completeTask(user: UserEntity, id: number, completed: boolean): Promise<void>{
-        if(!await this.isTaskExists(user, id))
+    async completeTask(user: UserEntity, taskId: number, completed: boolean): Promise<void>{
+        if(!await this.isTaskExists(user, taskId))
             throw new NotFoundException("Task not found");
         await this.prismaService.tasks.update({
             where: {
-                id: id,
+                id: taskId,
             },
             data: {
                 completed: completed,
             }
         });
-        const todoList = await this.getTodoListFromTask(user, id);
+        const todoList = await this.getTodoListFromTask(user, taskId);
         await this.todoListCacheService.taskCompleted(user, todoList.id, completed);
-        await this.todoCacheService.completeTask(user.id, id, completed);
+        await this.todoCacheService.completeTask(user.id, taskId, completed);
     }
 
     async deleteTask(user: UserEntity, id: number){
