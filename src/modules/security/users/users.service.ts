@@ -186,7 +186,7 @@ export class UsersService{
         const cipheredSecret = this.encryptionService.cipherSymmetric(secret, this.configService.get("SYMMETRIC_ENCRYPTION_KEY"), this.userSecretsEncryptionStrength);
         const cipheredUsername = this.encryptionService.cipherSymmetric(user.username, secret, this.usersEncryptionStrength);
         const cipheredEmail = this.encryptionService.cipherSymmetric(user.email, secret, this.usersEncryptionStrength);
-        const dbUser = await tx.user.update({
+        const dbUser = await tx.users.update({
             where: {
                 id: user.id
             },

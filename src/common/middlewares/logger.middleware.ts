@@ -19,7 +19,7 @@ export class LoggerMiddleware implements NestMiddleware{
             const duration = Date.now() - startTime;
             // const resSize = res.getHeader("Content-Length") || "N/A";
             const nRes = res as any;
-            const resSize = nRes._contentLength || "-1";
+            const resSize = nRes._contentLength || "0";
             const intResSize = parseInt(resSize);
             if(!path.includes("/api/v"))
                 return;
