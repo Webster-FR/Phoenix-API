@@ -37,7 +37,7 @@
         "@nestjs/schedule": "^4.0.0",
         "@nestjs/swagger": "^7.2.0",
         "@nestjs/throttler": "^5.1.1",
-        "@prisma/client": "5.8.1",
+        "@prisma/client": "5.9.1",
         "argon2": "^0.31.2",
         "cache-manager": "^5.4.0",
         "cache-manager-redis-store": "^2.0.0",
