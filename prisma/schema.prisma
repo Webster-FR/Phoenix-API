@@ -140,7 +140,7 @@ model RefreshTokens {
 model TodoLists {
   id         Int      @id @default(autoincrement())
   user_id    Int
-  name       String
+  name       String @db.VarChar(50)
   icon       String
   color      String
   created_at DateTime @default(now())
@@ -154,7 +154,7 @@ model TodoLists {
 
 model Tasks {
   id           Int       @id @default(autoincrement())
-  name         String
+  name         String @db.VarChar(150)
   completed    Boolean   @default(false)
   deadline     DateTime?
   todo_list_id Int

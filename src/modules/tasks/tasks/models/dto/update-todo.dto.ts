@@ -1,9 +1,10 @@
 import {ApiProperty} from "@nestjs/swagger";
-import {IsNotEmpty} from "class-validator";
+import {IsNotEmpty, MaxLength} from "class-validator";
 
 export class UpdateTodoDto{
     @ApiProperty()
     @IsNotEmpty()
+    @MaxLength(150)
         name: string;
     @ApiProperty()
         deadline: Date;
