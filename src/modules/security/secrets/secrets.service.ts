@@ -30,10 +30,15 @@ export class SecretsService{
         const start = Date.now();
         const users: UserEntity[] = await this.usersService.findAll();
         const promises = [];
-        for(const user of users)
-            promises.push(this.rotateUserSecret(user));
-        await Promise.all(promises);
-        this.logger.log(`Rotated ${users.length} users in ${Date.now() - start}ms`);
+        try{
+            for(const user of users)
+                promises.push(this.rotateUserSecret(user));
+            await Promise.all(promises);
+            this.logger.log(`Rotated ${users.length} users in ${Date.now() - start}ms`);
+        }catch(e){
+            this.logger.log("Error when rotating secrets");
+            console.log(e);
+        }
         AdminController.isMaintenanceMode = maintenanceModeState;
         AdminController.maintenanceMessage = maintenanceModeMessage;
     }
@@ -48,7 +53,7 @@ export class SecretsService{
             promises.push(this.todosService.rotateTasksCipher(tx, user, secret, newSecret));
             await Promise.all(promises);
             await this.usersService.setUserSecret(tx, user, newSecret);
-        });
+        }, {timeout: 10000});
         const stop = Date.now();
         this.logger.log(`Rotated user ${user.id} in ${stop - start}ms`);
     }
