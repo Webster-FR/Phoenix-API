@@ -10,22 +10,26 @@ export class LoggerMiddleware implements NestMiddleware{
     use(req: FastifyRequest["raw"], res: FastifyReply["raw"], next: () => void){
         const startTime = Date.now();
         res.on("finish", () => {
-            const httpOrHttps = req.connection.localPort.toString() === process.env.HTTPS_PORT ? "HTTPS" : "HTTP";
-            const method = req.method;
-            if(method === "OPTIONS")
-                return;
             const path = req.url;
-            const statusCode = res.statusCode;
-            const duration = Date.now() - startTime;
-            // const resSize = res.getHeader("Content-Length") || "N/A";
-            const nRes = res as any;
-            const resSize = nRes._contentLength || "0";
-            const intResSize = parseInt(resSize);
-            if(!path.includes("/api/v"))
-                return;
-            LoggerMiddleware.logger.log(`${httpOrHttps} ${method} ${path} ${statusCode} ${duration}ms ${intResSize}`);
-            LoggerMiddleware.requestTimeLogger(path, method, duration);
-            StatisticsService.onRequestSent(method, duration, intResSize);
+            try{
+                const httpOrHttps = req.connection.localPort.toString() === process.env.HTTPS_PORT ? "HTTPS" : "HTTP";
+                const method = req.method;
+                if(method === "OPTIONS")
+                    return;
+                const statusCode = res.statusCode;
+                const duration = Date.now() - startTime;
+                // const resSize = res.getHeader("Content-Length") || "N/A";
+                const nRes = res as any;
+                const resSize = nRes._contentLength || "0";
+                const intResSize = parseInt(resSize);
+                if(!path.includes("/api/v"))
+                    return;
+                LoggerMiddleware.logger.log(`${httpOrHttps} ${method} ${path} ${statusCode} ${duration}ms ${intResSize}`);
+                LoggerMiddleware.requestTimeLogger(path, method, duration);
+                StatisticsService.onRequestSent(method, duration, intResSize);
+            }catch(e){
+                LoggerMiddleware.logger.warn(`Can't log route ${path}`);
+            }
         });
         next();
     }
