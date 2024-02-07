@@ -37,10 +37,10 @@ dotenv.config();
                 password: process.env.REDIS_PASSWORD === "" ? undefined : process.env.REDIS_PASSWORD,
             });
         })(),
-        ThrottlerModule.forRoot([{
-            ttl: 60000,
-            limit: 100,
-        }]),
+        // ThrottlerModule.forRoot([{
+        //     ttl: 60000,
+        //     limit: 100,
+        // }]),
         AuthModule,
         GlobalTasksModule,
         CronModule,
