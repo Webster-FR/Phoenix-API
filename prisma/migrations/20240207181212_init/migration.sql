@@ -111,7 +111,7 @@ CREATE TABLE "refresh_tokens" (
 CREATE TABLE "todo_lists" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "name" VARCHAR(50) NOT NULL,
+    "name" TEXT NOT NULL,
     "icon" TEXT NOT NULL,
     "color" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -123,7 +123,7 @@ CREATE TABLE "todo_lists" (
 -- CreateTable
 CREATE TABLE "tasks" (
     "id" SERIAL NOT NULL,
-    "name" VARCHAR(150) NOT NULL,
+    "name" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
     "deadline" TIMESTAMP(3),
     "todo_list_id" INTEGER NOT NULL,

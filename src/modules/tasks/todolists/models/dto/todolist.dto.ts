@@ -10,9 +10,11 @@ export class TodolistDto{
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
+    @MaxLength(30)
         color: string;
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
+    @MaxLength(30)
         icon: string;
 }

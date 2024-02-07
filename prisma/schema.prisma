@@ -11,56 +11,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Statistics{
+model Statistics {
   id Int @id @default(autoincrement())
 
-  global_request_count Int
-  get_global_request_count Int
-  post_global_request_count Int
-  put_global_request_count Int
-  patch_global_request_count Int
+  global_request_count        Int
+  get_global_request_count    Int
+  post_global_request_count   Int
+  put_global_request_count    Int
+  patch_global_request_count  Int
   delete_global_request_count Int
 
-  global_response_time_average Float
-  get_global_response_time_average Float
-  post_global_response_time_average Float
-  put_global_response_time_average Float
-  patch_global_response_time_average Float
+  global_response_time_average        Float
+  get_global_response_time_average    Float
+  post_global_response_time_average   Float
+  put_global_response_time_average    Float
+  patch_global_response_time_average  Float
   delete_global_response_time_average Float
 
-  global_response_time_max Float
-  get_global_response_time_max Float
-  post_global_response_time_max Float
-  put_global_response_time_max Float
-  patch_global_response_time_max Float
+  global_response_time_max        Float
+  get_global_response_time_max    Float
+  post_global_response_time_max   Float
+  put_global_response_time_max    Float
+  patch_global_response_time_max  Float
   delete_global_response_time_max Float
 
-  global_response_time_min Float
-  get_global_response_time_min Float
-  post_global_response_time_min Float
-  put_global_response_time_min Float
-  patch_global_response_time_min Float
+  global_response_time_min        Float
+  get_global_response_time_min    Float
+  post_global_response_time_min   Float
+  put_global_response_time_min    Float
+  patch_global_response_time_min  Float
   delete_global_response_time_min Float
 
-  global_content_length_average Float
-  get_global_content_length_average Float
-  post_global_content_length_average Float
-  put_global_content_length_average Float
-  patch_global_content_length_average Float
+  global_content_length_average        Float
+  get_global_content_length_average    Float
+  post_global_content_length_average   Float
+  put_global_content_length_average    Float
+  patch_global_content_length_average  Float
   delete_global_content_length_average Float
 
-  global_content_length_max Float
-  get_global_content_length_max Float
-  post_global_content_length_max Float
-  put_global_content_length_max Float
-  patch_global_content_length_max Float
+  global_content_length_max        Float
+  get_global_content_length_max    Float
+  post_global_content_length_max   Float
+  put_global_content_length_max    Float
+  patch_global_content_length_max  Float
   delete_global_content_length_max Float
 
-  global_content_length_min Float
-  get_global_content_length_min Float
-  post_global_content_length_min Float
-  put_global_content_length_min Float
-  patch_global_content_length_min Float
+  global_content_length_min        Float
+  get_global_content_length_min    Float
+  post_global_content_length_min   Float
+  put_global_content_length_min    Float
+  patch_global_content_length_min  Float
   delete_global_content_length_min Float
 
   created_at DateTime @default(now())
@@ -95,7 +95,7 @@ model VerificationCodes {
   user_id Int      @unique
   code    String   @unique
   iat     DateTime
-  user    Users?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Users?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("verification_codes")
 }
@@ -105,19 +105,19 @@ model PasswordRecoveryCodes {
   user_id Int      @unique
   code    String   @unique
   iat     DateTime
-  user    Users?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Users?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("password_recovery_codes")
 }
 
 model AccessTokens {
-  id               Int           @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   user_id          Int
-  sum              String        @unique
-  token            String        @unique
-  refresh_token_id Int?          @unique
+  sum              String         @unique
+  token            String         @unique
+  refresh_token_id Int?           @unique
   expires          DateTime
-  blacklisted      Boolean       @default(false)
+  blacklisted      Boolean        @default(false)
   user             Users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   refresh_token    RefreshTokens? @relation(fields: [refresh_token_id], references: [id], onDelete: Cascade)
 
@@ -125,13 +125,13 @@ model AccessTokens {
 }
 
 model RefreshTokens {
-  id          Int          @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   user_id     Int
-  sum         String       @unique
-  token       String       @unique
+  sum         String   @unique
+  token       String   @unique
   expires     DateTime
-  blacklisted Boolean      @default(false)
-  user        Users         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  blacklisted Boolean  @default(false)
+  user        Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   AccessToken AccessTokens?
 
   @@map("refresh_tokens")
@@ -140,12 +140,12 @@ model RefreshTokens {
 model TodoLists {
   id         Int      @id @default(autoincrement())
   user_id    Int
-  name       String @db.VarChar(50)
+  name       String
   icon       String
   color      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  user       Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   todos      Tasks[]
 
   @@index([user_id])
@@ -154,7 +154,7 @@ model TodoLists {
 
 model Tasks {
   id           Int       @id @default(autoincrement())
-  name         String @db.VarChar(150)
+  name         String
   completed    Boolean   @default(false)
   deadline     DateTime?
   todo_list_id Int
@@ -179,7 +179,7 @@ model Banks {
   id      Int        @id @default(autoincrement())
   name    String
   user_id Int?
-  user    Users?      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user    Users?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   account Accounts[]
 
   @@unique([name, user_id])
@@ -193,7 +193,7 @@ model Accounts {
   bank_id                     Int
   user_id                     Int
   bank                        Banks                  @relation(fields: [bank_id], references: [id], onDelete: Restrict)
-  user                        Users                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                        Users                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   from_recurring_transactions RecurringTransaction[] @relation("from_account")
   to_recurring_transactions   RecurringTransaction[] @relation("to_account")
   internal_ledger             InternalLedger[]
@@ -215,7 +215,7 @@ model RecurringTransaction {
   to_account_id   Int?
   created_at      DateTime               @default(now())
   updated_at      DateTime               @updatedAt
-  user            Users                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user            Users                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
   category        TransactionCategories? @relation(fields: [category_id], references: [id], onDelete: SetNull)
   from_account    Accounts?              @relation("from_account", fields: [from_account_id], references: [id], onDelete: Cascade)
   to_account      Accounts?              @relation("to_account", fields: [to_account_id], references: [id], onDelete: Cascade)
@@ -229,7 +229,7 @@ model TransactionCategories {
   name                   String
   icon                   String
   color                  String
-  user                   Users?                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                   Users?                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
   recurring_transactions RecurringTransaction[]
   internal_transactions  InternalTransactions[]
   expense_transactions   ExpenseTransactions[]
