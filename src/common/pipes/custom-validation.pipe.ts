@@ -4,7 +4,10 @@ export class CustomValidationPipe extends ValidationPipe{
     private readonly logger = new Logger(CustomValidationPipe.name);
 
     constructor(){
-        super({transform: true});
+        super({
+            transform: true,
+            transformOptions: {enableImplicitConversion: true}
+        });
     }
 
     createExceptionFactory(){
@@ -16,7 +19,7 @@ export class CustomValidationPipe extends ValidationPipe{
                 property: error.property,
                 constraints: error.constraints,
             }));
-            this.logger.error(messages);
+            // this.logger.error(messages);
             return new BadRequestException(messages);
         };
     }
