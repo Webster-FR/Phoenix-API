@@ -36,7 +36,7 @@
         "@nestjs/platform-fastify": "^10.3.2",
         "@nestjs/schedule": "^4.0.1",
         "@nestjs/swagger": "^7.3.0",
-        "@nestjs/throttler": "^5.1.1",
+        "@nestjs/throttler": "^5.1.2",
         "@prisma/client": "5.9.1",
         "argon2": "^0.31.2",
         "cache-manager": "^5.4.0",
