@@ -18,6 +18,8 @@ import * as dotenv from "dotenv";
 import {ThrottlerGuard, ThrottlerModule} from "@nestjs/throttler";
 import {APP_GUARD} from "@nestjs/core";
 import {MaintenanceGuard} from "./modules/misc/admin/guards/maintenance.guard";
+import {AtGuard} from "./modules/security/auth/guards/at.guard";
+import {UsersModule} from "./modules/security/users/users.module";
 dotenv.config();
 
 @Module({
@@ -47,7 +49,8 @@ dotenv.config();
         ServicesModule,
         MiscModule,
         SecurityModule,
-        PasswordRecoveryModule
+        PasswordRecoveryModule,
+        UsersModule,
     ],
     providers: [
         {
@@ -57,6 +60,10 @@ dotenv.config();
         {
             provide: APP_GUARD,
             useClass: MaintenanceGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: AtGuard,
         },
         TokenCacheService
     ],

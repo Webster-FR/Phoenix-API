@@ -6,7 +6,7 @@ import {Reflector} from "@nestjs/core";
 export class MaintenanceGuard implements CanActivate{
 
     constructor(
-        private reflector: Reflector
+        private readonly reflector: Reflector
     ){}
 
     async canActivate(context: ExecutionContext): Promise<boolean>{

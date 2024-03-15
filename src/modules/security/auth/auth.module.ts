@@ -1,7 +1,7 @@
 import {AuthController} from "./auth.controller";
 import {AtGuard} from "./guards/at.guard";
 import {AuthService} from "./auth.service";
-import {forwardRef, Module} from "@nestjs/common";
+import {Module} from "@nestjs/common";
 import {ServicesModule} from "../../../common/services/services.module";
 import {UsersModule} from "../users/users.module";
 import {VerificationCodesModule} from "../verification-codes/verification-codes.module";
@@ -13,6 +13,6 @@ import {RtGuard} from "./guards/rt.guard";
     controllers: [AuthController],
     providers: [AuthService, AtGuard, RtGuard, TokensService],
     exports: [AtGuard, TokensService, AuthService],
-    imports: [ServicesModule, forwardRef(() => UsersModule), VerificationCodesModule, CacheModule]
+    imports: [ServicesModule, UsersModule, VerificationCodesModule, CacheModule]
 })
 export class AuthModule{}
