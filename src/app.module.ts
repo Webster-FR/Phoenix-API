@@ -10,7 +10,6 @@ import {ServicesModule} from "./common/services/services.module";
 import type {RedisClientOptions} from "redis";
 import * as redisStore from "cache-manager-redis-store";
 import {MiscModule} from "./modules/misc/misc.module";
-import {AccountingModule} from "./modules/accounting/accounting.module";
 import {SecurityModule} from "./modules/security/security.module";
 import {PasswordRecoveryModule} from "./modules/security/password-recovery/password-recovery.module";
 import {GlobalTasksModule} from "./modules/tasks/global-tasks.module";
@@ -47,7 +46,6 @@ dotenv.config();
         InternalCacheModule,
         ServicesModule,
         MiscModule,
-        AccountingModule,
         SecurityModule,
         PasswordRecoveryModule
     ],

@@ -5,7 +5,7 @@ import {AtGuard} from "../auth/guards/at.guard";
 import {UsersService} from "./users.service";
 import {UpdatePasswordDto} from "./models/dto/update-password.dto";
 import {UpdateUsernameDto} from "./models/dto/update-username.dto";
-import {UserCountResponse} from "../../accounting/accounts/models/responses/user-count.response";
+import UserCountResponse from "./models/responses/user-count.response";
 
 @Controller("users")
 @ApiTags("Users")

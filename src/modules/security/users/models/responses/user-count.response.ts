@@ -1,6 +1,6 @@
 import {ApiProperty} from "@nestjs/swagger";
 
-export class UserCountResponse{
+export default class UserCountResponse{
     @ApiProperty()
         count: number;
 }
