@@ -7,7 +7,7 @@ import * as process from "process";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as os from "os";
-import {SwaggerTheme} from "swagger-themes";
+import {SwaggerTheme, SwaggerThemeNameEnum} from "swagger-themes";
 import {LoggerMiddleware} from "./common/middlewares/logger.middleware";
 import {Logger} from "@nestjs/common";
 import {CustomValidationPipe} from "./common/pipes/custom-validation.pipe";
@@ -100,8 +100,8 @@ async function loadServer(server: NestFastifyApplication<RawServerDefault>, serv
         .addBearerAuth()
         .build();
     const document = SwaggerModule.createDocument(server, config);
-    const theme = new SwaggerTheme("v3");
-    const customCss = theme.getBuffer("dark");
+    const theme = new SwaggerTheme();
+    const customCss = theme.getBuffer(SwaggerThemeNameEnum.DARK);
     SwaggerModule.setup("api", server, document, {
         swaggerOptions: {
             filter: true,
