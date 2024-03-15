@@ -1,4 +1,4 @@
-import {Controller, Get, HttpStatus, UseGuards} from "@nestjs/common";
+import {Controller, Get, HttpStatus} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {TipsService} from "./tips.service";
 import {TipEntity} from "./models/entities/tip.entity";

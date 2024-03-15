@@ -1,7 +1,6 @@
-import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {TasksService} from "./tasks.service";
-import {AtGuard} from "../../security/auth/guards/at.guard";
 import {TodoListIdDto} from "./models/dto/todo-list-id.dto";
 import {CreateTodoDto} from "./models/dto/create-todo.dto";
 import {IdDto} from "../../../common/models/dto/id.dto";
