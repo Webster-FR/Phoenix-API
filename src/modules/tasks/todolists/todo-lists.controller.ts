@@ -1,10 +1,10 @@
-import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req} from "@nestjs/common";
 import {TodoListsService} from "./todo-lists.service";
-import {AtGuard} from "../../security/auth/guards/at.guard";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {IdDto} from "../../../common/models/dto/id.dto";
 import {TodolistDto} from "./models/dto/todolist.dto";
 import {TodoListResponse} from "./models/responses/todolist.response";
+import {UseAT} from "../../security/auth/decorators/public.decorator";
 
 @Controller("todolists")
 @ApiTags("Todo Lists")
@@ -15,7 +15,7 @@ export class TodoListsController{
     ){}
 
     @Get()
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, type: TodoListResponse, isArray: true})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -24,7 +24,7 @@ export class TodoListsController{
     }
 
     @Post()
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.CREATED, type: TodoListResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -33,7 +33,7 @@ export class TodoListsController{
     }
 
     @Put(":id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, type: TodoListResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -43,7 +43,7 @@ export class TodoListsController{
     }
 
     @Delete(":id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo list deleted"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -53,7 +53,7 @@ export class TodoListsController{
     }
 
     @Patch("complete/:id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo list completed"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})

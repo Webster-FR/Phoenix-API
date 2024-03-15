@@ -6,11 +6,13 @@ import {AtPayloadModel} from "../models/models/at-payload.model";
 import {ConfigService} from "@nestjs/config";
 import {TokensService} from "../tokens.service";
 import {TokenType} from "../models/models/token-type";
+import {Reflector} from "@nestjs/core";
 
 @Injectable()
 export class AtGuard implements CanActivate{
 
     constructor(
+        private readonly reflector: Reflector,
         private readonly jwtService: JwtService,
         private readonly usersService: UsersService,
         private readonly configService: ConfigService,
@@ -18,6 +20,12 @@ export class AtGuard implements CanActivate{
     ){}
 
     async canActivate(context: ExecutionContext): Promise<boolean>{
+        const isPrivate = this.reflector.getAllAndOverride<boolean>("private", [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+        if (!isPrivate)
+            return true;
         const request = context.switchToHttp().getRequest();
         const token = AuthController.extractTokenFromHeader(request);
         if(!token)

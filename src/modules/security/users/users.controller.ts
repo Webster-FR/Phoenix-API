@@ -1,11 +1,11 @@
-import {Body, Controller, Delete, Get, HttpStatus, Patch, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpStatus, Patch, Req} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {UserResponse} from "./models/responses/user.response";
-import {AtGuard} from "../auth/guards/at.guard";
 import {UsersService} from "./users.service";
 import {UpdatePasswordDto} from "./models/dto/update-password.dto";
 import {UpdateUsernameDto} from "./models/dto/update-username.dto";
-import {UserCountResponse} from "../../accounting/accounts/models/responses/user-count.response";
+import UserCountResponse from "./models/responses/user-count.response";
+import {UseAT} from "../auth/decorators/public.decorator";
 
 @Controller("users")
 @ApiTags("Users")
@@ -22,7 +22,7 @@ export class UsersController{
     }
 
     @Get("/me")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Returns the authenticated user's information", type: UserResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -32,7 +32,7 @@ export class UsersController{
     }
 
     @Patch("/me/username")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "User's username updated successfully", type: UserResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -42,7 +42,7 @@ export class UsersController{
     }
 
     @Patch("/me/password")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "User's password updated successfully", type: UserResponse})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -54,7 +54,7 @@ export class UsersController{
     }
 
     @Delete("/me")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "User deleted successfully"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})

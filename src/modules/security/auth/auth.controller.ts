@@ -8,8 +8,8 @@ import {RegisterDto} from "./models/dto/register.dto";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {LoginDto} from "./models/dto/login.dto";
 import {AuthService} from "./auth.service";
-import {AtGuard} from "./guards/at.guard";
 import {RtGuard} from "./guards/rt.guard";
+import {UseAT} from "./decorators/public.decorator";
 
 @Controller("auth")
 @ApiTags("Authentication")
@@ -54,7 +54,7 @@ export class AuthController{
     }
 
     @Post("logout")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @HttpCode(HttpStatus.ACCEPTED)
     @ApiResponse({status: HttpStatus.ACCEPTED, description: "All tokens invalidated"})
@@ -65,7 +65,7 @@ export class AuthController{
     }
 
     @Post("logout/all")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @HttpCode(HttpStatus.OK)
     @ApiResponse({status: HttpStatus.OK, description: "All tokens invalidated"})

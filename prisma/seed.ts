@@ -7,16 +7,6 @@ import tips from "./seeds/tips.seed";
 import usersFunction from "./seeds/users.seed";
 import todoListsFunction from "./seeds/todolists.seed";
 import todosFunction from "./seeds/tasks.seed";
-import banks from "./seeds/banks.seed";
-import accountsFunction from "./seeds/accounts.seed";
-import recurringTransactionsFunction from "./seeds/recurring-transactions.seed";
-import transactionCategories from "./seeds/transaction-categories.seed";
-import ledgersFunction from "./seeds/ledgers.seed";
-import {
-    incomeTransactionsFunction,
-    expenseTransactionsFunction,
-    internalTransactionsFunction
-} from "./seeds/transactions.seed";
 
 dotenv.config();
 
@@ -48,42 +38,6 @@ async function main(){
     await seed(prisma.tips, tips);
     console.log("✅  Tip seed done ! (" + (Date.now() - start) + "ms)");
 
-    start = Date.now();
-    await seed(prisma.banks, banks);
-    console.log("✅  Bank seed done ! (" + (Date.now() - start) + "ms)");
-
-    start = Date.now();
-    const accounts = accountsFunction(userSecret);
-    await seed(prisma.accounts, accounts);
-    console.log("✅  Account seed done ! (" + (Date.now() - start) + "ms)");
-
-    start = Date.now();
-    const recurringTransactions = recurringTransactionsFunction(userSecret);
-    await seed(prisma.recurringTransaction, recurringTransactions);
-    console.log("✅  Recurring transaction seed done ! (" + (Date.now() - start) + "ms)");
-
-    start = Date.now();
-    await seed(prisma.transactionCategories, transactionCategories);
-    console.log("✅  Transaction category seed done ! (" + (Date.now() - start) + "ms)");
-
-    start = Date.now();
-    const ledgers = ledgersFunction(userSecret);
-    await seed(prisma.internalLedger, ledgers);
-    console.log("✅  Ledger seed done ! (" + (Date.now() - start) + "ms)");
-
-    start = Date.now();
-    const incomeTransactions = incomeTransactionsFunction(userSecret);
-    await seedTransactions(prisma.incomeTransactions, incomeTransactions, false);
-    console.log("✅  Income transaction seed done ! (" + (Date.now() - start) + "ms)");
-    start = Date.now();
-    const expenseTransactions = expenseTransactionsFunction(userSecret);
-    await seedTransactions(prisma.expenseTransactions, expenseTransactions, false);
-    console.log("✅  Expense transaction seed done ! (" + (Date.now() - start) + "ms)");
-    start = Date.now();
-    const internalTransactions = internalTransactionsFunction(userSecret);
-    await seedTransactions(prisma.internalTransactions, internalTransactions, true);
-    console.log("✅  Internal transaction seed done ! (" + (Date.now() - start) + "ms)");
-
     console.log(`\n✅  Seeding completed ! (${Date.now() - gStart}ms)`);
 }
 
@@ -99,35 +53,6 @@ async function seed(table: any, data: any[]){
             },
         });
     }
-}
-
-async function seedTransactions(table: any, data: any[], isInternal: boolean){
-    if(!isInternal)
-        for(let i = 1; i <= 24; i++){
-            if(data.find((d) => d.internal_ledger_id === i))
-                await table.upsert({
-                    where: {internal_ledger_id: i},
-                    update: {
-                        ...data.find((d) => d.internal_ledger_id === i),
-                    },
-                    create: {
-                        ...data.find((d) => d.internal_ledger_id === i),
-                    },
-                });
-        }
-    else
-        for(let i = 1; i <= 24; i++){
-            if(data.find((d) => d.debit_internal_ledger_id === i))
-                await table.upsert({
-                    where: {debit_internal_ledger_id: i},
-                    update: {
-                        ...data.find((d) => d.debit_internal_ledger_id === i),
-                    },
-                    create: {
-                        ...data.find((d) => d.debit_internal_ledger_id === i),
-                    },
-                });
-        }
 }
 
 main().catch((e) => {

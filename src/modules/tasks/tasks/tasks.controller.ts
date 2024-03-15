@@ -1,13 +1,13 @@
-import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req, UseGuards} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req} from "@nestjs/common";
 import {ApiBearerAuth, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {TasksService} from "./tasks.service";
-import {AtGuard} from "../../security/auth/guards/at.guard";
 import {TodoListIdDto} from "./models/dto/todo-list-id.dto";
 import {CreateTodoDto} from "./models/dto/create-todo.dto";
 import {IdDto} from "../../../common/models/dto/id.dto";
 import {UpdateCompletedDto} from "./models/dto/update-completed.dto";
 import {UpdateTodoDto} from "./models/dto/update-todo.dto";
 import {TaskEntity} from "./models/entities/task.entity";
+import {UseAT} from "../../security/auth/decorators/public.decorator";
 
 @Controller("todos")
 @ApiTags("Todos")
@@ -18,7 +18,7 @@ export class TasksController{
     ){}
 
     @Get(":todo_list_id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Get todos", type: TaskEntity, isArray: true})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -28,7 +28,7 @@ export class TasksController{
     }
 
     @Post()
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.CREATED, description: "Todo created", type: TaskEntity})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -38,7 +38,7 @@ export class TasksController{
     }
 
     @Put(":id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo updated"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -48,7 +48,7 @@ export class TasksController{
     }
 
     @Patch("/complete/:id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo completed"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
@@ -58,7 +58,7 @@ export class TasksController{
     }
 
     @Delete(":id")
-    @UseGuards(AtGuard)
+    @UseAT()
     @ApiBearerAuth()
     @ApiResponse({status: HttpStatus.OK, description: "Todo deleted"})
     @ApiResponse({status: HttpStatus.UNAUTHORIZED, description: "Invalid or missing access token"})
